@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import type { FixtureCard } from '@shared/api';
 import { coverUrlFor, findCoverPath, knownFixtures, loadCachedBooking } from '../lib/fixtures';
+import { regionForPlace } from '../pipeline/gazetteer';
 
 // Serves the curated demo cards so the home screen stays in sync with
 // server/fixtures/ instead of duplicating URLs, prices, or images.
@@ -19,6 +20,7 @@ export function fixturesRouter(): Router {
         operatorName: booking?.operator_name ?? null,
         priceMyr: booking?.price_myr ?? null,
         meetingPointName: booking?.meeting_point.name ?? null,
+        region: booking ? regionForPlace(booking.meeting_point.name) : null,
       });
     }
     res.json([...bySlug.values()]);

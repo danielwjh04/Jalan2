@@ -6,12 +6,17 @@ import { ConfidenceBadge } from './ConfidenceBadge';
 interface Props {
   booking: BookingJson;
   servedFrom: 'live' | 'cache' | null;
+  showTitle?: boolean;
 }
 
-export function ItineraryCard({ booking, servedFrom }: Props): React.ReactElement {
+export function ItineraryCard({
+  booking,
+  servedFrom,
+  showTitle = true,
+}: Props): React.ReactElement {
   return (
     <View style={styles.card}>
-      <Text style={styles.activity}>{booking.activity}</Text>
+      {showTitle && <Text style={styles.activity}>{booking.activity}</Text>}
       <Text style={styles.operator}>{booking.operator_name}</Text>
       <View style={styles.metaRow}>
         <Text style={styles.price}>

@@ -17,7 +17,7 @@ export default function RootLayout(): React.ReactElement {
           contentStyle: { backgroundColor: colors.canvas },
         }}
       >
-        <Stack.Screen name="index" options={{ title: 'Jalan2' }} />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="itinerary/[id]" options={{ title: 'Your trip' }} />
         <Stack.Screen name="directory" options={{ title: 'Operator directory' }} />
       </Stack>

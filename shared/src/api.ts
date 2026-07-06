@@ -20,4 +20,5 @@ export interface FixtureCard extends FixtureRef {
   operatorName: string | null;
   priceMyr: number | null;
   meetingPointName: string | null;
+  region: string | null;
 }

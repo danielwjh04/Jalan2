@@ -17,6 +17,12 @@ export const colors = {
   mist: '#E3E9F2',
 };
 
+export const gradients = {
+  ocean: ['#0B3A8C', '#1B5FD0', '#2E86D9'] as const,
+  cta: ['#1B5FD0', '#3D7FE8'] as const,
+  scrim: ['rgba(9,20,38,0)', 'rgba(9,20,38,0.82)'] as const,
+};
+
 export function spacing(units: number): number {
   return units * 4;
 }

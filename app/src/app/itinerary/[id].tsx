@@ -1,4 +1,5 @@
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams } from 'expo-router';
 import { BookSheet } from '@/components/BookSheet';
 import { ItineraryCard } from '@/components/ItineraryCard';
@@ -8,7 +9,7 @@ import { StatusPill } from '@/components/StatusPill';
 import { TransitButton } from '@/components/TransitButton';
 import { serverUrl } from '@/lib/api';
 import { useItinerary } from '@/lib/useItinerary';
-import { colors, radius, spacing } from '@/lib/theme';
+import { cardShadow, colors, gradients, radius, spacing } from '@/lib/theme';
 
 export default function ItineraryScreen(): React.ReactElement {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -33,6 +34,13 @@ export default function ItineraryScreen(): React.ReactElement {
       {itinerary.coverUrl && (
         <View style={styles.heroWrap}>
           <Image source={{ uri: serverUrl(itinerary.coverUrl) }} style={styles.hero} />
+          <LinearGradient colors={gradients.scrim} style={styles.heroScrim} />
+          {booking && (
+            <View style={styles.heroText}>
+              <Text style={styles.heroTitle}>{booking.activity}</Text>
+              <Text style={styles.heroSubtitle}>{booking.meeting_point.name}</Text>
+            </View>
+          )}
           <View style={styles.heroPill}>
             <StatusPill status={itinerary.status} />
           </View>
@@ -42,7 +50,11 @@ export default function ItineraryScreen(): React.ReactElement {
       {!booking && <StageProgress stage={itinerary.stage} error={itinerary.error} />}
       {booking && (
         <>
-          <ItineraryCard booking={booking} servedFrom={itinerary.servedFrom} />
+          <ItineraryCard
+            booking={booking}
+            servedFrom={itinerary.servedFrom}
+            showTitle={!itinerary.coverUrl}
+          />
           <MapCard point={booking.meeting_point} />
           <TransitButton point={booking.meeting_point} />
           {itinerary.status === 'DRAFT' && (
@@ -71,8 +83,19 @@ const styles = StyleSheet.create({
   container: { padding: spacing(4), gap: spacing(3.5), paddingBottom: spacing(10) },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing(6) },
   error: { color: colors.danger, fontSize: 14 },
-  heroWrap: { borderRadius: radius.card, overflow: 'hidden' },
-  hero: { width: '100%', height: 200 },
+  heroWrap: { borderRadius: radius.card, overflow: 'hidden', ...cardShadow },
+  hero: { width: '100%', height: 210 },
+  heroScrim: { ...StyleSheet.absoluteFillObject },
+  heroText: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    padding: spacing(4),
+    gap: spacing(0.5),
+  },
+  heroTitle: { color: colors.card, fontSize: 22, fontWeight: '800', letterSpacing: -0.4 },
+  heroSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: '600' },
   heroPill: { position: 'absolute', top: spacing(3), left: spacing(3) },
   messages: { gap: spacing(2), marginTop: spacing(1), paddingHorizontal: spacing(1) },
   message: { color: colors.inkSoft, fontSize: 12, lineHeight: 17 },

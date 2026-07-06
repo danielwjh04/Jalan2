@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Itinerary } from '@shared/status';
+import { GradientButton } from '@/components/GradientButton';
 import { book } from '@/lib/api';
 import { cardShadow, colors, radius, spacing } from '@/lib/theme';
 
@@ -73,17 +74,7 @@ export function BookSheet({ itineraryId, onBooked }: Props): React.ReactElement 
           <Text style={styles.stepperText}>+</Text>
         </Pressable>
       </View>
-      <Pressable
-        style={[styles.bookButton, busy && styles.busy]}
-        disabled={busy}
-        onPress={() => void submit()}
-      >
-        {busy ? (
-          <ActivityIndicator color={colors.card} />
-        ) : (
-          <Text style={styles.bookText}>Book via WhatsApp</Text>
-        )}
-      </Pressable>
+      <GradientButton label="Book via WhatsApp" busy={busy} onPress={() => void submit()} />
       {error && <Text style={styles.error}>{error}</Text>}
       <Text style={styles.note}>Nothing is sent or paid until you tap Book.</Text>
     </View>
@@ -127,14 +118,6 @@ const styles = StyleSheet.create({
     minWidth: 22,
     textAlign: 'center',
   },
-  bookButton: {
-    backgroundColor: colors.tide,
-    borderRadius: radius.control,
-    paddingVertical: spacing(4),
-    alignItems: 'center',
-  },
-  busy: { opacity: 0.7 },
-  bookText: { color: colors.card, fontWeight: '800', fontSize: 16 },
   error: { color: colors.danger, fontSize: 13 },
   note: { color: colors.inkSoft, fontSize: 12, textAlign: 'center' },
 });

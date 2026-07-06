@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { Link, useFocusEffect } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import type { FixtureCard as FixtureCardData } from '@shared/api';
 import { normalizeVideoUrl } from '@shared/videoUrl';
 import { FixtureCard } from '@/components/FixtureCard';
+import { HomeHeader } from '@/components/HomeHeader';
 import { PasteBar } from '@/components/PasteBar';
 import { getFixtures } from '@/lib/api';
 import { ingestVideo } from '@/lib/ingest';
@@ -39,52 +41,52 @@ export default function HomeScreen(): React.ReactElement {
       .finally(() => setBusy(false));
   };
 
+  const regions = [...new Set(fixtures.map((f) => f.region).filter((r): r is string => !!r))];
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.eyebrow}>Visit Malaysia 2026 · Kuching</Text>
-      <Text style={styles.tagline}>Saw it on TikTok?{'\n'}Book it for real.</Text>
-      <PasteBar prefill={prefill} busy={busy} onSubmit={submit} />
-      {fixtures.length > 0 && (
-        <>
-          <Text style={styles.section}>Demo videos</Text>
-          {fixtures.map((fixture) => (
-            <FixtureCard
-              key={fixture.slug}
-              fixture={fixture}
-              disabled={busy}
-              onPress={() => submit(fixture.url)}
-            />
-          ))}
-        </>
-      )}
-      {__DEV__ && fixtures.length > 0 && (
-        <Pressable
-          style={styles.devButton}
-          disabled={busy}
-          onPress={() => submit(fixtures[0].url)}
-        >
-          <Text style={styles.devButtonText}>Simulate iOS share (dev)</Text>
-        </Pressable>
-      )}
-      <Link href="/directory" style={styles.directoryLink}>
-        Operator directory
-      </Link>
+    <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
+      <StatusBar style="light" />
+      <HomeHeader regions={regions} />
+      <View style={styles.pasteWrap}>
+        <PasteBar prefill={prefill} busy={busy} onSubmit={submit} />
+      </View>
+      <View style={styles.content}>
+        {fixtures.length > 0 && (
+          <>
+            <Text style={styles.section}>Demo videos</Text>
+            {fixtures.map((fixture) => (
+              <FixtureCard
+                key={fixture.slug}
+                fixture={fixture}
+                disabled={busy}
+                onPress={() => submit(fixture.url)}
+              />
+            ))}
+          </>
+        )}
+        {__DEV__ && fixtures.length > 0 && (
+          <Pressable
+            style={styles.devButton}
+            disabled={busy}
+            onPress={() => submit(fixtures[0].url)}
+          >
+            <Text style={styles.devButtonText}>Simulate iOS share (dev)</Text>
+          </Pressable>
+        )}
+        <Link href="/directory" style={styles.directoryLink}>
+          Operator directory
+        </Link>
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: spacing(5), gap: spacing(4), paddingBottom: spacing(10) },
-  eyebrow: { ...eyebrow, marginTop: spacing(2) },
-  tagline: {
-    color: colors.ink,
-    fontSize: 30,
-    fontWeight: '800',
-    letterSpacing: -0.6,
-    lineHeight: 36,
-    marginBottom: spacing(1),
-  },
-  section: { ...eyebrow, marginTop: spacing(3) },
+  screen: { backgroundColor: colors.canvas },
+  container: { paddingBottom: spacing(10) },
+  pasteWrap: { paddingHorizontal: spacing(5), marginTop: -spacing(7) },
+  content: { padding: spacing(5), gap: spacing(4) },
+  section: { ...eyebrow, marginTop: spacing(1) },
   devButton: {
     borderColor: colors.mist,
     borderWidth: 1,
