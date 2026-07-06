@@ -46,6 +46,15 @@ export function findAudioPath(slug: string): string | null {
   return audio ? path.join(dir, audio) : null;
 }
 
+export function findCoverPath(slug: string): string | null {
+  const coverPath = path.join(fixturesRoot(), slug, 'cover.jpg');
+  return existsSync(coverPath) ? coverPath : null;
+}
+
+export function coverUrlFor(slug: string | null): string | null {
+  return slug && findCoverPath(slug) ? `/covers/${slug}` : null;
+}
+
 export function loadCachedBooking(slug: string): BookingJson | null {
   const cachedPath = path.join(fixturesRoot(), slug, 'booking.cached.json');
   if (!existsSync(cachedPath)) return null;

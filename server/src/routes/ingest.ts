@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { normalizeVideoUrl } from '@shared/videoUrl';
+import { coverUrlFor, resolveFixtureSlug } from '../lib/fixtures';
 import { runPipeline, type PipelineDeps } from '../pipeline/run';
 import { createItinerary } from '../store/itineraries';
 
@@ -12,7 +13,10 @@ export function ingestRouter(deps: PipelineDeps): Router {
       res.status(400).json({ error: 'Body must include url containing a video link' });
       return;
     }
-    const itinerary = createItinerary(normalized.url);
+    const itinerary = createItinerary(
+      normalized.url,
+      coverUrlFor(resolveFixtureSlug(normalized.url)),
+    );
     void runPipeline(deps, itinerary.id, normalized.url);
     res.status(202).json({ id: itinerary.id });
   });

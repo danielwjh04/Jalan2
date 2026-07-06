@@ -13,4 +13,4 @@ export type { NormalizedVideoUrl, VideoPlatform } from './videoUrl';
 export { buildTransitLinks } from './transit';
 export type { MeetingPoint, TransitLinks } from './transit';
 export { isConfirmationText } from './confirm';
-export type { DirectoryEntry, FixtureRef } from './api';
+export type { DirectoryEntry, FixtureCard, FixtureRef } from './api';

@@ -1,6 +1,6 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import type { PipelineStage } from '@shared/status';
-import { colors, radius, spacing } from '@/lib/theme';
+import { cardShadow, colors, radius, spacing } from '@/lib/theme';
 
 const STEPS: { stage: PipelineStage; label: string }[] = [
   { stage: 'EXTRACTING', label: 'Extracting video' },
@@ -31,7 +31,7 @@ export function StageProgress({ stage, error }: Props): React.ReactElement {
         return (
           <View key={step.stage} style={styles.row}>
             {state === 'active' ? (
-              <ActivityIndicator size="small" color={colors.accent} />
+              <ActivityIndicator size="small" color={colors.tide} />
             ) : (
               <View style={[styles.dot, state === 'done' && styles.dotDone]} />
             )}
@@ -47,22 +47,23 @@ export function StageProgress({ stage, error }: Props): React.ReactElement {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.card,
     borderRadius: radius.card,
-    padding: spacing(4),
-    gap: spacing(3),
+    padding: spacing(5),
+    gap: spacing(3.5),
+    ...cardShadow,
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing(3), minHeight: 24 },
   dot: {
     width: 10,
     height: 10,
     borderRadius: radius.pill,
-    backgroundColor: colors.border,
+    backgroundColor: colors.mist,
     marginHorizontal: 5,
   },
   dotDone: { backgroundColor: colors.confirm },
-  label: { color: colors.textDim, fontSize: 15 },
-  labelActive: { color: colors.text },
+  label: { color: colors.inkSoft, fontSize: 15 },
+  labelActive: { color: colors.ink, fontWeight: '600' },
   errorTitle: { color: colors.danger, fontWeight: '700', fontSize: 16 },
-  errorText: { color: colors.textDim, fontSize: 13 },
+  errorText: { color: colors.inkSoft, fontSize: 13 },
 });

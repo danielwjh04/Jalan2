@@ -11,11 +11,12 @@ import type {
 
 const itineraries = new Map<string, Itinerary>();
 
-export function createItinerary(sourceUrl: string): Itinerary {
+export function createItinerary(sourceUrl: string, coverUrl: string | null = null): Itinerary {
   const now = new Date().toISOString();
   const itinerary: Itinerary = {
     id: randomUUID(),
     sourceUrl,
+    coverUrl,
     status: 'DRAFT',
     stage: 'QUEUED',
     booking: null,

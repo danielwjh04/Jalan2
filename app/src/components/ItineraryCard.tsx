@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import type { BookingJson } from '@shared/booking';
-import { colors, radius, spacing } from '@/lib/theme';
+import { cardShadow, colors, radius, spacing } from '@/lib/theme';
 import { ConfidenceBadge } from './ConfidenceBadge';
 
 interface Props {
@@ -25,28 +25,37 @@ export function ItineraryCard({ booking, servedFrom }: Props): React.ReactElemen
           Operator WhatsApp found in {booking.contact.source}: {booking.contact.whatsapp}
         </Text>
       )}
-      <Text style={styles.evidence}>&ldquo;{booking.raw_evidence.transcript_span}&rdquo;</Text>
+      <View style={styles.evidenceBox}>
+        <Text style={styles.evidence}>&ldquo;{booking.raw_evidence.transcript_span}&rdquo;</Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.card,
     borderRadius: radius.card,
-    padding: spacing(4),
+    padding: spacing(5),
     gap: spacing(2),
+    ...cardShadow,
   },
-  activity: { color: colors.text, fontSize: 22, fontWeight: '800' },
-  operator: { color: colors.accent, fontSize: 15, fontWeight: '600' },
+  activity: { color: colors.ink, fontSize: 23, fontWeight: '800', letterSpacing: -0.4 },
+  operator: { color: colors.tide, fontSize: 15, fontWeight: '600' },
   metaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: spacing(1),
   },
-  price: { color: colors.text, fontSize: 17, fontWeight: '700' },
-  meeting: { color: colors.textDim, fontSize: 14 },
-  contact: { color: colors.textDim, fontSize: 13 },
-  evidence: { color: colors.textDim, fontSize: 12, fontStyle: 'italic', marginTop: spacing(1) },
+  price: { color: colors.ink, fontSize: 18, fontWeight: '800' },
+  meeting: { color: colors.inkSoft, fontSize: 14 },
+  contact: { color: colors.inkSoft, fontSize: 13 },
+  evidenceBox: {
+    backgroundColor: colors.canvas,
+    borderRadius: radius.control,
+    padding: spacing(3),
+    marginTop: spacing(1),
+  },
+  evidence: { color: colors.inkSoft, fontSize: 12.5, fontStyle: 'italic', lineHeight: 18 },
 });

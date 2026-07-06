@@ -1,5 +1,5 @@
 import Constants from 'expo-constants';
-import type { DirectoryEntry, FixtureRef } from '@shared/api';
+import type { DirectoryEntry, FixtureCard } from '@shared/api';
 import type { BookingRequest, Itinerary } from '@shared/status';
 
 // Resolution order: explicit env override, then the Expo dev-server host,
@@ -48,6 +48,10 @@ export function getDirectory(): Promise<DirectoryEntry[]> {
   return request('/directory');
 }
 
-export function getFixtures(): Promise<FixtureRef[]> {
+export function getFixtures(): Promise<FixtureCard[]> {
   return request('/fixtures');
+}
+
+export function serverUrl(path: string): string {
+  return `${baseUrl()}${path}`;
 }

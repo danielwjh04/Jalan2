@@ -2,17 +2,18 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { ItineraryStatus } from '@shared/status';
 import { colors, radius, spacing } from '@/lib/theme';
 
-const APPEARANCE: Record<ItineraryStatus, { label: string; color: string }> = {
-  DRAFT: { label: 'Ready to book', color: colors.textDim },
-  PENDING_CONFIRM: { label: 'Waiting for operator...', color: colors.pending },
-  CONFIRMED: { label: 'CONFIRMED', color: colors.confirm },
-  FAILED: { label: 'Failed', color: colors.danger },
+const APPEARANCE: Record<ItineraryStatus, { label: string; color: string; bg: string }> = {
+  DRAFT: { label: 'Ready to book', color: colors.tide, bg: colors.tideSoft },
+  PENDING_CONFIRM: { label: 'Waiting for operator...', color: colors.pending, bg: colors.pendingSoft },
+  CONFIRMED: { label: 'Confirmed', color: colors.confirm, bg: colors.confirmSoft },
+  FAILED: { label: 'Failed', color: colors.danger, bg: colors.dangerSoft },
 };
 
 export function StatusPill({ status }: { status: ItineraryStatus }): React.ReactElement {
-  const { label, color } = APPEARANCE[status];
+  const { label, color, bg } = APPEARANCE[status];
   return (
-    <View style={[styles.pill, { borderColor: color }]}>
+    <View style={[styles.pill, { backgroundColor: bg }]}>
+      <View style={[styles.dot, { backgroundColor: color }]} />
       <Text style={[styles.text, { color }]}>{label}</Text>
     </View>
   );
@@ -21,10 +22,13 @@ export function StatusPill({ status }: { status: ItineraryStatus }): React.React
 const styles = StyleSheet.create({
   pill: {
     alignSelf: 'flex-start',
-    borderWidth: 1.5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing(1.5),
     borderRadius: radius.pill,
-    paddingHorizontal: spacing(4),
-    paddingVertical: spacing(1.5),
+    paddingHorizontal: spacing(3.5),
+    paddingVertical: spacing(2),
   },
-  text: { fontWeight: '700', fontSize: 14, letterSpacing: 0.5 },
+  dot: { width: 7, height: 7, borderRadius: radius.pill },
+  text: { fontWeight: '700', fontSize: 13 },
 });

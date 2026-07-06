@@ -25,19 +25,24 @@ const EASYBOOK_ROUTES: readonly EasybookRoute[] = [
   { match: /telaga air/i, origin: 'Kuching', destination: 'Telaga Air' },
 ];
 
-export function buildTransitLinks(point: MeetingPoint, dateISO: string | null): TransitLinks {
+export function buildTransitLinks(point: MeetingPoint): TransitLinks {
   return {
-    easybookUrl: buildEasybookUrl(point.name, dateISO),
+    easybookUrl: buildEasybookUrl(point.name),
     mapsUrl: buildMapsUrl(point),
   };
 }
 
-function buildEasybookUrl(placeName: string, dateISO: string | null): string | null {
+// EasyBook uses SEO route pages (/bus/booking/kuching-to-sematan), not query
+// params. Names are lowercased with spaces removed, matching their site.
+function buildEasybookUrl(placeName: string): string | null {
   const route = EASYBOOK_ROUTES.find((r) => r.match.test(placeName));
   if (!route) return null;
-  const params = new URLSearchParams({ from: route.origin, to: route.destination });
-  if (dateISO) params.set('date', dateISO.slice(0, 10));
-  return `https://www.easybook.com/en-my/bus/search?${params.toString()}`;
+  const slug = `${citySlug(route.origin)}-to-${citySlug(route.destination)}`;
+  return `https://www.easybook.com/en-my/bus/booking/${slug}`;
+}
+
+function citySlug(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, '');
 }
 
 function buildMapsUrl(point: MeetingPoint): string {

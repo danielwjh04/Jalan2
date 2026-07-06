@@ -6,14 +6,15 @@ import { colors } from '@/lib/theme';
 export default function RootLayout(): React.ReactElement {
   return (
     <>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <ShareIntentGate />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: colors.bg },
-          headerTintColor: colors.text,
-          headerTitleStyle: { fontWeight: '700' },
-          contentStyle: { backgroundColor: colors.bg },
+          headerStyle: { backgroundColor: colors.canvas },
+          headerShadowVisible: false,
+          headerTintColor: colors.ink,
+          headerTitleStyle: { fontWeight: '800' },
+          contentStyle: { backgroundColor: colors.canvas },
         }}
       >
         <Stack.Screen name="index" options={{ title: 'Jalan2' }} />

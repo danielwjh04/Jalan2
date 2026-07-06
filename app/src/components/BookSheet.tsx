@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Itinerary } from '@shared/status';
 import { book } from '@/lib/api';
-import { colors, radius, spacing } from '@/lib/theme';
+import { cardShadow, colors, radius, spacing } from '@/lib/theme';
 
 interface Props {
   itineraryId: string;
@@ -48,17 +48,20 @@ export function BookSheet({ itineraryId, onBooked }: Props): React.ReactElement 
     <View style={styles.card}>
       <Text style={styles.heading}>Book direct with the operator</Text>
       <View style={styles.chipRow}>
-        {dates.map((option) => (
-          <Pressable
-            key={option.iso}
-            style={[styles.chip, option.iso === dateISO && styles.chipActive]}
-            onPress={() => setDateISO(option.iso)}
-          >
-            <Text style={[styles.chipText, option.iso === dateISO && styles.chipTextActive]}>
-              {option.label}
-            </Text>
-          </Pressable>
-        ))}
+        {dates.map((option) => {
+          const active = option.iso === dateISO;
+          return (
+            <Pressable
+              key={option.iso}
+              style={[styles.chip, active && styles.chipActive]}
+              onPress={() => setDateISO(option.iso)}
+            >
+              <Text style={[styles.chipText, active && styles.chipTextActive]}>
+                {option.label}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
       <View style={styles.paxRow}>
         <Text style={styles.paxLabel}>Pax</Text>
@@ -70,9 +73,13 @@ export function BookSheet({ itineraryId, onBooked }: Props): React.ReactElement 
           <Text style={styles.stepperText}>+</Text>
         </Pressable>
       </View>
-      <Pressable style={[styles.bookButton, busy && styles.busy]} disabled={busy} onPress={() => void submit()}>
+      <Pressable
+        style={[styles.bookButton, busy && styles.busy]}
+        disabled={busy}
+        onPress={() => void submit()}
+      >
         {busy ? (
-          <ActivityIndicator color="#1A1208" />
+          <ActivityIndicator color={colors.card} />
         ) : (
           <Text style={styles.bookText}>Book via WhatsApp</Text>
         )}
@@ -85,44 +92,49 @@ export function BookSheet({ itineraryId, onBooked }: Props): React.ReactElement 
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.card,
     borderRadius: radius.card,
-    padding: spacing(4),
-    gap: spacing(3),
+    padding: spacing(5),
+    gap: spacing(3.5),
+    ...cardShadow,
   },
-  heading: { color: colors.text, fontWeight: '700', fontSize: 16 },
+  heading: { color: colors.ink, fontWeight: '800', fontSize: 17 },
   chipRow: { flexDirection: 'row', gap: spacing(2) },
   chip: {
-    borderColor: colors.border,
-    borderWidth: 1,
+    backgroundColor: colors.canvas,
     borderRadius: radius.pill,
-    paddingHorizontal: spacing(3),
-    paddingVertical: spacing(2),
+    paddingHorizontal: spacing(3.5),
+    paddingVertical: spacing(2.5),
   },
-  chipActive: { borderColor: colors.accent, backgroundColor: '#2A1D10' },
-  chipText: { color: colors.textDim, fontSize: 13 },
-  chipTextActive: { color: colors.accent, fontWeight: '600' },
+  chipActive: { backgroundColor: colors.tide },
+  chipText: { color: colors.inkSoft, fontSize: 13, fontWeight: '600' },
+  chipTextActive: { color: colors.card },
   paxRow: { flexDirection: 'row', alignItems: 'center', gap: spacing(3) },
-  paxLabel: { color: colors.textDim, fontSize: 14, marginRight: spacing(1) },
+  paxLabel: { color: colors.inkSoft, fontSize: 14, marginRight: spacing(1) },
   stepper: {
-    width: 36,
-    height: 36,
+    width: 38,
+    height: 38,
     borderRadius: radius.control,
-    borderColor: colors.border,
-    borderWidth: 1,
+    backgroundColor: colors.canvas,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepperText: { color: colors.text, fontSize: 18, fontWeight: '700' },
-  paxValue: { color: colors.text, fontSize: 17, fontWeight: '700', minWidth: 20, textAlign: 'center' },
+  stepperText: { color: colors.ink, fontSize: 18, fontWeight: '700' },
+  paxValue: {
+    color: colors.ink,
+    fontSize: 17,
+    fontWeight: '800',
+    minWidth: 22,
+    textAlign: 'center',
+  },
   bookButton: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.tide,
     borderRadius: radius.control,
-    paddingVertical: spacing(3.5),
+    paddingVertical: spacing(4),
     alignItems: 'center',
   },
   busy: { opacity: 0.7 },
-  bookText: { color: '#1A1208', fontWeight: '800', fontSize: 16 },
+  bookText: { color: colors.card, fontWeight: '800', fontSize: 16 },
   error: { color: colors.danger, fontSize: 13 },
-  note: { color: colors.textDim, fontSize: 12, textAlign: 'center' },
+  note: { color: colors.inkSoft, fontSize: 12, textAlign: 'center' },
 });

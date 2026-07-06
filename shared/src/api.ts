@@ -11,3 +11,13 @@ export interface FixtureRef {
   slug: string;
   url: string;
 }
+
+// What GET /fixtures serves the home screen: one card per fixture, enriched
+// from its cached booking and cover image when those exist.
+export interface FixtureCard extends FixtureRef {
+  coverUrl: string | null;
+  activity: string | null;
+  operatorName: string | null;
+  priceMyr: number | null;
+  meetingPointName: string | null;
+}

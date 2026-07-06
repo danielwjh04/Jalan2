@@ -2,17 +2,18 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { Link, useFocusEffect } from 'expo-router';
-import type { FixtureRef } from '@shared/api';
+import type { FixtureCard as FixtureCardData } from '@shared/api';
 import { normalizeVideoUrl } from '@shared/videoUrl';
+import { FixtureCard } from '@/components/FixtureCard';
 import { PasteBar } from '@/components/PasteBar';
 import { getFixtures } from '@/lib/api';
 import { ingestVideo } from '@/lib/ingest';
-import { colors, radius, spacing } from '@/lib/theme';
+import { colors, eyebrow, radius, spacing } from '@/lib/theme';
 
 export default function HomeScreen(): React.ReactElement {
   const [prefill, setPrefill] = useState('');
   const [busy, setBusy] = useState(false);
-  const [fixtures, setFixtures] = useState<FixtureRef[]>([]);
+  const [fixtures, setFixtures] = useState<FixtureCardData[]>([]);
 
   useEffect(() => {
     getFixtures()
@@ -40,25 +41,19 @@ export default function HomeScreen(): React.ReactElement {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.tagline}>
-        Saw an adventure on TikTok or XHS? Paste the link and book it for real.
-      </Text>
+      <Text style={styles.eyebrow}>Visit Malaysia 2026 · Kuching</Text>
+      <Text style={styles.tagline}>Saw it on TikTok?{'\n'}Book it for real.</Text>
       <PasteBar prefill={prefill} busy={busy} onSubmit={submit} />
       {fixtures.length > 0 && (
         <>
-          <Text style={styles.sectionTitle}>Demo videos</Text>
+          <Text style={styles.section}>Demo videos</Text>
           {fixtures.map((fixture) => (
-            <Pressable
+            <FixtureCard
               key={fixture.slug}
-              style={styles.shortcut}
+              fixture={fixture}
               disabled={busy}
               onPress={() => submit(fixture.url)}
-            >
-              <Text style={styles.shortcutText}>{fixture.slug}</Text>
-              <Text style={styles.shortcutUrl} numberOfLines={1}>
-                {fixture.url}
-              </Text>
-            </Pressable>
+            />
           ))}
         </>
       )}
@@ -79,37 +74,32 @@ export default function HomeScreen(): React.ReactElement {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: spacing(4), gap: spacing(3) },
-  tagline: { color: colors.text, fontSize: 24, fontWeight: '800', marginVertical: spacing(4) },
-  sectionTitle: {
-    color: colors.textDim,
-    fontSize: 13,
-    marginTop: spacing(4),
-    textTransform: 'uppercase',
+  container: { padding: spacing(5), gap: spacing(4), paddingBottom: spacing(10) },
+  eyebrow: { ...eyebrow, marginTop: spacing(2) },
+  tagline: {
+    color: colors.ink,
+    fontSize: 30,
+    fontWeight: '800',
+    letterSpacing: -0.6,
+    lineHeight: 36,
+    marginBottom: spacing(1),
   },
-  shortcut: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.control,
-    padding: spacing(3),
-    gap: spacing(1),
-  },
-  shortcutText: { color: colors.text, fontWeight: '600', fontSize: 14 },
-  shortcutUrl: { color: colors.textDim, fontSize: 12 },
+  section: { ...eyebrow, marginTop: spacing(3) },
   devButton: {
-    borderColor: colors.border,
+    borderColor: colors.mist,
     borderWidth: 1,
     borderStyle: 'dashed',
     borderRadius: radius.control,
     padding: spacing(3),
     alignItems: 'center',
-    marginTop: spacing(2),
+    marginTop: spacing(1),
   },
-  devButtonText: { color: colors.textDim, fontSize: 13 },
+  devButtonText: { color: colors.inkSoft, fontSize: 13 },
   directoryLink: {
-    color: colors.accent,
+    color: colors.tide,
     fontSize: 15,
-    fontWeight: '600',
-    marginTop: spacing(6),
+    fontWeight: '700',
+    marginTop: spacing(4),
     textAlign: 'center',
   },
 });

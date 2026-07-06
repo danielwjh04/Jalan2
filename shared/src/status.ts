@@ -36,6 +36,7 @@ export interface BookingRequest {
 export interface Itinerary {
   id: string;
   sourceUrl: string;
+  coverUrl: string | null;
   status: ItineraryStatus;
   stage: PipelineStage;
   booking: BookingJson | null;

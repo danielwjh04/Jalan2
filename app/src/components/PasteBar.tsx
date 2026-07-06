@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { colors, radius, spacing } from '@/lib/theme';
+import { cardShadow, colors, radius, spacing } from '@/lib/theme';
 
 interface Props {
   prefill: string;
@@ -15,51 +15,51 @@ export function PasteBar({ prefill, busy, onSubmit }: Props): React.ReactElement
     if (prefill) setValue(prefill);
   }, [prefill]);
 
+  const disabled = busy || !value.trim();
   return (
-    <View style={styles.row}>
+    <View style={styles.bar}>
       <TextInput
         style={styles.input}
         value={value}
         onChangeText={setValue}
-        placeholder="Paste a TikTok or XHS video link"
-        placeholderTextColor={colors.textDim}
+        placeholder="Paste a TikTok or XHS link"
+        placeholderTextColor={colors.inkSoft}
         autoCapitalize="none"
         autoCorrect={false}
         editable={!busy}
       />
       <Pressable
-        style={[styles.button, (busy || !value.trim()) && styles.buttonDisabled]}
-        disabled={busy || !value.trim()}
+        style={[styles.button, disabled && styles.buttonDisabled]}
+        disabled={disabled}
         onPress={() => onSubmit(value)}
       >
-        {busy ? (
-          <ActivityIndicator color={colors.text} />
-        ) : (
-          <Text style={styles.buttonText}>Go</Text>
-        )}
+        {busy ? <ActivityIndicator color={colors.card} /> : <Text style={styles.buttonText}>Go</Text>}
       </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: spacing(2) },
-  input: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
+  bar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: radius.pill,
+    paddingLeft: spacing(4),
+    paddingRight: spacing(1.5),
+    paddingVertical: spacing(1.5),
     borderWidth: 1,
-    borderRadius: radius.control,
-    paddingHorizontal: spacing(3),
-    paddingVertical: spacing(3),
-    color: colors.text,
+    borderColor: colors.mist,
+    ...cardShadow,
   },
+  input: { flex: 1, color: colors.ink, fontSize: 15, paddingVertical: spacing(2) },
   button: {
-    backgroundColor: colors.accent,
-    borderRadius: radius.control,
+    backgroundColor: colors.tide,
+    borderRadius: radius.pill,
     paddingHorizontal: spacing(5),
-    justifyContent: 'center',
+    paddingVertical: spacing(2.5),
+    marginLeft: spacing(2),
   },
-  buttonDisabled: { opacity: 0.5 },
-  buttonText: { color: '#1A1208', fontWeight: '700', fontSize: 16 },
+  buttonDisabled: { opacity: 0.4 },
+  buttonText: { color: colors.card, fontWeight: '700', fontSize: 15 },
 });
