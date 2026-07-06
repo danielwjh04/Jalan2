@@ -50,6 +50,18 @@ More detail: [docs/provider-setup.md](docs/provider-setup.md),
 [docs/mac-share-build.md](docs/mac-share-build.md),
 [docs/demo-runbook.md](docs/demo-runbook.md).
 
+## Why Expo SDK 54
+
+The app is intentionally pinned to Expo SDK 54, not the latest release. As of
+mid 2026 the Expo Go app on the Apple App Store only runs SDK 54 projects;
+newer SDKs require a custom Expo Go build through TestFlight (paid Apple
+Developer account) or a full dev build (needs a Mac). Pinning to 54 keeps the
+whole app testable on a stock iPhone with the free App Store Expo Go while
+developing on Windows. SDK 54 has every feature this app uses (expo-router,
+react-native-maps, clipboard, share intent, linear gradient). Dev builds for
+the iOS share extension are unaffected; they build whatever SDK the repo pins.
+Do not bump the SDK without checking what Expo Go on the App Store supports.
+
 ## Checks
 
 `npm run typecheck && npm run lint && npm test` at the repo root covers all
