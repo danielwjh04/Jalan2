@@ -7,67 +7,31 @@ import { normalizeVideoUrl } from '@shared/videoUrl';
 import { NotConfiguredError } from '../../lib/errors';
 import { downloadsRoot } from '../../lib/paths';
 import { imageToJpeg, imagesToSlideshow } from '../../pipeline/keyframes';
-import type { Extractor } from './types';
+import type { ExtractedMedia, Extractor } from './types';
+import { parseHybridMedia, type HybridMedia } from './tikhubMedia';
+import { downloadTikTokWithYtDlp } from './ytdlp';
 
 const HYBRID_ENDPOINT = 'https://api.tikhub.io/api/v1/hybrid/video_data';
-
-const UrlListSchema = z.object({ url_list: z.array(z.string()) }).passthrough();
-const MediaUrlSchema = z.union([z.string(), UrlListSchema]);
-const ImageDataSchema = z
-  .object({
-    no_watermark_image_list: z.array(MediaUrlSchema).optional(),
-    watermark_image_list: z.array(MediaUrlSchema).optional(),
-  })
-  .passthrough();
-const HybridSchema = z
-  .object({
-    code: z.number(),
-    data: z
-      .object({
-        type: z.string(),
-        desc: z.string().nullable().optional(),
-        video_data: z
-          .object({
-            nwm_video_url_HQ: z.string().optional(),
-            nwm_video_url: MediaUrlSchema.optional(),
-          })
-          .passthrough()
-          .optional(),
-        image_data: ImageDataSchema.optional(),
-      })
-      .passthrough(),
-  })
-  .passthrough();
 
 const ErrorMessageSchema = z
   .object({ detail: z.object({ message: z.string() }).passthrough() })
   .passthrough();
 
-export type HybridMedia =
-  | { kind: 'video'; playUrl: string; caption: string | null }
-  | { kind: 'image'; imageUrls: string[]; caption: string | null };
-
-export function parseHybridMedia(payload: unknown): HybridMedia {
-  const parsed = HybridSchema.safeParse(payload);
-  if (!parsed.success) throw new Error('TikHub response did not match the hybrid schema');
-  const caption = parsed.data.data.desc ?? null;
-  if (parsed.data.data.type === 'video') {
-    const video = parsed.data.data.video_data;
-    const playUrl = video?.nwm_video_url_HQ ?? firstUrl(video?.nwm_video_url);
-    if (playUrl) return { kind: 'video', playUrl, caption };
-  }
-  if (parsed.data.data.type === 'image') {
-    const imageUrls = usableImageUrls(parsed.data.data.image_data);
-    if (imageUrls.length > 0) return { kind: 'image', imageUrls, caption };
-  }
-  throw new Error('TikHub response did not include usable media');
+interface RedirectResponse {
+  readonly url: string;
+  readonly body: { cancel(): Promise<void> | void } | null;
 }
+
+type RedirectFetch = (url: string) => Promise<RedirectResponse>;
+
+export { parseHybridMedia } from './tikhubMedia';
 
 export function createTikhubExtractor(token: string | undefined): Extractor {
   return {
     name: 'tikhub',
     async extract(normalizedUrl) {
-      const normalized = normalizeVideoUrl(normalizedUrl);
+      const lookupUrl = await resolveTiktokShareUrl(normalizedUrl);
+      const normalized = normalizeVideoUrl(lookupUrl);
       if (normalized?.platform === 'xhs') {
         throw new Error(
           'TikHub XHS endpoints require a paid balance (free credit is not accepted). Top up at user.tikhub.io or use a manifest fixture for XHS demos.',
@@ -76,9 +40,10 @@ export function createTikhubExtractor(token: string | undefined): Extractor {
       if (!token) {
         throw new NotConfiguredError('TikHub extractor', 'Set TIKHUB_TOKEN or EXTRACTOR=fixture.');
       }
-      const media = parseHybridMedia(await fetchHybrid(normalizedUrl, token));
-      const outDir = path.join(downloadsRoot(), hashUrl(normalizedUrl));
+      const outDir = path.join(downloadsRoot(), hashUrl(lookupUrl));
       mkdirSync(outDir, { recursive: true });
+      const media = await extractHybridOrFallback(lookupUrl, token, outDir, normalized?.platform);
+      if ('videoPath' in media) return media;
       if (media.kind === 'video') {
         const videoPath = path.join(outDir, 'video.mp4');
         await downloadFile(media.playUrl, videoPath);
@@ -92,26 +57,43 @@ export function createTikhubExtractor(token: string | undefined): Extractor {
   };
 }
 
-function firstUrl(mediaUrl: z.infer<typeof MediaUrlSchema> | undefined): string | null {
-  if (!mediaUrl) return null;
-  if (typeof mediaUrl === 'string') return mediaUrl;
-  return mediaUrl.url_list[0] ?? null;
+async function extractHybridOrFallback(
+  lookupUrl: string,
+  token: string,
+  outDir: string,
+  platform: string | undefined,
+): Promise<HybridMedia | ExtractedMedia> {
+  try {
+    return parseHybridMedia(await fetchHybrid(lookupUrl, token));
+  } catch (error) {
+    if (platform === 'tiktok') return downloadTikTokWithYtDlp(lookupUrl, outDir);
+    throw error;
+  }
 }
 
-function usableImageUrls(imageData: z.infer<typeof ImageDataSchema> | undefined): string[] {
-  const noWatermark = collectImageUrls(imageData?.no_watermark_image_list);
-  const processable = noWatermark.filter((url) => !isLikelyHeic(url));
-  if (processable.length > 0) return processable;
-  const watermarked = collectImageUrls(imageData?.watermark_image_list);
-  return watermarked.length > 0 ? watermarked : noWatermark;
+export async function resolveTiktokShareUrl(
+  normalizedUrl: string,
+  fetcher: RedirectFetch = defaultRedirectFetch,
+): Promise<string> {
+  const normalized = normalizeVideoUrl(normalizedUrl);
+  if (!normalized || !isTikTokShortHost(normalized.url)) return normalizedUrl;
+  try {
+    const response = await fetcher(normalizedUrl);
+    await response.body?.cancel();
+    const redirected = normalizeVideoUrl(response.url);
+    return redirected?.platform === 'tiktok' ? redirected.url : normalizedUrl;
+  } catch {
+    return normalizedUrl;
+  }
 }
 
-function collectImageUrls(items: z.infer<typeof MediaUrlSchema>[] | undefined): string[] {
-  return (items ?? []).map(firstUrl).filter((url): url is string => Boolean(url));
+async function defaultRedirectFetch(url: string): Promise<RedirectResponse> {
+  return fetch(url, { redirect: 'follow' });
 }
 
-function isLikelyHeic(url: string): boolean {
-  return url.split('?')[0].toLowerCase().endsWith('.heic');
+function isTikTokShortHost(normalizedUrl: string): boolean {
+  const host = new URL(normalizedUrl).hostname;
+  return host === 'vt.tiktok.com' || host === 'vm.tiktok.com';
 }
 
 async function fetchHybrid(normalizedUrl: string, token: string): Promise<unknown> {

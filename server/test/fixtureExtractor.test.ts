@@ -19,8 +19,11 @@ describe('FixtureExtractor', () => {
   });
 
   it('resolves XHS share short-links to the real cafe fixture', async () => {
-    const media = await extractor.extract(normalized('http://xhslink.com/o/1iHEXC0uXgC'));
-    expect(media.fixtureSlug).toBe('kuching-cafes-03');
+    const urls = ['http://xhslink.com/o/1iHEXC0uXgC', 'http://xhslink.com/o/9JcR3bXBDL4'];
+    for (const url of urls) {
+      const media = await extractor.extract(normalized(url));
+      expect(media.fixtureSlug).toBe('kuching-cafes-03');
+    }
   });
 
   it('rejects unknown URLs and lists the known demo URLs', async () => {

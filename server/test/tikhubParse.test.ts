@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { loadConfig } from '../src/config';
 import { pickExtractor } from '../src/adapters/extractor';
-import { parseHybridMedia } from '../src/adapters/extractor/tikhub';
+import { parseHybridMedia, resolveTiktokShareUrl } from '../src/adapters/extractor/tikhub';
 
 describe('parseHybridMedia', () => {
   it('reads a video post with a string HQ URL', () => {
@@ -84,11 +84,32 @@ describe('parseHybridMedia', () => {
 });
 
 describe('pickExtractor tikhub mode', () => {
+  it('uses fixture fallback for manifest XHS URLs', async () => {
+    const extractor = pickExtractor(loadConfig({ EXTRACTOR: 'tikhub', TIKHUB_TOKEN: 'fake' }));
+
+    const media = await extractor.extract('https://xhslink.com/o/9JcR3bXBDL4');
+
+    expect(media.fixtureSlug).toBe('kuching-cafes-03');
+  });
+
   it('throws the paid balance message for non-fixture XHS URLs', async () => {
     const extractor = pickExtractor(loadConfig({ EXTRACTOR: 'tikhub', TIKHUB_TOKEN: 'fake' }));
 
     await expect(
       extractor.extract('https://xhslink.com/o/not-in-the-manifest'),
     ).rejects.toThrow(/paid balance/);
+  });
+});
+
+describe('resolveTiktokShareUrl', () => {
+  it('follows TikTok share redirects before TikHub lookup', async () => {
+    const fetcher = vi.fn(async () => ({
+      url: 'https://www.tiktok.com/@jonlzx/video/7359768031976754439?_r=1',
+      body: { cancel: vi.fn() },
+    }));
+
+    await expect(resolveTiktokShareUrl('https://vt.tiktok.com/ZSCtb9qPy', fetcher)).resolves.toBe(
+      'https://tiktok.com/@jonlzx/video/7359768031976754439',
+    );
   });
 });
