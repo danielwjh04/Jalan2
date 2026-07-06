@@ -131,10 +131,14 @@ function sanitizeCandidate(candidate: unknown): unknown {
 function sanitizeContact(contact: unknown): unknown {
   if (typeof contact !== 'object' || contact === null) return contact;
   const record = { ...(contact as Record<string, unknown>) };
-  if (typeof record.whatsapp === 'string' && record.whatsapp.trim() === '') {
+  if (typeof record.whatsapp === 'string' && !hasPhoneEvidence(record.whatsapp)) {
     record.whatsapp = null;
   }
   return record;
+}
+
+function hasPhoneEvidence(value: string): boolean {
+  return /\d/.test(value);
 }
 
 function toIsoDatetime(value: string): string | null {

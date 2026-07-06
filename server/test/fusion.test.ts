@@ -109,4 +109,12 @@ describe('validateFusedBooking', () => {
     });
     expect(outcome.ok && outcome.booking.contact.whatsapp).toBeNull();
   });
+
+  it('coerces a punctuation-only whatsapp string to null', () => {
+    const outcome = validateFusedBooking({
+      ...validBooking,
+      contact: { whatsapp: ',', source: 'vision' },
+    });
+    expect(outcome.ok && outcome.booking.contact.whatsapp).toBeNull();
+  });
 });

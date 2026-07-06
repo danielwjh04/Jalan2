@@ -1,14 +1,14 @@
 import Constants from 'expo-constants';
 import type { DirectoryEntry, FixtureCard } from '@shared/api';
 import type { BookingRequest, Itinerary } from '@shared/status';
+import { resolveBaseUrl } from './baseUrl';
 
-// Resolution order: explicit env override, then the Expo dev-server host,
-// which is the laptop's LAN IP when running in Expo Go on a real phone.
 function baseUrl(): string {
-  const configured = process.env.EXPO_PUBLIC_API_URL;
-  if (configured) return configured;
-  const host = Constants.expoConfig?.hostUri?.split(':')[0];
-  return host ? `http://${host}:3001` : 'http://localhost:3001';
+  return resolveBaseUrl({
+    apiUrl: process.env.EXPO_PUBLIC_API_URL,
+    apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL,
+    hostUri: Constants.expoConfig?.hostUri,
+  });
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {

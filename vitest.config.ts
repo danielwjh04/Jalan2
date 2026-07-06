@@ -8,6 +8,6 @@ export default defineConfig({
     alias: { '@shared': `${root}shared/src` },
   },
   test: {
-    include: ['shared/test/**/*.test.ts', 'server/test/**/*.test.ts'],
+    include: ['shared/test/**/*.test.ts', 'server/test/**/*.test.ts', 'app/test/**/*.test.ts'],
   },
 });
