@@ -96,4 +96,17 @@ describe('validateFusedBooking', () => {
     const outcome = validateFusedBooking({ ...validBooking, date_requested: 'sometime soon' });
     expect(outcome.ok && outcome.booking.date_requested).toBeNull();
   });
+
+  it('coerces an un-evidenced zero price to null', () => {
+    const outcome = validateFusedBooking({ ...validBooking, price_myr: 0 });
+    expect(outcome.ok && outcome.booking.price_myr).toBeNull();
+  });
+
+  it('coerces an empty whatsapp string to null', () => {
+    const outcome = validateFusedBooking({
+      ...validBooking,
+      contact: { whatsapp: '', source: 'caption' },
+    });
+    expect(outcome.ok && outcome.booking.contact.whatsapp).toBeNull();
+  });
 });

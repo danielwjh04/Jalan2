@@ -26,6 +26,8 @@ export function buildFusionMessages(
     'Rules:',
     '- Use only the supplied caption, transcript, and vision readout. Never invent.',
     '- Prefer null over a guessed price, phone number, or date.',
+    '- Never use 0 or an empty string as a placeholder. Use null when a field is',
+    '  not evidenced.',
     '- contact.source names the evidence stream where the number was actually found.',
     '- raw_evidence.transcript_span is a verbatim transcript quote; frame_ts is the',
     '  timestamp of the most useful frame.',
@@ -117,6 +119,20 @@ function sanitizeCandidate(candidate: unknown): unknown {
   }
   if (typeof record.date_requested === 'string') {
     record.date_requested = toIsoDatetime(record.date_requested);
+  }
+  // The model sometimes returns 0 or "" as an "unknown" sentinel; the schema
+  // accepts both as real values, so coerce them to null to keep the booking
+  // honest and avoid rendering "RM0 / pax".
+  if (record.price_myr === 0) record.price_myr = null;
+  record.contact = sanitizeContact(record.contact);
+  return record;
+}
+
+function sanitizeContact(contact: unknown): unknown {
+  if (typeof contact !== 'object' || contact === null) return contact;
+  const record = { ...(contact as Record<string, unknown>) };
+  if (typeof record.whatsapp === 'string' && record.whatsapp.trim() === '') {
+    record.whatsapp = null;
   }
   return record;
 }
