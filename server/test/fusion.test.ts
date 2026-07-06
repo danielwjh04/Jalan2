@@ -84,4 +84,16 @@ describe('validateFusedBooking', () => {
     const outcome = validateFusedBooking(missingOperator);
     expect(!outcome.ok && outcome.problems.join(' ')).toContain('operator_name');
   });
+
+  it('normalizes a plain date into a full ISO datetime instead of failing', () => {
+    const outcome = validateFusedBooking({ ...validBooking, date_requested: '2026-07-12' });
+    expect(outcome.ok && outcome.booking.date_requested).toBe(
+      new Date('2026-07-12').toISOString(),
+    );
+  });
+
+  it('falls back to null when date_requested is not a parseable date', () => {
+    const outcome = validateFusedBooking({ ...validBooking, date_requested: 'sometime soon' });
+    expect(outcome.ok && outcome.booking.date_requested).toBeNull();
+  });
 });

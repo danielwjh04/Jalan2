@@ -48,7 +48,7 @@ export function buildFusionMessages(
 }
 
 export function validateFusedBooking(candidate: unknown): ValidationOutcome {
-  const parsed = BookingJsonSchema.safeParse(clampConfidence(candidate));
+  const parsed = BookingJsonSchema.safeParse(sanitizeCandidate(candidate));
   if (!parsed.success) {
     const problems = parsed.error.issues.map(
       (issue) => `${issue.path.join('.')}: ${issue.message}`,
@@ -104,11 +104,26 @@ async function requestBooking(
   return parsed;
 }
 
-function clampConfidence(candidate: unknown): unknown {
+// The wire schema sent to OpenAI leaves confidence and date_requested loosely
+// typed (strict-mode JSON schema rejects min/max/format keywords), so the
+// model's reply can violate the strict schema's bounds or datetime format.
+// Sanitize those two fields before validation instead of failing the whole
+// booking over a clamp or a reformat.
+function sanitizeCandidate(candidate: unknown): unknown {
   if (typeof candidate !== 'object' || candidate === null) return candidate;
-  const record = candidate as Record<string, unknown>;
-  if (typeof record.confidence !== 'number') return candidate;
-  return { ...record, confidence: Math.min(1, Math.max(0, record.confidence)) };
+  const record = { ...(candidate as Record<string, unknown>) };
+  if (typeof record.confidence === 'number') {
+    record.confidence = Math.min(1, Math.max(0, record.confidence));
+  }
+  if (typeof record.date_requested === 'string') {
+    record.date_requested = toIsoDatetime(record.date_requested);
+  }
+  return record;
+}
+
+function toIsoDatetime(value: string): string | null {
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
 }
 
 function formatTranscript(transcript: Transcript): string {
