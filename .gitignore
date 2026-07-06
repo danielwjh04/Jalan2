@@ -1,0 +1,14 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.expo/
+dist/
+build/
+app/src/shared/
+server/data/
+server/fixtures/**/*.mp4
+server/fixtures/**/*.m4a
+server/fixtures/**/*.wav
+*.log
+.DS_Store

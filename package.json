@@ -1,0 +1,20 @@
+{
+  "name": "jalan2-root",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "typecheck": "tsc -p shared && npm --prefix server run typecheck && npm --prefix app run typecheck",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.0",
+    "@types/node": "^22.5.0",
+    "eslint": "^9.9.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.3.0",
+    "vitest": "^2.1.9",
+    "zod": "^3.23.8"
+  }
+}

@@ -1,0 +1,87 @@
+import { describe, expect, it } from 'vitest';
+import { buildFusionMessages, validateFusedBooking } from '../src/pipeline/fusion';
+
+const evidence = {
+  caption: 'Hidden reef dive RM250, WhatsApp 013-820 1122',
+  transcript: {
+    text: 'two dives at the reef off Bako, RM250 per person',
+    segments: [{ start: 12.0, end: 16.5, text: 'two dives at the reef off Bako, RM250 per person' }],
+  },
+  vision: {
+    frames: [
+      {
+        ts: '14.5s',
+        on_screen_text: 'RM250 ALL GEAR INCLUDED',
+        price_candidates: ['RM250'],
+        phone_candidates: ['013-820 1122'],
+        place_candidates: ['Bako'],
+        operator_or_logo: 'Kuching Dive Adventures',
+      },
+    ],
+  },
+};
+
+const validBooking = {
+  operator_name: 'Kuching Dive Adventures',
+  activity: 'Bako reef dive',
+  price_myr: 250,
+  pax: 2,
+  meeting_point: { name: 'Bako National Park jetty', lat: 1.7169, lng: 110.4462 },
+  contact: { whatsapp: '+60138201122', source: 'caption' },
+  date_requested: null,
+  confidence: 0.88,
+  raw_evidence: { transcript_span: 'RM250 per person', frame_ts: '14.5s' },
+};
+
+describe('buildFusionMessages', () => {
+  it('includes every evidence block in the user message', () => {
+    const [system, user] = buildFusionMessages(evidence);
+    expect(system.role).toBe('system');
+    expect(user.role).toBe('user');
+    const text = String(user.content);
+    expect(text).toContain('Hidden reef dive RM250');
+    expect(text).toContain('[12.0s-16.5s] two dives at the reef off Bako');
+    expect(text).toContain('RM250 ALL GEAR INCLUDED');
+  });
+
+  it('anchors the system prompt with the gazetteer', () => {
+    const [system] = buildFusionMessages(evidence);
+    const text = String(system.content);
+    expect(text).toContain('Bako National Park jetty: 1.7169, 110.4462');
+    expect(text).toContain('Never invent');
+  });
+
+  it('falls back to plain transcript text when there are no segments', () => {
+    const [, user] = buildFusionMessages({
+      ...evidence,
+      transcript: { text: 'plain text only', segments: [] },
+    });
+    expect(String(user.content)).toContain('plain text only');
+  });
+});
+
+describe('validateFusedBooking', () => {
+  it('accepts a valid booking', () => {
+    const outcome = validateFusedBooking(validBooking);
+    expect(outcome.ok).toBe(true);
+  });
+
+  it('clamps out-of-range confidence instead of failing', () => {
+    const outcome = validateFusedBooking({ ...validBooking, confidence: 1.4 });
+    expect(outcome.ok && outcome.booking.confidence).toBe(1);
+  });
+
+  it('rejects coordinates outside Malaysia', () => {
+    const outcome = validateFusedBooking({
+      ...validBooking,
+      meeting_point: { name: 'Somewhere', lat: 40.7, lng: -74.0 },
+    });
+    expect(!outcome.ok && outcome.problems[0]).toMatch(/outside Malaysia bounds/);
+  });
+
+  it('reports schema violations as problems', () => {
+    const { operator_name: _dropped, ...missingOperator } = validBooking;
+    const outcome = validateFusedBooking(missingOperator);
+    expect(!outcome.ok && outcome.problems.join(' ')).toContain('operator_name');
+  });
+});
