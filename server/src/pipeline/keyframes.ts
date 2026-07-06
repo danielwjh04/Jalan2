@@ -58,3 +58,31 @@ export async function extractAudio(videoPath: string, outDir: string): Promise<s
   await execa(ffmpegBin(), ['-y', '-i', videoPath, '-vn', '-ac', '1', '-ar', '16000', audioPath]);
   return audioPath;
 }
+
+export async function imageToJpeg(inputPath: string, outPath: string): Promise<void> {
+  mkdirSync(path.dirname(outPath), { recursive: true });
+  await execa(ffmpegBin(), ['-y', '-i', inputPath, '-frames:v', '1', '-q:v', '2', outPath]);
+}
+
+export async function imagesToSlideshow(imagePaths: string[], outPath: string): Promise<void> {
+  if (imagePaths.length === 0) throw new Error('No images provided for slideshow');
+  const imageDir = path.dirname(imagePaths[0]);
+  const sequential = imagePaths.every((imagePath, index) => {
+    const expected = `image_${String(index + 1).padStart(2, '0')}.jpg`;
+    return path.dirname(imagePath) === imageDir && path.basename(imagePath) === expected;
+  });
+  if (!sequential) throw new Error('Slideshow images must be sequential image_NN.jpg files');
+  mkdirSync(path.dirname(outPath), { recursive: true });
+  await execa(
+    ffmpegBin(),
+    [
+      '-y',
+      '-framerate', '1/2',
+      '-i', 'image_%02d.jpg',
+      '-vf', 'scale=720:-2',
+      '-pix_fmt', 'yuv420p',
+      outPath,
+    ],
+    { cwd: imageDir },
+  );
+}

@@ -7,6 +7,10 @@ export function fixturesRoot(): string {
   return path.join(serverRoot, 'fixtures');
 }
 
+export function downloadsRoot(): string {
+  return path.join(serverRoot, 'data', 'downloads');
+}
+
 export function runWorkDir(id: string): string {
   return path.join(serverRoot, 'data', 'runs', id);
 }

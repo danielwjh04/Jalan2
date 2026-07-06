@@ -74,9 +74,14 @@ curl -X POST http://localhost:3001/webhooks/mock \
   -d '{"from":"mock:operator","text":"YES"}'
 ```
 
-## TikHub / Apify extractor (later)
+## TikHub extractor
 
 `EXTRACTOR=fixture` (default) serves the curated clips in `server/fixtures/`.
-When the extractor token is provisioned, implement the API call in
-`server/src/adapters/extractor/tikhub.ts` and set `EXTRACTOR=tikhub` +
-`TIKHUB_TOKEN`. The adapter interface is already in place.
+Set `EXTRACTOR=tikhub` and `TIKHUB_TOKEN` to enable live extraction for TikTok
+posts. Manifest URLs still use the local fixtures first, so demos stay fast and
+do not spend API credit.
+
+The hybrid endpoint works on free credit for TikTok video and photo posts.
+Photo posts are converted into a silent local slideshow before entering the
+pipeline. XHS routes require a paid TikHub balance, so use manifest fixtures for
+XHS demos unless the account has been topped up.

@@ -10,6 +10,7 @@ export interface GazetteerPlace extends MeetingPoint {
 // updates the app's region labels.
 export const KUCHING_GAZETTEER: readonly GazetteerPlace[] = [
   { name: 'Bako National Park jetty', lat: 1.7169, lng: 110.4462, region: 'Kuching' },
+  { name: 'Carpenter Street', lat: 1.5576, lng: 110.3453, region: 'Kuching' },
   { name: 'Kuching Waterfront', lat: 1.5593, lng: 110.3439, region: 'Kuching' },
   { name: 'Santubong jetty', lat: 1.7195, lng: 110.3178, region: 'Kuching' },
   { name: 'Sematan beach', lat: 1.8065, lng: 109.7735, region: 'Kuching' },

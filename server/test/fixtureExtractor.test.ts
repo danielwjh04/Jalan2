@@ -13,16 +13,14 @@ function normalized(raw: string): string {
 
 describe('FixtureExtractor', () => {
   it('resolves a manifest URL to its fixture', async () => {
-    const media = await extractor.extract(
-      normalized('https://www.tiktok.com/@kuchingdive/video/7301234567890123456?utm_source=share'),
-    );
-    expect(media.fixtureSlug).toBe('kuching-dive-01');
-    expect(media.caption).toContain('RM250');
+    const media = await extractor.extract(normalized('https://vt.tiktok.com/ZSCt5cY1k/'));
+    expect(media.fixtureSlug).toBe('kuching-city-guide-01');
+    expect(media.caption).toContain('What To Do in Kuching');
   });
 
-  it('resolves share short-links to the same fixture', async () => {
-    const media = await extractor.extract(normalized('https://vm.tiktok.com/ZSjKuDive1/'));
-    expect(media.fixtureSlug).toBe('kuching-dive-01');
+  it('resolves XHS share short-links to the real cafe fixture', async () => {
+    const media = await extractor.extract(normalized('http://xhslink.com/o/1iHEXC0uXgC'));
+    expect(media.fixtureSlug).toBe('kuching-cafes-03');
   });
 
   it('rejects unknown URLs and lists the known demo URLs', async () => {

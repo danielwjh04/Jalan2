@@ -10,5 +10,6 @@ server/data/
 server/fixtures/**/*.mp4
 server/fixtures/**/*.m4a
 server/fixtures/**/*.wav
+server/fixtures/**/image_*.jpg
 *.log
 .DS_Store

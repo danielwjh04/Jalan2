@@ -1,20 +1,20 @@
 # Demo fixtures
 
-Each folder is one curated demo video. The video files themselves are not
+Each folder is one curated demo post. The video files themselves are not
 committed; add them locally before running the live pipeline.
 
 Layout per fixture:
 
 ```
 <slug>/
-  video.mp4              local only (gitignored). Download the clip manually.
+  video.mp4              local only (gitignored). Download or build the clip.
   audio.m4a | audio.wav  optional, local only. Extracted from video when absent.
   caption.txt            the post caption, committed.
   booking.cached.json    committed. Schema-valid Booking JSON used by
                          PIPELINE_MODE=cached and as the auto-mode fallback.
 ```
 
-Adding a clip:
+Adding or refreshing a clip:
 
 1. Create a folder with a new slug and drop in `video.mp4` + `caption.txt`.
 2. Add every URL form of the post (full link and share short-link) to
@@ -24,7 +24,6 @@ Adding a clip:
    and save it as `booking.cached.json`. Check the meeting point pin on a map
    before trusting it.
 
-The demo URLs currently in `manifest.json` are placeholders for the curated
-Kuching clips. Replace them with the real post URLs when the clips are chosen;
-`GET /fixtures` feeds the app's demo shortcuts from this manifest, so nothing
-else needs updating.
+The manifest holds the real curated Kuching posts for the demo. The committed
+`booking.cached.json` files are caption-derived fallbacks until the live
+pipeline can be run with provider keys and saved back over the cached files.
