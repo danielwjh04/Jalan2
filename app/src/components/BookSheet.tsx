@@ -1,12 +1,15 @@
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import type { BookingJson } from '@shared/booking';
 import type { Itinerary } from '@shared/status';
 import { GradientButton } from '@/components/GradientButton';
 import { book } from '@/lib/api';
 import { cardShadow, colors, radius, spacing } from '@/lib/theme';
+import { buildWhatsAppDeepLink } from '@/lib/whatsappLink';
 
 interface Props {
   itineraryId: string;
+  booking: BookingJson;
   onBooked: (updated: Itinerary) => void;
 }
 
@@ -26,7 +29,7 @@ function upcomingDates(count: number): DateOption[] {
   });
 }
 
-export function BookSheet({ itineraryId, onBooked }: Props): React.ReactElement {
+export function BookSheet({ itineraryId, booking, onBooked }: Props): React.ReactElement {
   const dates = useMemo(() => upcomingDates(3), []);
   const [dateISO, setDateISO] = useState(dates[0].iso);
   const [pax, setPax] = useState(2);
@@ -37,7 +40,18 @@ export function BookSheet({ itineraryId, onBooked }: Props): React.ReactElement 
     setBusy(true);
     setError(null);
     try {
-      onBooked(await book(itineraryId, { dateISO, pax }));
+      const requested = { dateISO, pax };
+      const link = buildWhatsAppDeepLink(
+        booking,
+        requested,
+        process.env.EXPO_PUBLIC_DEMO_WHATSAPP_NUMBER,
+      );
+      if (!link) {
+        throw new Error('Set EXPO_PUBLIC_DEMO_WHATSAPP_NUMBER to open WhatsApp.');
+      }
+      const updated = await book(itineraryId, requested);
+      void Linking.openURL(link).catch(() => undefined);
+      onBooked(updated);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {

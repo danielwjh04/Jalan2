@@ -40,7 +40,35 @@ npm install
 npm start
 ```
 
-Tap a demo video on the home screen, book it, then confirm as the operator:
+For the phone demo, start the backend in mock-confirm mode and point Expo at
+your laptop's LAN IP. The app opens WhatsApp with a pre-filled booking draft,
+then the mock backend flips the itinerary to CONFIRMED after four seconds.
+
+Server:
+
+```powershell
+cd C:\Users\megaw\Downloads\Jalan2\server
+$env:PIPELINE_MODE="auto"
+$env:MESSAGING_PROVIDER="mock"
+$env:MOCK_AUTO_CONFIRM_MS="4000"
+npm.cmd run dev
+```
+
+App:
+
+```powershell
+cd C:\Users\megaw\Downloads\Jalan2\app
+$env:EXPO_PUBLIC_API_URL="http://<laptop-lan-ip>:3001"
+$env:EXPO_PUBLIC_DEMO_WHATSAPP_NUMBER="+65xxxxxxxx"
+npm.cmd start -- --clear
+```
+
+Open `http://<laptop-lan-ip>:3001/fixtures` in the phone browser first. If it
+does not load JSON, put the phone and laptop on the same reachable network or
+allow Node through Windows Firewall.
+
+Without `MOCK_AUTO_CONFIRM_MS`, tap a demo video on the home screen, book it,
+then confirm as the operator:
 
 ```
 curl -X POST http://localhost:3001/webhooks/mock -H "Content-Type: application/json" -d "{\"from\":\"mock:operator\",\"text\":\"YES\"}"

@@ -74,6 +74,30 @@ curl -X POST http://localhost:3001/webhooks/mock \
   -d '{"from":"mock:operator","text":"YES"}'
 ```
 
+## WhatsApp deep link demo mode
+
+For the live phone demo, keep the backend in mock mode and let the Expo app
+open WhatsApp on the tourist phone after the user taps Book. This avoids the
+Twilio sandbox during judging while still showing the actual WhatsApp draft.
+
+Server env:
+
+```
+MESSAGING_PROVIDER=mock
+MOCK_AUTO_CONFIRM_MS=4000
+```
+
+App env:
+
+```
+EXPO_PUBLIC_DEMO_WHATSAPP_NUMBER=+65xxxxxxxx
+```
+
+The app prefers a WhatsApp number that is already present in the fused Booking
+JSON, then falls back to `EXPO_PUBLIC_DEMO_WHATSAPP_NUMBER`. Do not feed this
+from scraped social profiles. Use an evidenced booking contact or your own demo
+phone number.
+
 ## TikHub extractor
 
 `EXTRACTOR=fixture` (default) serves the curated clips in `server/fixtures/`.

@@ -58,7 +58,7 @@ export default function ItineraryScreen(): React.ReactElement {
           <MapCard point={booking.meeting_point} />
           <TransitButton point={booking.meeting_point} />
           {itinerary.status === 'DRAFT' && (
-            <BookSheet itineraryId={itinerary.id} onBooked={apply} />
+            <BookSheet itineraryId={itinerary.id} booking={booking} onBooked={apply} />
           )}
           {itinerary.messages.length > 0 && (
             <View style={styles.messages}>

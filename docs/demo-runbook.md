@@ -6,10 +6,10 @@ var away.
 ## Pre-demo checklist (morning of)
 
 - [ ] Rebuild the iOS dev build on the Mac (free-ID signing expires in 7 days).
-- [ ] Re-join the Twilio sandbox from both phones (72h expiry): send
-      `join <code>` to +1 415 523 8886.
-- [ ] Start ngrok on the static domain; confirm the Twilio webhook URL.
-- [ ] `server/.env`: `PIPELINE_MODE=auto`, `MESSAGING_PROVIDER=twilio`.
+- [ ] App env: `EXPO_PUBLIC_DEMO_WHATSAPP_NUMBER=+65...` for the operator
+      demo phone.
+- [ ] `server/.env`: `PIPELINE_MODE=auto`, `MESSAGING_PROVIDER=mock`,
+      `MOCK_AUTO_CONFIRM_MS=4000`.
 - [ ] Start server, run one full loop end-to-end as rehearsal.
 - [ ] Verify meeting-point pins on the map look right.
 - [ ] Phone and laptop on the same Wi-Fi; hotspot as backup network.
@@ -22,10 +22,10 @@ var away.
 2. Narrate the stage progress: extracting, transcribing, reading frames,
    fusing. Itinerary card appears: operator, activity, RM price, jetty.
 3. Tap the map pin. Tap "Get there": EasyBook/Google Maps opens pre-filled.
-4. Tap Book (Saturday, 2 pax). Real WhatsApp lands on the operator phone.
-   Hold it up.
-5. Reply YES on the operator phone. Card flips to CONFIRMED. Directory shows
-   the operator opted in.
+4. Tap Book (Saturday, 2 pax). WhatsApp opens on the tourist phone with the
+   booking draft addressed to the demo operator number. Send it and hold it up.
+5. The mock operator auto-confirms after four seconds. Card flips to
+   CONFIRMED. Directory shows the operator opted in.
 
 ## Fallback ladder
 
@@ -34,8 +34,9 @@ var away.
 | Share extension broken | Paste the URL. Same handler, lose only the animation. |
 | Extractor or OpenAI flaky | Nothing to do: `auto` mode already fell back to the cached booking (identical card). |
 | Venue Wi-Fi dead | Restart server with `PIPELINE_MODE=cached`; loop runs fully offline. |
-| Twilio sandbox broken | Restart server with `MESSAGING_PROVIDER=telegram`; operator phone uses the Telegram bot instead. |
-| Telegram also broken | `MESSAGING_PROVIDER=mock` + `MOCK_AUTO_CONFIRM_MS=4000`, and show the pre-recorded WhatsApp round-trip while the card flips. |
+| WhatsApp app does not open | Copy the visible outbound message and send it manually to the demo operator number. |
+| Mock auto-confirm does not fire | POST `{"from":"mock:operator","text":"YES"}` to `/webhooks/mock`. |
+| Want a real inbound channel | Restart server with Twilio or Telegram from `docs/provider-setup.md`. |
 | Everything on fire | Play the screen recording. |
 
 ## Testing the live pipeline before real clips exist
