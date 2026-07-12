@@ -2,6 +2,7 @@ import type OpenAI from 'openai';
 import type { BookingJson } from '@shared/booking';
 import type { Config } from '../config';
 import type { Extractor } from '../adapters/extractor/types';
+import type { Retrieval } from '../adapters/retrieval/types';
 import type { SpeechToText, Transcript } from '../adapters/stt/types';
 import { NotConfiguredError } from '../lib/errors';
 import { loadCachedBooking, resolveFixtureSlug } from '../lib/fixtures';
@@ -10,6 +11,7 @@ import { recordDemand } from '../store/directory';
 import { setBooking, setItineraryError, setStage } from '../store/itineraries';
 import { extractAudio, extractKeyframes } from './keyframes';
 import { fuse } from './fusion';
+import { enrichTrust } from './trust';
 import { readFrames } from './vision';
 
 export interface PipelineDeps {
@@ -17,6 +19,7 @@ export interface PipelineDeps {
   extractor: Extractor;
   stt: SpeechToText | null;
   openai: OpenAI | null;
+  retrieval: Retrieval;
 }
 
 const KEYFRAME_COUNT = 6;
@@ -30,13 +33,28 @@ const memo = new Map<string, PipelineResult>();
 
 export async function runPipeline(deps: PipelineDeps, id: string, url: string): Promise<void> {
   try {
-    const result = memo.get(url) ?? (await produceBooking(deps, id, url));
+    let result = memo.get(url);
+    if (!result) {
+      result = await produceBooking(deps, id, url);
+      result = { ...result, booking: await tryEnrichTrust(deps.retrieval, result.booking) };
+    }
     memo.set(url, result);
     setBooking(id, result.booking, result.servedFrom);
     setStage(id, 'READY');
     recordDemand(result.booking);
   } catch (error) {
     setItineraryError(id, error instanceof Error ? error.message : String(error));
+  }
+}
+
+// Trust is best-effort enrichment; a retrieval failure must never fail the
+// booking itself.
+async function tryEnrichTrust(retrieval: Retrieval, booking: BookingJson): Promise<BookingJson> {
+  try {
+    return await enrichTrust(retrieval, booking);
+  } catch (error) {
+    console.warn(`[trust] enrichment failed: ${(error as Error).message}`);
+    return booking;
   }
 }
 

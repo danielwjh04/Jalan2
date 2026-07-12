@@ -53,11 +53,23 @@ describe('BookingJsonSchema', () => {
       false,
     );
   });
+
+  it('accepts bookings without trust, with null trust, and with valid trust', () => {
+    expect(BookingJsonSchema.safeParse(valid).success).toBe(true);
+    expect(BookingJsonSchema.safeParse({ ...valid, trust: null }).success).toBe(true);
+    const trusted = { ...valid, trust: { score: 0.6, evidence: ['example.com: mentioned'] } };
+    expect(BookingJsonSchema.safeParse(trusted).success).toBe(true);
+  });
+
+  it('rejects a trust score outside 0 to 1', () => {
+    const bad = { ...valid, trust: { score: 1.4, evidence: [] } };
+    expect(BookingJsonSchema.safeParse(bad).success).toBe(false);
+  });
 });
 
 describe('BookingJsonWireSchema', () => {
-  it('has the same keys as the strict schema', () => {
-    expect(Object.keys(BookingJsonWireSchema.shape).sort()).toEqual(
+  it('matches the strict schema keys except enrichment-only trust', () => {
+    expect([...Object.keys(BookingJsonWireSchema.shape), 'trust'].sort()).toEqual(
       Object.keys(BookingJsonSchema.shape).sort(),
     );
   });

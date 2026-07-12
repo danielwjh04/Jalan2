@@ -1,5 +1,14 @@
 import { z } from 'zod';
 
+// Deterministic web-presence signal computed from retrieval results after
+// fusion. Never produced by the fusion model, so it has no wire twin.
+export const TrustSchema = z.object({
+  score: z.number().min(0).max(1),
+  evidence: z.array(z.string()),
+});
+
+export type Trust = z.infer<typeof TrustSchema>;
+
 export const BookingJsonSchema = z.object({
   operator_name: z.string().min(1),
   activity: z.string().min(1),
@@ -20,6 +29,7 @@ export const BookingJsonSchema = z.object({
     transcript_span: z.string(),
     frame_ts: z.string(),
   }),
+  trust: TrustSchema.nullable().optional(),
 });
 
 export type BookingJson = z.infer<typeof BookingJsonSchema>;

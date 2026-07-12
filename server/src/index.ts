@@ -11,17 +11,19 @@ import { handleInbound } from './services/booking';
 const config = loadConfig();
 const openai = config.OPENAI_API_KEY ? new OpenAI({ apiKey: config.OPENAI_API_KEY }) : null;
 const messaging = pickMessagingProvider(config, (message) => void handleInbound(message));
+const retrieval = pickRetrieval(config);
 
 const app = createApp({
   config,
   messaging,
   tts: pickTts(config),
-  retrieval: pickRetrieval(config),
+  retrieval,
   pipeline: {
     config,
     extractor: pickExtractor(config),
     stt: pickStt(config, openai),
     openai,
+    retrieval,
   },
 });
 

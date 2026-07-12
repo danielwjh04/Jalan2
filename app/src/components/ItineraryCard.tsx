@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { BookingJson } from '@shared/booking';
 import { cardShadow, colors, radius, spacing } from '@/lib/theme';
 import { ConfidenceBadge } from './ConfidenceBadge';
+import { TrustBadge } from './TrustBadge';
 
 interface Props {
   booking: BookingJson;
@@ -25,6 +26,7 @@ export function ItineraryCard({
         <ConfidenceBadge confidence={booking.confidence} servedFrom={servedFrom} />
       </View>
       <Text style={styles.meeting}>Meet: {booking.meeting_point.name}</Text>
+      {booking.trust && <TrustBadge trust={booking.trust} />}
       {booking.contact.whatsapp && (
         <Text style={styles.contact}>
           Operator WhatsApp found in {booking.contact.source}: {booking.contact.whatsapp}

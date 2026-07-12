@@ -1,5 +1,5 @@
-export { BookingJsonSchema, BookingJsonWireSchema } from './booking';
-export type { BookingJson } from './booking';
+export { BookingJsonSchema, BookingJsonWireSchema, TrustSchema } from './booking';
+export type { BookingJson, Trust } from './booking';
 export { canTransition } from './status';
 export type {
   BookingRequest,
