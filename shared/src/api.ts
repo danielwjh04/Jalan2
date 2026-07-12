@@ -45,3 +45,12 @@ export interface PhraseClipResponse {
   audioUrl: string | null;
   servedFrom: VoiceServedFrom;
 }
+
+// What POST /menu and GET /menu/:id serve. dishAudio is index-aligned with
+// menu.dishes; entries are null when no synthetic clip is available yet.
+export interface MenuResponse {
+  id: string;
+  menu: import('./menu').MenuJson;
+  servedFrom: 'live' | 'cache';
+  dishAudio: (string | null)[];
+}

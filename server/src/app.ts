@@ -1,6 +1,7 @@
 import express, { type Express } from 'express';
 import type { Config } from './config';
 import type { MessagingProvider } from './adapters/messaging/types';
+import type { Retrieval } from './adapters/retrieval/types';
 import type { TextToSpeech } from './adapters/tts/types';
 import type { PipelineDeps } from './pipeline/run';
 import { bookRouter } from './routes/book';
@@ -8,6 +9,7 @@ import { directoryRouter } from './routes/directory';
 import { fixturesRouter } from './routes/fixtures';
 import { ingestRouter } from './routes/ingest';
 import { itineraryRouter } from './routes/itinerary';
+import { menuRouter } from './routes/menu';
 import { voiceRouter } from './routes/voice';
 import { webhooksRouter } from './routes/webhooks';
 
@@ -16,10 +18,19 @@ export interface ServerContext {
   pipeline: PipelineDeps;
   messaging: MessagingProvider;
   tts: TextToSpeech;
+  retrieval: Retrieval;
 }
 
 export function createApp(ctx: ServerContext): Express {
   const app = express();
+  // Menu uploads carry base64 photos, so that router parses its own body with
+  // a larger limit and must mount before the global 1mb parser.
+  app.use(
+    menuRouter(
+      { config: ctx.config, openai: ctx.pipeline.openai, retrieval: ctx.retrieval },
+      ctx.tts,
+    ),
+  );
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: false }));
   app.get('/health', (_req, res) => {

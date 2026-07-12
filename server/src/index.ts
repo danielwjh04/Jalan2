@@ -3,6 +3,7 @@ import { createApp } from './app';
 import { loadConfig } from './config';
 import { pickExtractor } from './adapters/extractor';
 import { pickMessagingProvider } from './adapters/messaging';
+import { pickRetrieval } from './adapters/retrieval';
 import { pickStt } from './adapters/stt';
 import { pickTts } from './adapters/tts';
 import { handleInbound } from './services/booking';
@@ -15,6 +16,7 @@ const app = createApp({
   config,
   messaging,
   tts: pickTts(config),
+  retrieval: pickRetrieval(config),
   pipeline: {
     config,
     extractor: pickExtractor(config),

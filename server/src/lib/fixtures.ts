@@ -2,8 +2,11 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import type { FixtureRef } from '@shared/api';
 import { BookingJsonSchema, type BookingJson } from '@shared/booking';
+import { MenuJsonSchema, type MenuJson } from '@shared/menu';
 import { normalizeVideoUrl } from '@shared/videoUrl';
 import { fixturesRoot } from './paths';
+
+export const MENU_FIXTURE_SLUG = 'kopitiam-01';
 
 let manifestCache: Map<string, string> | null = null;
 
@@ -60,6 +63,20 @@ export function loadCachedBooking(slug: string): BookingJson | null {
   if (!existsSync(cachedPath)) return null;
   const parsed = BookingJsonSchema.safeParse(JSON.parse(readFileSync(cachedPath, 'utf8')));
   return parsed.success ? parsed.data : null;
+}
+
+export function loadCachedMenu(slug: string = MENU_FIXTURE_SLUG): MenuJson | null {
+  const cachedPath = path.join(fixturesRoot(), 'menu', slug, 'menu.cached.json');
+  if (!existsSync(cachedPath)) return null;
+  const parsed = MenuJsonSchema.safeParse(JSON.parse(readFileSync(cachedPath, 'utf8')));
+  return parsed.success ? parsed.data : null;
+}
+
+export function findMenuImagePath(slug: string, file: string): string | null {
+  if (!/^[a-z0-9-]+$/.test(slug)) return null;
+  if (!/^[a-z0-9][a-z0-9.-]*\.(jpg|jpeg|png)$/.test(file) || file.includes('..')) return null;
+  const imagePath = path.join(fixturesRoot(), 'menu', slug, 'images', file);
+  return existsSync(imagePath) ? imagePath : null;
 }
 
 export function resetFixtureCache(): void {

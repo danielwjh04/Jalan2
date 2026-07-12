@@ -71,3 +71,7 @@ export function briefClip(
 export function phraseClip(deps: VoiceDeps, phrase: PhraseClip): Promise<VoiceClip> {
   return resolveVoiceAudio(deps, `${phrase.id}.mp3`, phrase.textLocal);
 }
+
+export function textClip(deps: VoiceDeps, text: string): Promise<VoiceClip> {
+  return resolveVoiceAudio(deps, null, text);
+}

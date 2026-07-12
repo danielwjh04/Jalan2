@@ -18,7 +18,10 @@ export type {
   DirectoryEntry,
   FixtureCard,
   FixtureRef,
+  MenuResponse,
   PhraseClipResponse,
   VoiceBriefResponse,
   VoiceServedFrom,
 } from './api';
+export { DishSchema, MenuJsonSchema, MenuJsonWireSchema } from './menu';
+export type { Dish, MenuJson, MenuJsonWire } from './menu';

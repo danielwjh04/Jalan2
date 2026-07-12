@@ -1,0 +1,45 @@
+{
+  "stall_name": "Kopitiam demo board (Kuching)",
+  "dishes": [
+    {
+      "name_local": "Kolo mee",
+      "name_english": "Springy egg noodles tossed in shallot oil with minced pork",
+      "price_myr": 8,
+      "image_url": null,
+      "order_phrase": "Kolo mee satu, bang.",
+      "allergens": ["gluten", "egg"]
+    },
+    {
+      "name_local": "Laksa Sarawak",
+      "name_english": "Rice vermicelli in spicy coconut prawn broth",
+      "price_myr": 12,
+      "image_url": null,
+      "order_phrase": "Laksa Sarawak satu, kurang pedas.",
+      "allergens": ["shellfish", "coconut"]
+    },
+    {
+      "name_local": "Mee rebus",
+      "name_english": "Noodles in sweet-savoury gravy",
+      "price_myr": 7.5,
+      "image_url": null,
+      "order_phrase": "Mee rebus satu, boleh?",
+      "allergens": ["gluten", "peanuts"]
+    },
+    {
+      "name_local": "Kopi O",
+      "name_english": "Black coffee with sugar",
+      "price_myr": 2.5,
+      "image_url": null,
+      "order_phrase": "Kopi O satu.",
+      "allergens": []
+    },
+    {
+      "name_local": "Teh C peng",
+      "name_english": "Iced tea with evaporated milk",
+      "price_myr": 3,
+      "image_url": null,
+      "order_phrase": "Teh C peng satu, kurang manis.",
+      "allergens": ["dairy"]
+    }
+  ]
+}

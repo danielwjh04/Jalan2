@@ -6,10 +6,12 @@ import { StatusBar } from 'expo-status-bar';
 import type { FixtureCard as FixtureCardData } from '@shared/api';
 import { normalizeVideoUrl } from '@shared/videoUrl';
 import { FixtureCard } from '@/components/FixtureCard';
+import { GradientButton } from '@/components/GradientButton';
 import { HomeHeader } from '@/components/HomeHeader';
 import { PasteBar } from '@/components/PasteBar';
 import { getFixtures } from '@/lib/api';
 import { ingestVideo } from '@/lib/ingest';
+import { scanMenu, type MenuSource } from '@/lib/menu';
 import { colors, eyebrow, radius, spacing } from '@/lib/theme';
 
 export default function HomeScreen(): React.ReactElement {
@@ -41,6 +43,21 @@ export default function HomeScreen(): React.ReactElement {
       .finally(() => setBusy(false));
   };
 
+  const startMenuScan = (source: MenuSource): void => {
+    setBusy(true);
+    scanMenu(source)
+      .catch((cause: unknown) => Alert.alert('Could not read menu', String(cause)))
+      .finally(() => setBusy(false));
+  };
+
+  const chooseMenuSource = (): void => {
+    Alert.alert('Scan a kopitiam menu', 'Where is the menu photo?', [
+      { text: 'Take photo', onPress: () => startMenuScan('camera') },
+      { text: 'Pick from library', onPress: () => startMenuScan('library') },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  };
+
   const regions = [...new Set(fixtures.map((f) => f.region).filter((r): r is string => !!r))];
 
   return (
@@ -51,6 +68,7 @@ export default function HomeScreen(): React.ReactElement {
         <PasteBar prefill={prefill} busy={busy} onSubmit={submit} />
       </View>
       <View style={styles.content}>
+        <GradientButton label="Scan a kopitiam menu" busy={busy} onPress={chooseMenuSource} />
         {fixtures.length > 0 && (
           <>
             <Text style={styles.section}>Demo videos</Text>

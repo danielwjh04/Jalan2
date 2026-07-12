@@ -3,6 +3,7 @@ import type {
   BriefLang,
   DirectoryEntry,
   FixtureCard,
+  MenuResponse,
   PhraseClipResponse,
   VoiceBriefResponse,
 } from '@shared/api';
@@ -64,6 +65,17 @@ export function getVoiceBrief(id: string, lang: BriefLang): Promise<VoiceBriefRe
 
 export function getPhrases(): Promise<PhraseClipResponse[]> {
   return request('/voice/phrases');
+}
+
+export function postMenu(payload: {
+  imageBase64: string;
+  mimeType: 'image/jpeg' | 'image/png';
+}): Promise<MenuResponse> {
+  return post('/menu', payload);
+}
+
+export function getMenu(id: string): Promise<MenuResponse> {
+  return request(`/menu/${id}`);
 }
 
 export function serverUrl(path: string): string {
