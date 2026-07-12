@@ -14,21 +14,28 @@ Ship one 90-second loop: paste (or share) a video, extract, fuse into Booking JS
 itinerary card, map pin, transit hand-off, WhatsApp booking round-trip, card flips to
 CONFIRMED, operator opts in by replying YES.
 
-Jalan2 should:
-- Feature 1: video-to-booking engine (extractor, speech-to-text, vision, fusion into
-  a locked Booking JSON schema).
-- Feature 2: demand-built directory with consensual operator opt-in. No speculative
-  spam, no PII harvesting.
-- Feature 3: transit hand-off. Map pins plus an EasyBook/redBus deep-link. A hand-off,
-  not an integration.
-- Feature 4: booking agent. Real WhatsApp send plus inbound webhook that flips the
-  itinerary to CONFIRMED.
-- Feature 5 (optional polish, cut first): trust badge plus spoken safety brief.
+Build Spec v3 priority stack (cut from the bottom, never the top):
+- P1 Core loop: video-to-booking engine (extractor, speech-to-text, vision, fusion
+  into the locked Booking JSON schema), demand-built directory with consensual
+  operator opt-in (no speculative spam, no PII harvesting), transit hand-off (map
+  pin plus EasyBook deep-link, a hand-off, not an integration), and the booking
+  agent (WhatsApp send plus inbound webhook that flips the itinerary to CONFIRMED).
+- P2 Voice as core (ElevenLabs track entry): Scribe STT for video narration in the
+  pipeline; TTS speaks a multilingual safety brief per itinerary plus
+  order-like-a-local Malay/Manglish phrase clips. Voice is core UX, not garnish,
+  and always labeled as synthetic.
+- P3 Kopitiam swipe: menu photo to dishes (same vision stack) to Exa dish images
+  to a swipe deck; each shortlisted dish carries its order phrase and voice clip.
+- P4 Exa trust signal: operator web-presence search rendered as a due-diligence
+  badge with evidence snippets, never a certification.
+- P5 Databricks bridge (conditional): only if P1 to P3 are demo-ready by end of
+  Day 4 (15 July). Otherwise cut it without mourning; the demo is never risked
+  for a side prize.
 
-Features 1 to 4 are the demo. Do not turn this into a general travel platform, a real
+P1 to P4 are the demo. Do not turn this into a general travel platform, a real
 database-backed product, an auth system, a payments flow, or a polished UI without a
-working loop. Anything not in features 1 to 5 is a phase-2 sentence in the pitch, not
-a build target.
+working loop. Anything not in P1 to P5 is a phase-2 sentence in the pitch, not a
+build target.
 
 ## 2. Think Before Coding
 

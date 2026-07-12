@@ -97,4 +97,21 @@ describe('handleInbound', () => {
   it('returns null when nothing is pending', () => {
     expect(handleInbound({ from: MOCK_OPERATOR_ADDRESS, text: 'YES' })).toBeNull();
   });
+
+  it('ignores a reply from an address no booking was sent to', async () => {
+    const id = readyItinerary();
+    await bookItinerary(messaging, config, id, { dateISO: '2026-07-12', pax: 2 });
+    expect(handleInbound({ from: 'whatsapp:+60000000000', text: 'YES' })).toBeNull();
+    expect(getItinerary(id)?.status).toBe('PENDING_CONFIRM');
+    expect(rankedDirectory()[0].optedIn).toBe(false);
+  });
+
+  it('still confirms from the matching operator address', async () => {
+    const id = readyItinerary();
+    await bookItinerary(messaging, config, id, { dateISO: '2026-07-12', pax: 2 });
+    handleInbound({ from: 'unknown:sender', text: 'YES' });
+    const updated = handleInbound({ from: MOCK_OPERATOR_ADDRESS, text: 'YES' });
+    expect(updated?.id).toBe(id);
+    expect(updated?.status).toBe('CONFIRMED');
+  });
 });

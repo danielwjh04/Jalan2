@@ -68,10 +68,13 @@ export async function bookItinerary(
 }
 
 export function handleInbound(message: InboundMessage): Itinerary | null {
+  // Strict correlation: a reply confirms only a booking that was actually sent
+  // to that sender. Newest-first resolves multiple pendings to the same
+  // operator; an unknown sender must never confirm anything.
   const pending = allItineraries()
     .filter((it) => it.status === 'PENDING_CONFIRM')
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-  const target = pending.find((it) => it.operatorAddress === message.from) ?? pending[0];
+  const target = pending.find((it) => it.operatorAddress === message.from) ?? null;
   if (!target) return null;
   appendMessage(target.id, {
     direction: 'inbound',
