@@ -42,7 +42,14 @@
           "imageWidth": 76
         }
       ],
-      "expo-audio"
+      "expo-audio",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Jalan2 uses the camera so you can snap a kopitiam menu board to scan.",
+          "photosPermission": "Jalan2 uses your photo library so you can pick a menu photo to scan."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

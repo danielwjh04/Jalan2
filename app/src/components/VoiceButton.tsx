@@ -1,5 +1,6 @@
+import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useAudioPlayer } from 'expo-audio';
+import { setAudioModeAsync, useAudioPlayer } from 'expo-audio';
 import { colors, radius, spacing } from '@/lib/theme';
 
 interface VoiceButtonProps {
@@ -11,6 +12,10 @@ interface VoiceButtonProps {
 // requirement, not decoration. Remount with a key when audioUrl changes.
 export function VoiceButton({ audioUrl, label }: VoiceButtonProps): React.ReactElement {
   const player = useAudioPlayer(audioUrl);
+  useEffect(() => {
+    // The iOS ring/silent switch mutes playback unless the session opts out.
+    void setAudioModeAsync({ playsInSilentMode: true });
+  }, []);
   const disabled = !audioUrl;
   const play = (): void => {
     player.seekTo(0);
