@@ -14,3 +14,11 @@ export function downloadsRoot(): string {
 export function runWorkDir(id: string): string {
   return path.join(serverRoot, 'data', 'runs', id);
 }
+
+export function voiceCacheDir(): string {
+  return path.join(serverRoot, 'data', 'voice-cache');
+}
+
+export function voiceFixturesRoot(): string {
+  return path.join(serverRoot, 'fixtures', 'voice');
+}

@@ -1,0 +1,56 @@
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useAudioPlayer } from 'expo-audio';
+import { colors, radius, spacing } from '@/lib/theme';
+
+interface VoiceButtonProps {
+  audioUrl: string | null;
+  label: string;
+}
+
+// Every clip is synthetic stock-voice TTS; the tag is a responsible AI
+// requirement, not decoration. Remount with a key when audioUrl changes.
+export function VoiceButton({ audioUrl, label }: VoiceButtonProps): React.ReactElement {
+  const player = useAudioPlayer(audioUrl);
+  const disabled = !audioUrl;
+  const play = (): void => {
+    player.seekTo(0);
+    player.play();
+  };
+  return (
+    <Pressable
+      style={[styles.button, disabled && styles.disabled]}
+      onPress={play}
+      disabled={disabled}
+    >
+      <Text style={[styles.label, disabled && styles.labelDisabled]} numberOfLines={1}>
+        {disabled ? 'Audio unavailable' : label}
+      </Text>
+      <View style={styles.tag}>
+        <Text style={styles.tagText}>AI voice</Text>
+      </View>
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing(2),
+    backgroundColor: colors.tide,
+    borderRadius: radius.control,
+    paddingVertical: spacing(3),
+    paddingHorizontal: spacing(3.5),
+  },
+  disabled: { backgroundColor: colors.mist },
+  label: { color: colors.card, fontWeight: '700', fontSize: 14, flexShrink: 1 },
+  labelDisabled: { color: colors.inkSoft },
+  tag: {
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    borderRadius: radius.pill,
+    paddingVertical: spacing(0.75),
+    paddingHorizontal: spacing(2),
+  },
+  tagText: { color: colors.card, fontSize: 10, fontWeight: '700', letterSpacing: 0.6 },
+});

@@ -22,3 +22,26 @@ export interface FixtureCard extends FixtureRef {
   meetingPointName: string | null;
   region: string | null;
 }
+
+export type BriefLang = 'en' | 'ms';
+
+export type VoiceServedFrom = 'fixture' | 'cache' | 'live' | null;
+
+// All voice audio is synthetic stock-voice TTS; synthetic is always true so
+// clients cannot forget to label it.
+export interface VoiceBriefResponse {
+  itineraryId: string;
+  lang: BriefLang;
+  text: string;
+  synthetic: true;
+  audioUrl: string | null;
+  servedFrom: VoiceServedFrom;
+}
+
+export interface PhraseClipResponse {
+  id: string;
+  textLocal: string;
+  textEnglish: string;
+  audioUrl: string | null;
+  servedFrom: VoiceServedFrom;
+}

@@ -1,5 +1,11 @@
 import Constants from 'expo-constants';
-import type { DirectoryEntry, FixtureCard } from '@shared/api';
+import type {
+  BriefLang,
+  DirectoryEntry,
+  FixtureCard,
+  PhraseClipResponse,
+  VoiceBriefResponse,
+} from '@shared/api';
 import type { BookingRequest, Itinerary } from '@shared/status';
 import { resolveBaseUrl } from './baseUrl';
 
@@ -50,6 +56,14 @@ export function getDirectory(): Promise<DirectoryEntry[]> {
 
 export function getFixtures(): Promise<FixtureCard[]> {
   return request('/fixtures');
+}
+
+export function getVoiceBrief(id: string, lang: BriefLang): Promise<VoiceBriefResponse> {
+  return request(`/voice/brief/${id}?lang=${lang}`);
+}
+
+export function getPhrases(): Promise<PhraseClipResponse[]> {
+  return request('/voice/phrases');
 }
 
 export function serverUrl(path: string): string {

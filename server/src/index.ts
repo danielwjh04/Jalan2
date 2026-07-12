@@ -4,6 +4,7 @@ import { loadConfig } from './config';
 import { pickExtractor } from './adapters/extractor';
 import { pickMessagingProvider } from './adapters/messaging';
 import { pickStt } from './adapters/stt';
+import { pickTts } from './adapters/tts';
 import { handleInbound } from './services/booking';
 
 const config = loadConfig();
@@ -13,6 +14,7 @@ const messaging = pickMessagingProvider(config, (message) => void handleInbound(
 const app = createApp({
   config,
   messaging,
+  tts: pickTts(config),
   pipeline: {
     config,
     extractor: pickExtractor(config),

@@ -22,6 +22,14 @@ describe('loadConfig', () => {
     expect(config.OPENAI_API_KEY).toBeUndefined();
   });
 
+  it('defaults the voice layer to cached with no key required', () => {
+    const config = loadConfig({ ELEVENLABS_API_KEY: '' });
+    expect(config.TTS_PROVIDER).toBe('cached');
+    expect(config.ELEVENLABS_API_KEY).toBeUndefined();
+    expect(config.ELEVENLABS_TTS_MODEL).toBe('eleven_multilingual_v2');
+    expect(config.ELEVENLABS_STT_MODEL).toBe('scribe_v1');
+  });
+
   it('keeps a real value when one is set', () => {
     const config = loadConfig({ OPENAI_API_KEY: 'sk-test' });
     expect(config.OPENAI_API_KEY).toBe('sk-test');

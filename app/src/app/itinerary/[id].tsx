@@ -4,6 +4,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { BookSheet } from '@/components/BookSheet';
 import { ItineraryCard } from '@/components/ItineraryCard';
 import { MapCard } from '@/components/MapCard';
+import { SafetyBriefCard } from '@/components/SafetyBriefCard';
 import { StageProgress } from '@/components/StageProgress';
 import { StatusPill } from '@/components/StatusPill';
 import { TransitButton } from '@/components/TransitButton';
@@ -57,6 +58,7 @@ export default function ItineraryScreen(): React.ReactElement {
           />
           <MapCard point={booking.meeting_point} />
           <TransitButton point={booking.meeting_point} />
+          <SafetyBriefCard itineraryId={itinerary.id} />
           {itinerary.status === 'DRAFT' && (
             <BookSheet itineraryId={itinerary.id} booking={booking} onBooked={apply} />
           )}
