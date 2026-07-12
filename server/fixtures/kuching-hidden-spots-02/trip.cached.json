@@ -1,0 +1,58 @@
+{
+  "id": "kuching-hidden-spots-02",
+  "title": "Wild Kuching day trip",
+  "region": "Greater Kuching, Sarawak",
+  "source_creator": "Wanderline",
+  "source_url": "https://vt.tiktok.com/ZSCt5KWLF/",
+  "cover_url": "/covers/kuching-hidden-spots-02",
+  "demo": true,
+  "stops": [
+    {
+      "id": "semenggoh",
+      "name": "Semenggoh Wildlife Centre",
+      "summary": "Start early for the best chance to observe rehabilitated orangutans in protected forest.",
+      "location": { "lat": 1.4019845, "lng": 110.3144405 },
+      "image_url": null,
+      "estimated_spend_myr": null,
+      "duration_minutes": 120,
+      "sources": [
+        {
+          "title": "Sarawak Forestry",
+          "url": "https://sarawakforestry.com/parks-and-reserves/semenggoh-wildlife-centre/"
+        }
+      ]
+    },
+    {
+      "id": "fairy-cave",
+      "name": "Fairy Cave",
+      "summary": "Walk into a dramatic limestone chamber near Bau and allow time for the steep access steps.",
+      "location": { "lat": 1.3817723, "lng": 110.1171684 },
+      "image_url": null,
+      "estimated_spend_myr": null,
+      "duration_minutes": 90,
+      "sources": [
+        {
+          "title": "Google Maps",
+          "url": "https://www.google.com/maps/search/?api=1&query=Fairy%20Cave%20Bau%20Sarawak"
+        }
+      ]
+    },
+    {
+      "id": "bako",
+      "name": "Bako National Park",
+      "summary": "Continue to Sarawak's oldest national park for coastal trails, wildlife and sandstone scenery.",
+      "location": { "lat": 1.7066874, "lng": 110.4663249 },
+      "image_url": null,
+      "estimated_spend_myr": null,
+      "duration_minutes": 240,
+      "sources": [
+        {
+          "title": "Sarawak Forestry",
+          "url": "https://sarawakforestry.com/parks-and-reserves/bako-national-park/"
+        }
+      ]
+    }
+  ],
+  "selected_stop_ids": ["semenggoh", "fairy-cave", "bako"],
+  "route": null
+}

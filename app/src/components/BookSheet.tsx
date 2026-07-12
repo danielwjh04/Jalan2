@@ -4,7 +4,7 @@ import type { BookingJson } from '@shared/booking';
 import type { Itinerary } from '@shared/status';
 import { GradientButton } from '@/components/GradientButton';
 import { book } from '@/lib/api';
-import { cardShadow, colors, radius, spacing } from '@/lib/theme';
+import { cardShadow, colors, fonts, radius, spacing, type } from '@/lib/theme';
 import { buildWhatsAppDeepLink } from '@/lib/whatsappLink';
 
 interface Props {
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     gap: spacing(3.5),
     ...cardShadow,
   },
-  heading: { color: colors.ink, fontWeight: '800', fontSize: 17 },
+  heading: { ...type.heading, color: colors.ink },
   chipRow: { flexDirection: 'row', gap: spacing(2) },
   chip: {
     backgroundColor: colors.canvas,
@@ -112,10 +112,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing(2.5),
   },
   chipActive: { backgroundColor: colors.tide },
-  chipText: { color: colors.inkSoft, fontSize: 13, fontWeight: '600' },
+  chipText: { color: colors.inkSoft, fontFamily: fonts.medium, fontSize: 13 },
   chipTextActive: { color: colors.card },
   paxRow: { flexDirection: 'row', alignItems: 'center', gap: spacing(3) },
-  paxLabel: { color: colors.inkSoft, fontSize: 14, marginRight: spacing(1) },
+  paxLabel: { ...type.body, color: colors.inkSoft, marginRight: spacing(1) },
   stepper: {
     width: 38,
     height: 38,
@@ -124,14 +124,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepperText: { color: colors.ink, fontSize: 18, fontWeight: '700' },
+  stepperText: { color: colors.ink, fontFamily: fonts.medium, fontSize: 18 },
   paxValue: {
     color: colors.ink,
-    fontSize: 17,
-    fontWeight: '800',
+    fontFamily: fonts.semibold,
+    fontSize: 16,
     minWidth: 22,
     textAlign: 'center',
   },
-  error: { color: colors.danger, fontSize: 13 },
-  note: { color: colors.inkSoft, fontSize: 12, textAlign: 'center' },
+  error: { ...type.label, color: colors.danger, fontFamily: fonts.regular },
+  note: { ...type.caption, color: colors.inkSoft, textAlign: 'center' },
 });

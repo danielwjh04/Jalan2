@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import type { Dish } from '@shared/menu';
 import { DishCard } from '@/components/DishCard';
-import { colors, radius, spacing } from '@/lib/theme';
+import { colors, fonts, radius, spacing, type } from '@/lib/theme';
 
 interface SwipeDeckProps {
   dishes: Dish[];
@@ -112,6 +112,6 @@ const styles = StyleSheet.create({
   },
   like: { left: spacing(4), borderColor: colors.confirm, transform: [{ rotate: '-12deg' }] },
   pass: { right: spacing(4), borderColor: colors.danger, transform: [{ rotate: '12deg' }] },
-  badgeText: { fontWeight: '800', fontSize: 16, color: colors.ink },
-  hint: { color: colors.inkSoft, fontSize: 12, textAlign: 'center' },
+  badgeText: { color: colors.ink, fontFamily: fonts.semibold, fontSize: 16 },
+  hint: { ...type.caption, color: colors.inkSoft, textAlign: 'center' },
 });

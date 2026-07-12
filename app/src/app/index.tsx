@@ -12,7 +12,7 @@ import { PasteBar } from '@/components/PasteBar';
 import { getFixtures } from '@/lib/api';
 import { ingestVideo } from '@/lib/ingest';
 import { scanMenu, type MenuSource } from '@/lib/menu';
-import { colors, eyebrow, radius, spacing } from '@/lib/theme';
+import { colors, eyebrow, radius, spacing, type } from '@/lib/theme';
 
 export default function HomeScreen(): React.ReactElement {
   const [prefill, setPrefill] = useState('');
@@ -114,11 +114,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: spacing(1),
   },
-  devButtonText: { color: colors.inkSoft, fontSize: 13 },
+  devButtonText: { ...type.caption, color: colors.inkSoft },
   directoryLink: {
+    ...type.button,
     color: colors.tide,
-    fontSize: 15,
-    fontWeight: '700',
     marginTop: spacing(4),
     textAlign: 'center',
   },

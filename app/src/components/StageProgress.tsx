@@ -1,6 +1,6 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import type { PipelineStage } from '@shared/status';
-import { cardShadow, colors, radius, spacing } from '@/lib/theme';
+import { cardShadow, colors, fonts, radius, spacing } from '@/lib/theme';
 
 const STEPS: { stage: PipelineStage; label: string }[] = [
   { stage: 'EXTRACTING', label: 'Extracting video' },
@@ -62,8 +62,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   dotDone: { backgroundColor: colors.confirm },
-  label: { color: colors.inkSoft, fontSize: 15 },
-  labelActive: { color: colors.ink, fontWeight: '600' },
-  errorTitle: { color: colors.danger, fontWeight: '700', fontSize: 16 },
-  errorText: { color: colors.inkSoft, fontSize: 13 },
+  label: { color: colors.inkSoft, fontFamily: fonts.regular, fontSize: 15 },
+  labelActive: { color: colors.ink, fontFamily: fonts.medium },
+  errorTitle: { color: colors.danger, fontFamily: fonts.semibold, fontSize: 16 },
+  errorText: { color: colors.inkSoft, fontFamily: fonts.regular, fontSize: 13 },
 });

@@ -1,17 +1,39 @@
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import type { BriefLang, VoiceBriefResponse } from '@shared/api';
-import { VoiceButton } from '@/components/VoiceButton';
-import { getVoiceBrief, serverUrl } from '@/lib/api';
-import { cardShadow, colors, eyebrow, radius, spacing } from '@/lib/theme';
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import type { BriefLang, VoiceBriefResponse } from "@shared/api";
+import { VoiceButton } from "@/components/VoiceButton";
+import { getTripVoiceBrief, getVoiceBrief, serverUrl } from "@/lib/api";
+import {
+  cardShadow,
+  colors,
+  eyebrow,
+  radius,
+  spacing,
+  type,
+} from "@/lib/theme";
 
 const LANGS: readonly { key: BriefLang; label: string }[] = [
-  { key: 'en', label: 'English' },
-  { key: 'ms', label: 'Bahasa' },
+  { key: "en", label: "English" },
+  { key: "ms", label: "Bahasa" },
+  { key: "zh", label: "中文" },
 ];
 
-export function SafetyBriefCard({ itineraryId }: { itineraryId: string }): React.ReactElement {
-  const [lang, setLang] = useState<BriefLang>('en');
+interface Props {
+  itineraryId?: string;
+  tripId?: string;
+}
+
+export function SafetyBriefCard({
+  itineraryId,
+  tripId,
+}: Props): React.ReactElement {
+  const [lang, setLang] = useState<BriefLang>("en");
   const [brief, setBrief] = useState<VoiceBriefResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,7 +41,10 @@ export function SafetyBriefCard({ itineraryId }: { itineraryId: string }): React
     let cancelled = false;
     setBrief(null);
     setError(null);
-    getVoiceBrief(itineraryId, lang)
+    const load = tripId
+      ? getTripVoiceBrief(tripId, lang)
+      : getVoiceBrief(itineraryId ?? "", lang);
+    load
       .then((data) => {
         if (!cancelled) setBrief(data);
       })
@@ -29,7 +54,7 @@ export function SafetyBriefCard({ itineraryId }: { itineraryId: string }): React
     return () => {
       cancelled = true;
     };
-  }, [itineraryId, lang]);
+  }, [itineraryId, lang, tripId]);
 
   const audioUrl = brief?.audioUrl ? serverUrl(brief.audioUrl) : null;
   return (
@@ -43,7 +68,11 @@ export function SafetyBriefCard({ itineraryId }: { itineraryId: string }): React
               style={[styles.langChip, lang === key && styles.langChipActive]}
               onPress={() => setLang(key)}
             >
-              <Text style={[styles.langText, lang === key && styles.langTextActive]}>{label}</Text>
+              <Text
+                style={[styles.langText, lang === key && styles.langTextActive]}
+              >
+                {label}
+              </Text>
             </Pressable>
           ))}
         </View>
@@ -53,13 +82,12 @@ export function SafetyBriefCard({ itineraryId }: { itineraryId: string }): React
       {brief && (
         <>
           <Text style={styles.body}>{brief.text}</Text>
-          <VoiceButton key={audioUrl ?? 'none'} audioUrl={audioUrl} label="Play safety brief" />
-          <View style={styles.footer}>
-            <Text style={styles.caption}>Synthetic AI-generated voice</Text>
-            {brief.servedFrom !== null && brief.servedFrom !== 'live' && (
-              <Text style={styles.cachedTag}>cached</Text>
-            )}
-          </View>
+          <VoiceButton
+            key={audioUrl ?? "none"}
+            audioUrl={audioUrl}
+            label="Play safety brief"
+          />
+          <Text style={styles.caption}>Synthetic voice</Text>
         </>
       )}
     </View>
@@ -74,8 +102,12 @@ const styles = StyleSheet.create({
     gap: spacing(3),
     ...cardShadow,
   },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  langRow: { flexDirection: 'row', gap: spacing(1.5) },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  langRow: { flexDirection: "row", gap: spacing(1.5) },
   langChip: {
     borderRadius: radius.pill,
     paddingVertical: spacing(1),
@@ -83,20 +115,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   langChipActive: { backgroundColor: colors.tideSoft },
-  langText: { color: colors.inkSoft, fontSize: 12, fontWeight: '600' },
+  langText: { ...type.label, color: colors.inkSoft },
   langTextActive: { color: colors.tide },
-  body: { color: colors.ink, fontSize: 14, lineHeight: 21 },
-  footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  caption: { color: colors.inkSoft, fontSize: 11 },
-  cachedTag: {
-    color: colors.pending,
-    backgroundColor: colors.pendingSoft,
-    fontSize: 10,
-    fontWeight: '700',
-    borderRadius: radius.pill,
-    paddingVertical: spacing(0.5),
-    paddingHorizontal: spacing(2),
-    overflow: 'hidden',
-  },
-  error: { color: colors.danger, fontSize: 12 },
+  body: { ...type.body, color: colors.ink },
+  caption: { ...type.caption, color: colors.inkSoft },
+  error: { ...type.caption, color: colors.danger },
 });

@@ -1,6 +1,6 @@
 import { Alert, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { buildTransitLinks, type MeetingPoint } from '@shared/transit';
-import { colors, radius, spacing } from '@/lib/theme';
+import { colors, fonts, radius, spacing } from '@/lib/theme';
 
 export function TransitButton({ point }: { point: MeetingPoint }): React.ReactElement {
   const links = buildTransitLinks(point);
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   },
   primary: { backgroundColor: colors.tide },
   tonal: { backgroundColor: colors.tideSoft },
-  text: { fontWeight: '700', fontSize: 14 },
+  text: { fontFamily: fonts.semibold, fontSize: 14 },
   primaryText: { color: colors.card },
   tonalText: { color: colors.tide },
 });

@@ -1,0 +1,58 @@
+{
+  "id": "kuching-cafes-03",
+  "title": "Carpenter Street cafe walk",
+  "region": "Kuching, Sarawak",
+  "source_creator": "Wanka玩咖",
+  "source_url": "https://www.xiaohongshu.com/discovery/item/69cfdb26000000002102d14b",
+  "cover_url": "/covers/kuching-cafes-03",
+  "demo": true,
+  "stops": [
+    {
+      "id": "carpenter-street",
+      "name": "Carpenter Street",
+      "summary": "Begin among heritage shophouses, temples and independent shops in Kuching's old town.",
+      "location": { "lat": 1.5582653, "lng": 110.3459455 },
+      "image_url": null,
+      "estimated_spend_myr": 0,
+      "duration_minutes": 35,
+      "sources": [
+        {
+          "title": "Google Maps",
+          "url": "https://www.google.com/maps/search/?api=1&query=Carpenter%20Street%20Kuching"
+        }
+      ]
+    },
+    {
+      "id": "black-bean",
+      "name": "Black Bean Coffee",
+      "summary": "Pause for locally roasted Sarawak coffee in a compact old-town cafe.",
+      "location": { "lat": 1.557732, "lng": 110.3477083 },
+      "image_url": null,
+      "estimated_spend_myr": null,
+      "duration_minutes": 45,
+      "sources": [
+        {
+          "title": "Google Maps",
+          "url": "https://www.google.com/maps/search/?api=1&query=Black%20Bean%20Coffee%20Kuching"
+        }
+      ]
+    },
+    {
+      "id": "old-court-house",
+      "name": "The Old Court House",
+      "summary": "End at a restored civic landmark with courtyard dining near the waterfront.",
+      "location": { "lat": 1.5596034, "lng": 110.3447998 },
+      "image_url": null,
+      "estimated_spend_myr": null,
+      "duration_minutes": 60,
+      "sources": [
+        {
+          "title": "Google Maps",
+          "url": "https://www.google.com/maps/search/?api=1&query=The%20Old%20Court%20House%20Kuching"
+        }
+      ]
+    }
+  ],
+  "selected_stop_ids": ["carpenter-street", "black-bean", "old-court-house"],
+  "route": null
+}

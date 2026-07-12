@@ -1,6 +1,6 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, gradients, radius, spacing } from '@/lib/theme';
+import { colors, gradients, radius, spacing, type } from '@/lib/theme';
 
 interface Props {
   label: string;
@@ -45,5 +45,5 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   dimmed: { opacity: 0.55 },
-  text: { color: colors.card, fontWeight: '800', fontSize: 16 },
+  text: { ...type.button, color: colors.card },
 });

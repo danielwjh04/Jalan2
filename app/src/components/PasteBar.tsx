@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { cardShadow, colors, radius, spacing } from '@/lib/theme';
+import { cardShadow, colors, fonts, radius, spacing, type } from '@/lib/theme';
 
 interface Props {
   prefill: string;
@@ -52,7 +52,13 @@ const styles = StyleSheet.create({
     borderColor: colors.mist,
     ...cardShadow,
   },
-  input: { flex: 1, color: colors.ink, fontSize: 15, paddingVertical: spacing(2) },
+  input: {
+    flex: 1,
+    color: colors.ink,
+    fontFamily: fonts.regular,
+    fontSize: 15,
+    paddingVertical: spacing(2),
+  },
   button: {
     backgroundColor: colors.tide,
     borderRadius: radius.pill,
@@ -61,5 +67,5 @@ const styles = StyleSheet.create({
     marginLeft: spacing(2),
   },
   buttonDisabled: { opacity: 0.4 },
-  buttonText: { color: colors.card, fontWeight: '700', fontSize: 15 },
+  buttonText: { ...type.button, color: colors.card },
 });

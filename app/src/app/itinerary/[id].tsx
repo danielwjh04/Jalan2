@@ -10,7 +10,7 @@ import { StatusPill } from '@/components/StatusPill';
 import { TransitButton } from '@/components/TransitButton';
 import { serverUrl } from '@/lib/api';
 import { useItinerary } from '@/lib/useItinerary';
-import { cardShadow, colors, gradients, radius, spacing } from '@/lib/theme';
+import { cardShadow, colors, fonts, gradients, radius, spacing } from '@/lib/theme';
 
 export default function ItineraryScreen(): React.ReactElement {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -84,7 +84,7 @@ export default function ItineraryScreen(): React.ReactElement {
 const styles = StyleSheet.create({
   container: { padding: spacing(4), gap: spacing(3.5), paddingBottom: spacing(10) },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing(6) },
-  error: { color: colors.danger, fontSize: 14 },
+  error: { color: colors.danger, fontFamily: fonts.regular, fontSize: 14 },
   heroWrap: { borderRadius: radius.card, overflow: 'hidden', ...cardShadow },
   hero: { width: '100%', height: 210 },
   heroScrim: { ...StyleSheet.absoluteFillObject },
@@ -96,10 +96,10 @@ const styles = StyleSheet.create({
     padding: spacing(4),
     gap: spacing(0.5),
   },
-  heroTitle: { color: colors.card, fontSize: 22, fontWeight: '800', letterSpacing: -0.4 },
-  heroSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: '600' },
+  heroTitle: { color: colors.card, fontFamily: fonts.semibold, fontSize: 20, letterSpacing: -0.3 },
+  heroSubtitle: { color: 'rgba(255,255,255,0.85)', fontFamily: fonts.regular, fontSize: 13 },
   heroPill: { position: 'absolute', top: spacing(3), left: spacing(3) },
   messages: { gap: spacing(2), marginTop: spacing(1), paddingHorizontal: spacing(1) },
-  message: { color: colors.inkSoft, fontSize: 12, lineHeight: 17 },
-  inbound: { color: colors.confirm, fontWeight: '600' },
+  message: { color: colors.inkSoft, fontFamily: fonts.regular, fontSize: 12, lineHeight: 17 },
+  inbound: { color: colors.confirm, fontFamily: fonts.medium },
 });

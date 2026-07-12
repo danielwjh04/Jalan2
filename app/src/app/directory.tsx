@@ -3,7 +3,7 @@ import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import type { DirectoryEntry } from '@shared/api';
 import { getDirectory } from '@/lib/api';
-import { cardShadow, colors, radius, spacing } from '@/lib/theme';
+import { cardShadow, colors, fonts, radius, spacing, type } from '@/lib/theme';
 
 function initials(name: string): string {
   return name
@@ -69,7 +69,7 @@ export default function DirectoryScreen(): React.ReactElement {
 
 const styles = StyleSheet.create({
   container: { padding: spacing(4), gap: spacing(3), flexGrow: 1 },
-  empty: { color: colors.inkSoft, fontSize: 14, textAlign: 'center', marginTop: spacing(12) },
+  empty: { ...type.body, color: colors.inkSoft, textAlign: 'center', marginTop: spacing(12) },
   row: {
     backgroundColor: colors.card,
     borderRadius: radius.card,
@@ -87,11 +87,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { color: colors.tide, fontWeight: '800', fontSize: 15 },
+  avatarText: { color: colors.tide, fontFamily: fonts.medium, fontSize: 15 },
   info: { flex: 1, gap: spacing(0.5) },
-  name: { color: colors.ink, fontWeight: '700', fontSize: 16 },
-  activity: { color: colors.tide, fontSize: 13, fontWeight: '600' },
-  meta: { color: colors.inkSoft, fontSize: 12 },
+  name: { ...type.heading, color: colors.ink },
+  activity: { ...type.label, color: colors.tide },
+  meta: { ...type.caption, color: colors.inkSoft },
   badge: {
     borderRadius: radius.pill,
     paddingHorizontal: spacing(3),
@@ -99,5 +99,5 @@ const styles = StyleSheet.create({
   },
   badgeIn: { backgroundColor: colors.confirmSoft },
   badgeOut: { backgroundColor: colors.canvas },
-  badgeText: { fontSize: 11.5, fontWeight: '700' },
+  badgeText: { fontFamily: fonts.medium, fontSize: 12 },
 });

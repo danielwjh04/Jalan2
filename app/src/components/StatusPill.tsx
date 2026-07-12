@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import type { ItineraryStatus } from '@shared/status';
-import { colors, radius, spacing } from '@/lib/theme';
+import { colors, fonts, radius, spacing } from '@/lib/theme';
 
 const APPEARANCE: Record<ItineraryStatus, { label: string; color: string; bg: string }> = {
   DRAFT: { label: 'Ready to book', color: colors.tide, bg: colors.tideSoft },
@@ -30,5 +30,5 @@ const styles = StyleSheet.create({
     paddingVertical: spacing(2),
   },
   dot: { width: 7, height: 7, borderRadius: radius.pill },
-  text: { fontWeight: '700', fontSize: 13 },
+  text: { fontFamily: fonts.medium, fontSize: 13 },
 });

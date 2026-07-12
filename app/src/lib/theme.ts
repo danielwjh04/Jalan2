@@ -1,4 +1,4 @@
-import type { ViewStyle } from 'react-native';
+import type { TextStyle, ViewStyle } from 'react-native';
 
 export const colors = {
   canvas: '#F5F7FA',
@@ -23,6 +23,27 @@ export const gradients = {
   scrim: ['rgba(9,20,38,0)', 'rgba(9,20,38,0.82)'] as const,
 };
 
+// DM Sans is loaded in app/_layout.tsx. Regular is the default, medium
+// identifies compact UI, and semibold is reserved for primary hierarchy.
+export const fonts = {
+  regular: 'DMSans_400Regular',
+  medium: 'DMSans_500Medium',
+  semibold: 'DMSans_600SemiBold',
+} as const;
+
+export const type: Record<
+  'display' | 'title' | 'heading' | 'body' | 'label' | 'button' | 'caption',
+  TextStyle
+> = {
+  display: { fontFamily: fonts.semibold, fontSize: 28, lineHeight: 35, letterSpacing: -0.6 },
+  title: { fontFamily: fonts.semibold, fontSize: 20, lineHeight: 27, letterSpacing: -0.3 },
+  heading: { fontFamily: fonts.medium, fontSize: 16, lineHeight: 23 },
+  body: { fontFamily: fonts.regular, fontSize: 15, lineHeight: 22 },
+  label: { fontFamily: fonts.medium, fontSize: 13, lineHeight: 18 },
+  button: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 20 },
+  caption: { fontFamily: fonts.regular, fontSize: 12, lineHeight: 17 },
+};
+
 export function spacing(units: number): number {
   return units * 4;
 }
@@ -41,10 +62,10 @@ export const cardShadow: ViewStyle = {
   elevation: 2,
 };
 
-export const eyebrow = {
+export const eyebrow: TextStyle = {
   color: colors.inkSoft,
+  fontFamily: fonts.medium,
   fontSize: 11,
-  fontWeight: '700' as const,
-  letterSpacing: 1.4,
-  textTransform: 'uppercase' as const,
+  letterSpacing: 1.2,
+  textTransform: 'uppercase',
 };

@@ -1,6 +1,6 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
 import type { Dish } from '@shared/menu';
-import { cardShadow, colors, radius, spacing } from '@/lib/theme';
+import { cardShadow, colors, fonts, radius, spacing, type } from '@/lib/theme';
 
 export function DishCard({ dish }: { dish: Dish }): React.ReactElement {
   return (
@@ -43,22 +43,22 @@ const styles = StyleSheet.create({
   },
   image: { width: '100%', height: 240 },
   placeholder: { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.tideSoft },
-  placeholderText: { fontSize: 64, fontWeight: '800', color: colors.tide },
-  placeholderCaption: { color: colors.inkSoft, fontSize: 12, marginTop: spacing(1) },
+  placeholderText: { color: colors.tide, fontFamily: fonts.semibold, fontSize: 64 },
+  placeholderCaption: { ...type.caption, color: colors.inkSoft, marginTop: spacing(1) },
   body: { padding: spacing(4), gap: spacing(1.5) },
-  name: { color: colors.ink, fontSize: 22, fontWeight: '800', letterSpacing: -0.4 },
-  english: { color: colors.inkSoft, fontSize: 14, lineHeight: 20 },
-  price: { color: colors.tide, fontSize: 16, fontWeight: '800' },
+  name: { ...type.title, color: colors.ink },
+  english: { ...type.body, color: colors.inkSoft },
+  price: { color: colors.tide, fontFamily: fonts.semibold, fontSize: 16 },
   allergenRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(1.5) },
   allergen: {
     color: colors.pending,
     backgroundColor: colors.pendingSoft,
+    fontFamily: fonts.medium,
     fontSize: 11,
-    fontWeight: '700',
     borderRadius: radius.pill,
     paddingVertical: spacing(0.75),
     paddingHorizontal: spacing(2),
     overflow: 'hidden',
   },
-  caption: { color: colors.inkSoft, fontSize: 10 },
+  caption: { ...type.caption, color: colors.inkSoft },
 });

@@ -1,17 +1,19 @@
-import express, { type Express } from 'express';
-import type { Config } from './config';
-import type { MessagingProvider } from './adapters/messaging/types';
-import type { Retrieval } from './adapters/retrieval/types';
-import type { TextToSpeech } from './adapters/tts/types';
-import type { PipelineDeps } from './pipeline/run';
-import { bookRouter } from './routes/book';
-import { directoryRouter } from './routes/directory';
-import { fixturesRouter } from './routes/fixtures';
-import { ingestRouter } from './routes/ingest';
-import { itineraryRouter } from './routes/itinerary';
-import { menuRouter } from './routes/menu';
-import { voiceRouter } from './routes/voice';
-import { webhooksRouter } from './routes/webhooks';
+import express, { type Express } from "express";
+import type { Config } from "./config";
+import type { MessagingProvider } from "./adapters/messaging/types";
+import type { Retrieval } from "./adapters/retrieval/types";
+import type { RoutingProvider } from "./adapters/routing/types";
+import type { TextToSpeech } from "./adapters/tts/types";
+import type { PipelineDeps } from "./pipeline/run";
+import { bookRouter } from "./routes/book";
+import { directoryRouter } from "./routes/directory";
+import { fixturesRouter } from "./routes/fixtures";
+import { ingestRouter } from "./routes/ingest";
+import { itineraryRouter } from "./routes/itinerary";
+import { menuRouter } from "./routes/menu";
+import { tripsRouter } from "./routes/trips";
+import { voiceRouter } from "./routes/voice";
+import { webhooksRouter } from "./routes/webhooks";
 
 export interface ServerContext {
   config: Config;
@@ -19,6 +21,7 @@ export interface ServerContext {
   messaging: MessagingProvider;
   tts: TextToSpeech;
   retrieval: Retrieval;
+  routing: RoutingProvider;
 }
 
 export function createApp(ctx: ServerContext): Express {
@@ -27,17 +30,22 @@ export function createApp(ctx: ServerContext): Express {
   // a larger limit and must mount before the global 1mb parser.
   app.use(
     menuRouter(
-      { config: ctx.config, openai: ctx.pipeline.openai, retrieval: ctx.retrieval },
+      {
+        config: ctx.config,
+        openai: ctx.pipeline.openai,
+        retrieval: ctx.retrieval,
+      },
       ctx.tts,
     ),
   );
-  app.use(express.json({ limit: '1mb' }));
+  app.use(express.json({ limit: "1mb" }));
   app.use(express.urlencoded({ extended: false }));
-  app.get('/health', (_req, res) => {
+  app.get("/health", (_req, res) => {
     res.json({ ok: true });
   });
   app.use(ingestRouter(ctx.pipeline));
   app.use(itineraryRouter());
+  app.use(tripsRouter(ctx.routing));
   app.use(bookRouter(ctx.messaging, ctx.config));
   app.use(directoryRouter());
   app.use(fixturesRouter());

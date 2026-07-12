@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, gradients, spacing } from '@/lib/theme';
+import { colors, fonts, gradients, spacing, type } from '@/lib/theme';
 
 // The region line comes from the server's fixture data, so it follows
 // wherever the curated adventures actually are.
@@ -32,20 +32,14 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 28,
   },
   brandRow: { alignItems: 'center', marginBottom: spacing(5) },
-  brand: { color: colors.card, fontSize: 17, fontWeight: '800', letterSpacing: 0.3 },
+  brand: { color: colors.card, fontFamily: fonts.semibold, fontSize: 16, letterSpacing: 0.4 },
   eyebrow: {
     color: 'rgba(255,255,255,0.72)',
+    fontFamily: fonts.medium,
     fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 1.4,
+    letterSpacing: 1.2,
     textTransform: 'uppercase',
     marginBottom: spacing(2),
   },
-  title: {
-    color: colors.card,
-    fontSize: 31,
-    fontWeight: '800',
-    letterSpacing: -0.6,
-    lineHeight: 37,
-  },
+  title: { ...type.display, color: colors.card },
 });

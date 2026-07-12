@@ -1,11 +1,25 @@
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
-import type { MenuResponse } from '@shared/api';
-import { SwipeDeck } from '@/components/SwipeDeck';
-import { VoiceButton } from '@/components/VoiceButton';
-import { getMenu, serverUrl } from '@/lib/api';
-import { cardShadow, colors, eyebrow, radius, spacing } from '@/lib/theme';
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { useLocalSearchParams } from "expo-router";
+import type { MenuResponse } from "@shared/api";
+import { SwipeDeck } from "@/components/SwipeDeck";
+import { VoiceButton } from "@/components/VoiceButton";
+import { getMenu, serverUrl } from "@/lib/api";
+import {
+  cardShadow,
+  colors,
+  eyebrow,
+  fonts,
+  radius,
+  spacing,
+  type,
+} from "@/lib/theme";
 
 export default function MenuScreen(): React.ReactElement {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -24,7 +38,11 @@ export default function MenuScreen(): React.ReactElement {
   if (!data) {
     return (
       <View style={styles.center}>
-        {error ? <Text style={styles.error}>{error}</Text> : <ActivityIndicator color={colors.tide} />}
+        {error ? (
+          <Text style={styles.error}>{error}</Text>
+        ) : (
+          <ActivityIndicator color={colors.tide} />
+        )}
       </View>
     );
   }
@@ -33,8 +51,10 @@ export default function MenuScreen(): React.ReactElement {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={eyebrow}>{menu.stall_name ?? 'Menu scan'}</Text>
-        {servedFrom === 'cache' && <Text style={styles.cachedTag}>cached</Text>}
+        <Text style={eyebrow}>{menu.stall_name ?? "Menu scan"}</Text>
+        {servedFrom === "cache" && (
+          <Text style={styles.demoTag}>Demo menu</Text>
+        )}
       </View>
       {!done && (
         <SwipeDeck
@@ -46,7 +66,9 @@ export default function MenuScreen(): React.ReactElement {
       {(done || liked.length > 0) && (
         <View style={styles.shortlist}>
           <Text style={eyebrow}>Your shortlist</Text>
-          {liked.length === 0 && <Text style={styles.empty}>Nothing shortlisted yet.</Text>}
+          {liked.length === 0 && (
+            <Text style={styles.empty}>Nothing shortlisted yet.</Text>
+          )}
           {liked.map((index) => {
             const dish = menu.dishes[index];
             const audio = dishAudio[index];
@@ -54,11 +76,13 @@ export default function MenuScreen(): React.ReactElement {
               <View key={`${dish.name_local}-${index}`} style={styles.item}>
                 <Text style={styles.itemName}>{dish.name_local}</Text>
                 <Text style={styles.itemPhrase}>Say: {dish.order_phrase}</Text>
-                <VoiceButton
-                  key={audio ?? `none-${index}`}
-                  audioUrl={audio ? serverUrl(audio) : null}
-                  label="Play order phrase"
-                />
+                {audio ? (
+                  <VoiceButton
+                    key={audio}
+                    audioUrl={serverUrl(audio)}
+                    label="Play order phrase"
+                  />
+                ) : null}
               </View>
             );
           })}
@@ -69,22 +93,35 @@ export default function MenuScreen(): React.ReactElement {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: spacing(4), gap: spacing(4), paddingBottom: spacing(10) },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing(6) },
-  error: { color: colors.danger, fontSize: 14 },
-  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  cachedTag: {
+  container: {
+    padding: spacing(4),
+    gap: spacing(4),
+    paddingBottom: spacing(10),
+  },
+  center: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: spacing(6),
+  },
+  error: { ...type.body, color: colors.danger },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  demoTag: {
     color: colors.pending,
     backgroundColor: colors.pendingSoft,
-    fontSize: 10,
-    fontWeight: '700',
+    fontFamily: fonts.medium,
+    fontSize: 11,
     borderRadius: radius.pill,
     paddingVertical: spacing(0.5),
     paddingHorizontal: spacing(2),
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   shortlist: { gap: spacing(3) },
-  empty: { color: colors.inkSoft, fontSize: 13 },
+  empty: { ...type.caption, color: colors.inkSoft },
   item: {
     backgroundColor: colors.card,
     borderRadius: radius.card,
@@ -92,6 +129,10 @@ const styles = StyleSheet.create({
     gap: spacing(2),
     ...cardShadow,
   },
-  itemName: { color: colors.ink, fontSize: 16, fontWeight: '800' },
-  itemPhrase: { color: colors.inkSoft, fontSize: 13 },
+  itemName: { ...type.heading, color: colors.ink },
+  itemPhrase: {
+    ...type.label,
+    color: colors.inkSoft,
+    fontFamily: fonts.regular,
+  },
 });

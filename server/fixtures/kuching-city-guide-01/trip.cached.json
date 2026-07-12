@@ -1,0 +1,58 @@
+{
+  "id": "kuching-city-guide-01",
+  "title": "Kuching city food and sights",
+  "region": "Kuching, Sarawak",
+  "source_creator": "Wanka Travel",
+  "source_url": "https://vt.tiktok.com/ZSCt5cY1k/",
+  "cover_url": "/covers/kuching-city-guide-01",
+  "demo": true,
+  "stops": [
+    {
+      "id": "waterfront",
+      "name": "Kuching Waterfront",
+      "summary": "Begin beside the Sarawak River with an easy walk through the historic city centre.",
+      "location": { "lat": 1.5604695, "lng": 110.3457446 },
+      "image_url": null,
+      "estimated_spend_myr": 0,
+      "duration_minutes": 45,
+      "sources": [
+        {
+          "title": "Google Maps",
+          "url": "https://www.google.com/maps/search/?api=1&query=Kuching%20Waterfront"
+        }
+      ]
+    },
+    {
+      "id": "borneo-museum",
+      "name": "Borneo Cultures Museum",
+      "summary": "Explore Sarawak history, material culture and contemporary Borneo in a landmark museum.",
+      "location": { "lat": 1.5554849, "lng": 110.3423788 },
+      "image_url": null,
+      "estimated_spend_myr": null,
+      "duration_minutes": 90,
+      "sources": [
+        {
+          "title": "Borneo Cultures Museum",
+          "url": "https://museum.sarawak.gov.my/web/subpage/webpage_view/169"
+        }
+      ]
+    },
+    {
+      "id": "topspot",
+      "name": "Topspot Food Court",
+      "summary": "Finish with a relaxed local seafood dinner above the city centre.",
+      "location": { "lat": 1.5565097, "lng": 110.3524369 },
+      "image_url": null,
+      "estimated_spend_myr": null,
+      "duration_minutes": 75,
+      "sources": [
+        {
+          "title": "Google Maps",
+          "url": "https://www.google.com/maps/search/?api=1&query=Topspot%20Food%20Court%20Kuching"
+        }
+      ]
+    }
+  ],
+  "selected_stop_ids": ["waterfront", "borneo-museum", "topspot"],
+  "route": null
+}

@@ -12,6 +12,9 @@ export interface FixtureRef {
   url: string;
 }
 
+export type IngestResponse =
+  { id: string; kind: "trip" } | { id: string; kind: "booking" };
+
 // What GET /fixtures serves the home screen: one card per fixture, enriched
 // from its cached booking and cover image when those exist.
 export interface FixtureCard extends FixtureRef {
@@ -23,9 +26,9 @@ export interface FixtureCard extends FixtureRef {
   region: string | null;
 }
 
-export type BriefLang = 'en' | 'ms';
+export type BriefLang = "en" | "ms" | "zh";
 
-export type VoiceServedFrom = 'fixture' | 'cache' | 'live' | null;
+export type VoiceServedFrom = "fixture" | "cache" | "live" | null;
 
 // All voice audio is synthetic stock-voice TTS; synthetic is always true so
 // clients cannot forget to label it.
@@ -50,7 +53,7 @@ export interface PhraseClipResponse {
 // menu.dishes; entries are null when no synthetic clip is available yet.
 export interface MenuResponse {
   id: string;
-  menu: import('./menu').MenuJson;
-  servedFrom: 'live' | 'cache';
+  menu: import("./menu").MenuJson;
+  servedFrom: "live" | "cache";
   dishAudio: (string | null)[];
 }

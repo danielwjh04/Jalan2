@@ -2,7 +2,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { FixtureCard as FixtureCardData } from '@shared/api';
 import { serverUrl } from '@/lib/api';
-import { cardShadow, colors, gradients, radius, spacing } from '@/lib/theme';
+import { cardShadow, colors, fonts, gradients, radius, spacing } from '@/lib/theme';
 
 interface Props {
   fixture: FixtureCardData;
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing(3),
     paddingVertical: spacing(1.5),
   },
-  priceText: { color: colors.tide, fontWeight: '700', fontSize: 13 },
+  priceText: { color: colors.tide, fontFamily: fonts.medium, fontSize: 13 },
   overlay: {
     position: 'absolute',
     top: 0,
@@ -72,8 +72,8 @@ const styles = StyleSheet.create({
     padding: spacing(3.5),
     gap: spacing(0.5),
   },
-  title: { color: colors.card, fontSize: 19, fontWeight: '800', letterSpacing: -0.3 },
-  subtitle: { color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: '600' },
+  title: { color: colors.card, fontFamily: fonts.semibold, fontSize: 20, letterSpacing: -0.3 },
+  subtitle: { color: 'rgba(255,255,255,0.85)', fontFamily: fonts.regular, fontSize: 13 },
   body: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -81,6 +81,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing(3.5),
     paddingVertical: spacing(3),
   },
-  meta: { color: colors.inkSoft, fontSize: 13, flex: 1, marginRight: spacing(2) },
-  action: { color: colors.tide, fontSize: 13, fontWeight: '700' },
+  meta: {
+    color: colors.inkSoft,
+    fontFamily: fonts.regular,
+    fontSize: 13,
+    flex: 1,
+    marginRight: spacing(2),
+  },
+  action: { color: colors.tide, fontFamily: fonts.medium, fontSize: 13 },
 });

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { setAudioModeAsync, useAudioPlayer } from 'expo-audio';
-import { colors, radius, spacing } from '@/lib/theme';
+import { colors, fonts, radius, spacing } from '@/lib/theme';
 
 interface VoiceButtonProps {
   audioUrl: string | null;
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing(3.5),
   },
   disabled: { backgroundColor: colors.mist },
-  label: { color: colors.card, fontWeight: '700', fontSize: 14, flexShrink: 1 },
+  label: { color: colors.card, fontFamily: fonts.semibold, fontSize: 14, flexShrink: 1 },
   labelDisabled: { color: colors.inkSoft },
   tag: {
     backgroundColor: 'rgba(255,255,255,0.22)',
@@ -57,5 +57,5 @@ const styles = StyleSheet.create({
     paddingVertical: spacing(0.75),
     paddingHorizontal: spacing(2),
   },
-  tagText: { color: colors.card, fontSize: 10, fontWeight: '700', letterSpacing: 0.6 },
+  tagText: { color: colors.card, fontFamily: fonts.medium, fontSize: 11, letterSpacing: 0.6 },
 });

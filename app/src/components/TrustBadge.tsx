@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Trust } from '@shared/booking';
-import { colors, radius, spacing } from '@/lib/theme';
+import { colors, fonts, radius, spacing } from '@/lib/theme';
 
 function band(score: number): { label: string; color: string; soft: string } {
   if (score >= 0.6) return { label: 'Web presence: strong', color: colors.confirm, soft: colors.confirmSoft };
@@ -44,14 +44,14 @@ const styles = StyleSheet.create({
     paddingVertical: spacing(2),
     paddingHorizontal: spacing(3),
   },
-  badgeText: { fontSize: 12.5, fontWeight: '700' },
-  chevron: { fontSize: 11, fontWeight: '600' },
+  badgeText: { fontFamily: fonts.medium, fontSize: 13 },
+  chevron: { fontFamily: fonts.medium, fontSize: 11 },
   evidence: {
     backgroundColor: colors.canvas,
     borderRadius: radius.control,
     padding: spacing(3),
     gap: spacing(2),
   },
-  evidenceLine: { color: colors.inkSoft, fontSize: 11.5, lineHeight: 16 },
-  disclaimer: { color: colors.inkSoft, fontSize: 10, fontStyle: 'italic' },
+  evidenceLine: { color: colors.inkSoft, fontFamily: fonts.regular, fontSize: 12, lineHeight: 17 },
+  disclaimer: { color: colors.inkSoft, fontFamily: fonts.regular, fontSize: 12, lineHeight: 17 },
 });

@@ -1,17 +1,25 @@
-import type { BookingJson } from '@shared/booking';
+import type { BookingJson } from "@shared/booking";
 
-export type BriefLang = 'en' | 'ms';
+export type BriefLang = "en" | "ms" | "zh";
 
-type ActivityKind = 'water' | 'trail' | 'general';
+type ActivityKind = "water" | "trail" | "general";
 
-const WATER_WORDS = ['dive', 'snorkel', 'boat', 'island', 'kayak', 'beach', 'reef'];
-const TRAIL_WORDS = ['hike', 'trek', 'trail', 'park', 'jungle', 'waterfall'];
+const WATER_WORDS = [
+  "dive",
+  "snorkel",
+  "boat",
+  "island",
+  "kayak",
+  "beach",
+  "reef",
+];
+const TRAIL_WORDS = ["hike", "trek", "trail", "park", "jungle", "waterfall"];
 
 function activityKind(activity: string): ActivityKind {
   const lower = activity.toLowerCase();
-  if (WATER_WORDS.some((word) => lower.includes(word))) return 'water';
-  if (TRAIL_WORDS.some((word) => lower.includes(word))) return 'trail';
-  return 'general';
+  if (WATER_WORDS.some((word) => lower.includes(word))) return "water";
+  if (TRAIL_WORDS.some((word) => lower.includes(word))) return "trail";
+  return "general";
 }
 
 interface BriefLines {
@@ -29,14 +37,14 @@ const LINES: Record<BriefLang, BriefLines> = {
       `Bring about ${price} ringgit per person in cash; small operators rarely take cards.`,
     kind: {
       water:
-        'Wear your life jacket whenever the boat is moving, listen to the boatman, and tell the crew your swimming ability before departure. Drink plenty of water and use sun protection.',
+        "Wear your life jacket whenever the boat is moving, listen to the boatman, and tell the crew your swimming ability before departure. Drink plenty of water and use sun protection.",
       trail:
-        'Wear proper footwear, carry enough water, and stay on marked trails. Start early to avoid afternoon rain and tell someone your plan.',
+        "Wear proper footwear, carry enough water, and stay on marked trails. Start early to avoid afternoon rain and tell someone your plan.",
       general:
-        'Carry water and sun protection, and keep valuables secure. Respect local customs and follow the advice of your hosts.',
+        "Carry water and sun protection, and keep valuables secure. Respect local customs and follow the advice of your hosts.",
     },
     closing:
-      'This is general advisory guidance from Jalan2, not professional safety instruction. Always follow your operator on the day.',
+      "This is general advisory guidance from Jalan2, not professional safety instruction. Always follow your operator on the day.",
   },
   ms: {
     intro: (activity, meeting) =>
@@ -45,14 +53,30 @@ const LINES: Record<BriefLang, BriefLines> = {
       `Sediakan kira-kira ${price} ringgit tunai untuk setiap orang; pengusaha kecil jarang menerima kad.`,
     kind: {
       water:
-        'Pakai jaket keselamatan sepanjang bot bergerak, dengar arahan tekong, dan maklumkan tahap renang anda sebelum bertolak. Minum air secukupnya dan lindungi diri daripada panas matahari.',
+        "Pakai jaket keselamatan sepanjang bot bergerak, dengar arahan tekong, dan maklumkan tahap renang anda sebelum bertolak. Minum air secukupnya dan lindungi diri daripada panas matahari.",
       trail:
-        'Pakai kasut yang sesuai, bawa air secukupnya, dan kekal di laluan bertanda. Mulakan awal untuk mengelakkan hujan petang dan beritahu seseorang rancangan anda.',
+        "Pakai kasut yang sesuai, bawa air secukupnya, dan kekal di laluan bertanda. Mulakan awal untuk mengelakkan hujan petang dan beritahu seseorang rancangan anda.",
       general:
-        'Bawa air dan pelindung matahari, dan simpan barang berharga dengan selamat. Hormati adat setempat dan ikut nasihat tuan rumah.',
+        "Bawa air dan pelindung matahari, dan simpan barang berharga dengan selamat. Hormati adat setempat dan ikut nasihat tuan rumah.",
     },
     closing:
-      'Ini panduan umum daripada Jalan2, bukan arahan keselamatan profesional. Sentiasa ikut arahan pengusaha anda pada hari tersebut.',
+      "Ini panduan umum daripada Jalan2, bukan arahan keselamatan profesional. Sentiasa ikut arahan pengusaha anda pada hari tersebut.",
+  },
+  zh: {
+    intro: (activity, meeting) =>
+      `这是${activity}的安全提示。集合地点是${meeting}。`,
+    price: (price) =>
+      `建议每人准备约${price}令吉现金，小型业者可能不接受银行卡。`,
+    kind: {
+      water:
+        "乘船期间请穿好救生衣并听从船员指示。出发前告知船员您的游泳能力，并注意补水和防晒。",
+      trail:
+        "请穿合适的鞋，携带足够饮用水，并留在有标记的步道上。尽量提早出发以避开午后降雨，并把行程告知亲友。",
+      general:
+        "请携带饮用水并做好防晒，妥善保管贵重物品。尊重当地习俗，并听从接待人员的建议。",
+    },
+    closing:
+      "这是Jalan2提供的一般建议，并非专业安全指示。当天请始终听从业者的安排。",
   },
 };
 
@@ -64,5 +88,5 @@ export function composeBrief(booking: BookingJson, lang: BriefLang): string {
   if (booking.price_myr !== null) parts.push(lines.price(booking.price_myr));
   parts.push(lines.kind[activityKind(booking.activity)]);
   parts.push(lines.closing);
-  return parts.join(' ');
+  return parts.join(" ");
 }
