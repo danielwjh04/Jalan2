@@ -5,7 +5,7 @@
       "name_local": "Kolo mee",
       "name_english": "Springy egg noodles tossed in shallot oil with minced pork",
       "price_myr": 8,
-      "image_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/36/Sarawak_Kolo_Mee.jpg",
       "order_phrase": "Kolo mee satu, bang.",
       "allergens": ["gluten", "egg"]
     },
@@ -13,7 +13,7 @@
       "name_local": "Laksa Sarawak",
       "name_english": "Rice vermicelli in spicy coconut prawn broth",
       "price_myr": 12,
-      "image_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Laksa_Sarawak_%28Yee_Fung%29.jpg/960px-Laksa_Sarawak_%28Yee_Fung%29.jpg",
       "order_phrase": "Laksa Sarawak satu, kurang pedas.",
       "allergens": ["shellfish", "coconut"]
     },
@@ -21,7 +21,7 @@
       "name_local": "Mee rebus",
       "name_english": "Noodles in sweet-savoury gravy",
       "price_myr": 7.5,
-      "image_url": null,
+      "image_url": "https://www.halaltag.com/images/photo/3409-photo1.jpg",
       "order_phrase": "Mee rebus satu, boleh?",
       "allergens": ["gluten", "peanuts"]
     },
@@ -37,7 +37,7 @@
       "name_local": "Teh C peng",
       "name_english": "Iced tea with evaporated milk",
       "price_myr": 3,
-      "image_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Teh_C_Peng.jpg/960px-Teh_C_Peng.jpg",
       "order_phrase": "Teh C peng satu, kurang manis.",
       "allergens": ["dairy"]
     }
