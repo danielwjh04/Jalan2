@@ -1,26 +1,28 @@
 import type { TextStyle, ViewStyle } from 'react-native';
 
 export const colors = {
-  canvas: '#F5F7FA',
-  card: '#FFFFFF',
-  ink: '#12263A',
-  inkSoft: '#5E718A',
-  tide: '#1B5FD0',
-  tideSoft: '#E7EEFB',
-  sun: '#F08C33',
-  confirm: '#199D6C',
-  confirmSoft: '#E5F5EE',
-  pending: '#B97F14',
-  pendingSoft: '#FBF1DC',
-  danger: '#D6493F',
-  dangerSoft: '#FBEAE8',
-  mist: '#E3E9F2',
+  canvas: '#050505',
+  card: '#1B1B1B',
+  ink: '#F7F7F2',
+  inkSoft: '#9A9A96',
+  tide: '#F2FF1A',
+  tideSoft: '#2B2D12',
+  sun: '#F2FF1A',
+  confirm: '#A8EE63',
+  confirmSoft: '#1E2B17',
+  pending: '#FFD166',
+  pendingSoft: '#342A13',
+  danger: '#FF7168',
+  dangerSoft: '#351A19',
+  mist: '#303030',
+  white: '#FFFFFF',
+  black: '#050505',
 };
 
 export const gradients = {
-  ocean: ['#0B3A8C', '#1B5FD0', '#2E86D9'] as const,
-  cta: ['#1B5FD0', '#3D7FE8'] as const,
-  scrim: ['rgba(9,20,38,0)', 'rgba(9,20,38,0.82)'] as const,
+  ocean: ['#050505', '#0A0A0A', '#111111'] as const,
+  cta: ['#F5FF25', '#DFFF2E'] as const,
+  scrim: ['rgba(5,5,5,0.02)', 'rgba(5,5,5,0.94)'] as const,
 };
 
 // DM Sans is loaded in app/_layout.tsx. Regular is the default, medium
@@ -49,17 +51,17 @@ export function spacing(units: number): number {
 }
 
 export const radius = {
-  card: 20,
-  control: 14,
+  card: 28,
+  control: 18,
   pill: 999,
 };
 
 export const cardShadow: ViewStyle = {
-  shadowColor: colors.ink,
-  shadowOpacity: 0.06,
-  shadowRadius: 12,
-  shadowOffset: { width: 0, height: 6 },
-  elevation: 2,
+  shadowColor: colors.black,
+  shadowOpacity: 0.32,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 10 },
+  elevation: 5,
 };
 
 export const eyebrow: TextStyle = {

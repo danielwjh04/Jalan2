@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   },
   chipActive: { backgroundColor: colors.tide },
   chipText: { color: colors.inkSoft, fontFamily: fonts.medium, fontSize: 13 },
-  chipTextActive: { color: colors.card },
+  chipTextActive: { color: colors.black },
   paxRow: { flexDirection: "row", alignItems: "center", gap: spacing(3) },
   paxLabel: { ...type.body, color: colors.inkSoft, marginRight: spacing(1) },
   stepper: {

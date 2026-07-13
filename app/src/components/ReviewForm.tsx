@@ -69,7 +69,7 @@ export function ReviewForm({
       ))}
       <TextInput style={[styles.input, styles.body]} value={body} onChangeText={setBody} placeholder="What should the next traveler know?" placeholderTextColor={colors.inkSoft} multiline maxLength={1000} />
       <Pressable style={styles.submit} onPress={() => void submit()} disabled={busy}>
-        {busy ? <ActivityIndicator color={colors.card} /> : <Text style={styles.submitText}>Publish review</Text>}
+        {busy ? <ActivityIndicator color={colors.black} /> : <Text style={styles.submitText}>Publish review</Text>}
       </Pressable>
       {message ? <Text style={styles.message}>{message}</Text> : null}
     </View>
@@ -87,8 +87,8 @@ const styles = StyleSheet.create({
   score: { width: 34, height: 34, borderRadius: radius.pill, backgroundColor: colors.canvas, alignItems: "center", justifyContent: "center" },
   scoreActive: { backgroundColor: colors.tide },
   scoreText: { ...type.label, color: colors.inkSoft },
-  scoreTextActive: { color: colors.card },
+  scoreTextActive: { color: colors.black },
   submit: { height: 48, borderRadius: radius.control, backgroundColor: colors.tide, alignItems: "center", justifyContent: "center" },
-  submitText: { ...type.button, color: colors.card },
+  submitText: { ...type.button, color: colors.black },
   message: { ...type.caption, color: colors.inkSoft },
 });

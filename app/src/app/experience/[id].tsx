@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Linking, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, Linking, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams } from "expo-router";
 import type { ExperienceRecord } from "@shared/reviews";
 import { ReviewCard } from "@/components/ReviewCard";
 import { ReviewForm } from "@/components/ReviewForm";
-import { getExperience } from "@/lib/api";
-import { cardShadow, colors, eyebrow, radius, spacing, type } from "@/lib/theme";
+import { getExperience, serverUrl } from "@/lib/api";
+import { cardShadow, colors, eyebrow, gradients, radius, spacing, type } from "@/lib/theme";
 
 const POLL_MS = 5000;
 
@@ -50,9 +51,23 @@ export default function ExperienceScreen(): React.ReactElement {
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void load(true)} tintColor={colors.tide} />}
     >
-      <Text style={eyebrow}>JALAN2 LIVE</Text>
-      <Text style={styles.title}>{record.activity}</Text>
-      <Text style={styles.operator}>{record.operatorName} | {record.meetingPointName}</Text>
+      {record.coverUrl ? (
+        <View style={styles.hero}>
+          <Image source={{ uri: serverUrl(record.coverUrl) }} style={styles.heroImage} />
+          <LinearGradient colors={gradients.scrim} style={StyleSheet.absoluteFillObject} />
+          <View style={styles.heroCopy}>
+            <Text style={styles.heroEyebrow}>JALAN2 LIVE</Text>
+            <Text style={styles.heroTitle}>{record.activity}</Text>
+            <Text style={styles.heroMeta}>{record.operatorName} | {record.meetingPointName}</Text>
+          </View>
+        </View>
+      ) : (
+        <>
+          <Text style={eyebrow}>JALAN2 LIVE</Text>
+          <Text style={styles.title}>{record.activity}</Text>
+          <Text style={styles.operator}>{record.operatorName} | {record.meetingPointName}</Text>
+        </>
+      )}
       <Text style={styles.confirmation}>{confirmation}</Text>
       <Text style={styles.source} onPress={() => void Linking.openURL(record.sourceUrl)}>
         Open original discovery source
@@ -105,6 +120,12 @@ const styles = StyleSheet.create({
   error: { ...type.body, color: colors.danger, textAlign: "center" },
   title: { ...type.display, color: colors.ink },
   operator: { ...type.body, color: colors.inkSoft },
+  hero: { height: 360, borderRadius: radius.card, overflow: "hidden", ...cardShadow },
+  heroImage: { width: "100%", height: "100%" },
+  heroCopy: { position: "absolute", left: spacing(5), right: spacing(5), bottom: spacing(5), gap: spacing(1.5) },
+  heroEyebrow: { ...eyebrow, color: "rgba(255,255,255,0.72)" },
+  heroTitle: { ...type.display, color: colors.white, fontSize: 30, lineHeight: 35 },
+  heroMeta: { ...type.body, color: "rgba(255,255,255,0.78)" },
   confirmation: { ...type.caption, color: colors.confirm },
   source: { ...type.button, color: colors.tide },
   summaryCard: { backgroundColor: colors.card, borderRadius: radius.card, padding: spacing(4), gap: spacing(3), ...cardShadow },

@@ -52,6 +52,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  markerText: { color: colors.card, fontFamily: fonts.semibold, fontSize: 13 },
+  markerText: { color: colors.black, fontFamily: fonts.semibold, fontSize: 13 },
   name: { ...type.label, color: colors.ink },
 });

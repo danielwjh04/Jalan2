@@ -21,7 +21,7 @@ export default function RootLayout(): React.ReactElement | null {
   if (!fontsLoaded) return null;
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
       <ShareIntentGate />
       <Stack
         screenOptions={{

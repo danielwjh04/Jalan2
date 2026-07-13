@@ -44,6 +44,6 @@ const styles = StyleSheet.create({
   primary: { backgroundColor: colors.tide },
   tonal: { backgroundColor: colors.tideSoft },
   text: { fontFamily: fonts.semibold, fontSize: 14 },
-  primaryText: { color: colors.card },
+  primaryText: { color: colors.black },
   tonalText: { color: colors.tide },
 });

@@ -27,6 +27,7 @@ export function getExperienceRecord(id: string): ExperienceRecord | undefined {
     activity: latest.booking.activity,
     meetingPointName: latest.booking.meeting_point.name,
     sourceUrl: latest.sourceUrl,
+    coverUrl: latest.coverUrl,
     lastOperatorConfirmationAt: confirmed?.updatedAt ?? null,
     publicEvidence: latest.booking.trust?.evidence ?? [],
     summary: summarize(items),

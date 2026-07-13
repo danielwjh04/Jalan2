@@ -18,11 +18,12 @@ export function PasteBar({ prefill, busy, onSubmit }: Props): React.ReactElement
   const disabled = busy || !value.trim();
   return (
     <View style={styles.bar}>
+      <Text style={styles.searchIcon}>⌕</Text>
       <TextInput
         style={styles.input}
         value={value}
         onChangeText={setValue}
-        placeholder="Paste a TikTok or XHS link"
+        placeholder="Paste a TikTok or XHS find"
         placeholderTextColor={colors.inkSoft}
         autoCapitalize="none"
         autoCorrect={false}
@@ -33,7 +34,7 @@ export function PasteBar({ prefill, busy, onSubmit }: Props): React.ReactElement
         disabled={disabled}
         onPress={() => onSubmit(value)}
       >
-        {busy ? <ActivityIndicator color={colors.card} /> : <Text style={styles.buttonText}>Go</Text>}
+        {busy ? <ActivityIndicator color={colors.black} /> : <Text style={styles.buttonText}>→</Text>}
       </Pressable>
     </View>
   );
@@ -45,11 +46,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.card,
     borderRadius: radius.pill,
-    paddingLeft: spacing(4),
+    paddingLeft: spacing(3.5),
     paddingRight: spacing(1.5),
     paddingVertical: spacing(1.5),
     borderWidth: 1,
-    borderColor: colors.mist,
+    borderColor: '#353535',
     ...cardShadow,
   },
   input: {
@@ -59,13 +60,16 @@ const styles = StyleSheet.create({
     fontSize: 15,
     paddingVertical: spacing(2),
   },
+  searchIcon: { color: colors.ink, fontFamily: fonts.regular, fontSize: 28, marginRight: spacing(2) },
   button: {
     backgroundColor: colors.tide,
     borderRadius: radius.pill,
-    paddingHorizontal: spacing(5),
-    paddingVertical: spacing(2.5),
+    width: 46,
+    height: 46,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginLeft: spacing(2),
   },
   buttonDisabled: { opacity: 0.4 },
-  buttonText: { ...type.button, color: colors.card },
+  buttonText: { ...type.button, color: colors.black, fontSize: 20 },
 });

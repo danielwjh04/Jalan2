@@ -1,5 +1,6 @@
 import {
   Alert,
+  Image,
   Linking,
   Pressable,
   StyleSheet,
@@ -34,6 +35,11 @@ export function TripStopCard({
   };
   return (
     <View style={[styles.card, !selected && styles.inactive]}>
+      {stop.image_url ? (
+        <Image source={{ uri: stop.image_url }} style={styles.image} />
+      ) : (
+        <View style={[styles.image, styles.imageFallback]} />
+      )}
       <View style={styles.row}>
         <View style={[styles.marker, selected && styles.markerSelected]}>
           <Text
@@ -70,11 +76,15 @@ export function TripStopCard({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.card,
-    borderRadius: radius.control,
-    padding: spacing(4),
+    borderRadius: radius.card,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: colors.mist,
   },
   inactive: { opacity: 0.72 },
-  row: { flexDirection: "row", gap: spacing(3) },
+  image: { width: "100%", height: 154 },
+  imageFallback: { backgroundColor: colors.tideSoft },
+  row: { flexDirection: "row", gap: spacing(3), padding: spacing(4) },
   marker: {
     width: 30,
     height: 30,
@@ -85,7 +95,7 @@ const styles = StyleSheet.create({
   },
   markerSelected: { backgroundColor: colors.tide },
   markerText: { ...type.label, color: colors.inkSoft },
-  markerTextSelected: { color: colors.card, fontFamily: fonts.semibold },
+  markerTextSelected: { color: colors.black, fontFamily: fonts.semibold },
   content: { flex: 1 },
   name: { ...type.heading, color: colors.ink },
   meta: { ...type.caption, color: colors.inkSoft, marginTop: 1 },

@@ -48,6 +48,7 @@ export interface ExperienceRecord {
   activity: string;
   meetingPointName: string;
   sourceUrl: string;
+  coverUrl: string | null;
   lastOperatorConfirmationAt: string | null;
   publicEvidence: string[];
   summary: ReviewSummary;

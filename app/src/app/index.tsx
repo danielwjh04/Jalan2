@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { Link, useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import type { FixtureCard as FixtureCardData } from '@shared/api';
 import { normalizeVideoUrl } from '@shared/videoUrl';
 import { FixtureCard } from '@/components/FixtureCard';
-import { GradientButton } from '@/components/GradientButton';
 import { HomeHeader } from '@/components/HomeHeader';
 import { PasteBar } from '@/components/PasteBar';
 import { getFixtures } from '@/lib/api';
 import { ingestVideo } from '@/lib/ingest';
 import { scanMenu, type MenuSource } from '@/lib/menu';
-import { colors, eyebrow, radius, spacing, type } from '@/lib/theme';
+import { cardShadow, colors, eyebrow, radius, spacing, type } from '@/lib/theme';
 
 export default function HomeScreen(): React.ReactElement {
+  const router = useRouter();
   const [prefill, setPrefill] = useState('');
   const [busy, setBusy] = useState(false);
   const [fixtures, setFixtures] = useState<FixtureCardData[]>([]);
@@ -68,10 +68,27 @@ export default function HomeScreen(): React.ReactElement {
         <PasteBar prefill={prefill} busy={busy} onSubmit={submit} />
       </View>
       <View style={styles.content}>
-        <GradientButton label="Scan a kopitiam menu" busy={busy} onPress={chooseMenuSource} />
+        <View style={styles.quickRow}>
+          <Pressable style={styles.menuCard} disabled={busy} onPress={chooseMenuSource}>
+            <Text style={styles.menuEyebrow}>MENU MODE</Text>
+            <Text style={styles.menuTitle}>Scan a kopitiam menu</Text>
+            <Text style={styles.menuArrow}>↗</Text>
+          </Pressable>
+          <Pressable style={styles.operatorCard} onPress={() => router.push('/directory')}>
+            <Text style={styles.operatorEyebrow}>LOCAL SUPPLY</Text>
+            <Text style={styles.operatorTitle}>Meet the operators</Text>
+            <Text style={styles.operatorArrow}>→</Text>
+          </Pressable>
+        </View>
         {fixtures.length > 0 && (
           <>
-            <Text style={styles.section}>Demo videos</Text>
+            <View style={styles.sectionRow}>
+              <View>
+                <Text style={styles.section}>SOCIAL DISCOVERIES</Text>
+                <Text style={styles.sectionTitle}>Popular near you</Text>
+              </View>
+              <View style={styles.livePill}><Text style={styles.liveText}>LIVE</Text></View>
+            </View>
             {fixtures.map((fixture) => (
               <FixtureCard
                 key={fixture.slug}
@@ -91,9 +108,6 @@ export default function HomeScreen(): React.ReactElement {
             <Text style={styles.devButtonText}>Simulate iOS share (dev)</Text>
           </Pressable>
         )}
-        <Link href="/directory" style={styles.directoryLink}>
-          Operator directory
-        </Link>
       </View>
     </ScrollView>
   );
@@ -101,10 +115,41 @@ export default function HomeScreen(): React.ReactElement {
 
 const styles = StyleSheet.create({
   screen: { backgroundColor: colors.canvas },
-  container: { paddingBottom: spacing(10) },
-  pasteWrap: { paddingHorizontal: spacing(5), marginTop: -spacing(7) },
-  content: { padding: spacing(5), gap: spacing(4) },
-  section: { ...eyebrow, marginTop: spacing(1) },
+  container: { paddingBottom: spacing(12) },
+  pasteWrap: { paddingHorizontal: spacing(5), marginTop: spacing(1) },
+  content: { padding: spacing(5), gap: spacing(5) },
+  quickRow: { flexDirection: 'row', gap: spacing(3), marginTop: spacing(1) },
+  menuCard: {
+    flex: 1,
+    minHeight: 142,
+    borderRadius: radius.card,
+    padding: spacing(4),
+    justifyContent: 'space-between',
+    backgroundColor: colors.tide,
+    ...cardShadow,
+  },
+  operatorCard: {
+    flex: 1,
+    minHeight: 142,
+    borderRadius: radius.card,
+    padding: spacing(4),
+    justifyContent: 'space-between',
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.mist,
+    ...cardShadow,
+  },
+  menuEyebrow: { ...eyebrow, color: 'rgba(5,5,5,0.58)' },
+  operatorEyebrow: { ...eyebrow, color: colors.inkSoft },
+  menuTitle: { ...type.heading, color: colors.black, maxWidth: 130 },
+  operatorTitle: { ...type.heading, color: colors.ink, maxWidth: 130 },
+  menuArrow: { color: colors.black, fontSize: 24 },
+  operatorArrow: { color: colors.tide, fontSize: 24 },
+  sectionRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: spacing(2) },
+  section: { ...eyebrow },
+  sectionTitle: { ...type.title, color: colors.ink, marginTop: spacing(1) },
+  livePill: { backgroundColor: colors.tideSoft, borderRadius: radius.pill, paddingHorizontal: spacing(3), paddingVertical: spacing(1.5) },
+  liveText: { ...type.caption, color: colors.tide, fontFamily: 'DMSans_600SemiBold' },
   devButton: {
     borderColor: colors.mist,
     borderWidth: 1,
@@ -115,10 +160,4 @@ const styles = StyleSheet.create({
     marginTop: spacing(1),
   },
   devButtonText: { ...type.caption, color: colors.inkSoft },
-  directoryLink: {
-    ...type.button,
-    color: colors.tide,
-    marginTop: spacing(4),
-    textAlign: 'center',
-  },
 });
