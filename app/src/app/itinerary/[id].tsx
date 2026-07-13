@@ -8,6 +8,7 @@ import { SafetyBriefCard } from '@/components/SafetyBriefCard';
 import { StageProgress } from '@/components/StageProgress';
 import { StatusPill } from '@/components/StatusPill';
 import { TransitButton } from '@/components/TransitButton';
+import { ExperienceLink } from '@/components/ExperienceLink';
 import { serverUrl } from '@/lib/api';
 import { useItinerary } from '@/lib/useItinerary';
 import { cardShadow, colors, fonts, gradients, radius, spacing } from '@/lib/theme';
@@ -59,6 +60,9 @@ export default function ItineraryScreen(): React.ReactElement {
           <MapCard point={booking.meeting_point} />
           <TransitButton point={booking.meeting_point} />
           <SafetyBriefCard itineraryId={itinerary.id} />
+          {itinerary.experienceId && (
+            <ExperienceLink experienceId={itinerary.experienceId} bookingId={itinerary.id} />
+          )}
           {itinerary.status === 'DRAFT' && (
             <BookSheet itineraryId={itinerary.id} booking={booking} onBooked={apply} />
           )}

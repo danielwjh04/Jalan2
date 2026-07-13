@@ -8,6 +8,7 @@ import type {
   ItineraryStatus,
   PipelineStage,
 } from '@shared/status';
+import { experienceIdFor } from '../lib/experienceId';
 
 const itineraries = new Map<string, Itinerary>();
 
@@ -15,6 +16,7 @@ export function createItinerary(sourceUrl: string, coverUrl: string | null = nul
   const now = new Date().toISOString();
   const itinerary: Itinerary = {
     id: randomUUID(),
+    experienceId: null,
     sourceUrl,
     coverUrl,
     status: 'DRAFT',
@@ -53,6 +55,7 @@ export function setBooking(
 ): Itinerary {
   const itinerary = getOrThrow(id);
   itinerary.booking = booking;
+  itinerary.experienceId = experienceIdFor(booking);
   itinerary.servedFrom = servedFrom;
   return touch(itinerary);
 }

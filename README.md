@@ -20,6 +20,7 @@ The current proof of concept focuses on one narrow loop:
 ```
 paste/share URL -> extract -> transcribe + read frames -> Booking JSON
 -> itinerary + map + transit link -> WhatsApp send -> YES -> CONFIRMED
+-> living experience record -> booking-linked review
 ```
 
 The intended product adds a consent-gated vendor link after the booking
@@ -38,14 +39,15 @@ and the entire vendor-side experience remain to be built.
 | Expo tourist app | Working scaffold | Paste/share entry, fixture cards, itinerary, map, transit links, booking sheet, directory |
 | Video extraction | Partial | TikHub and yt-dlp paths exist; curated manifest fixtures are the reliable path; non-fixture XHS needs paid extraction access |
 | Multimodal fusion | Partial | OpenAI frame reading and structured Booking JSON exist; quality has not been benchmarked on a representative dataset |
-| Speech input | Partial | OpenAI transcription exists; `STT_PROVIDER=elevenlabs` deliberately throws because the adapter is missing |
+| Speech and voice | Demo-grade | OpenAI and ElevenLabs STT adapters exist; cached and ElevenLabs TTS serve multilingual safety briefs and local phrases |
 | WhatsApp booking | Demo-grade | Twilio send/webhook adapters exist, but the recommended demo opens a `wa.me` draft and uses mock auto-confirmation |
 | Demand directory | Demo-grade | In-memory only; it is lost on restart and is not an operator registry |
+| Jalan2 Live reviews | Demo-grade | Live experience page, structured ratings, community reports, booking-linked reviews, source evidence, and five-second refresh work; state is in-memory and there is no account or moderation system |
 | Vendor magic link | Not built | No signed token, expiry, redemption, or vendor route |
 | Stealth ERP | Not built | No operator booking view, accept/decline action, constraints view, or update workflow |
 | Firebase | Not used | Current state is held in process memory despite Firebase being named in the product pitch |
-| Voice and menu flows | Not built | No TTS, voice search, menu capture, dish cards, or multilingual playback |
-| Trust and safety | Not built | No source-backed operator verification, moderation, emergency copy, or risk policy |
+| Menu flow | Demo-grade | Menu photo ingestion, dish cards, swipe selection, order phrases, and cached fallback work; extraction quality is not benchmarked |
+| Trust and safety | Partial | Exa public-web evidence, explicit disclaimers, safety briefs, and separated review labels exist; official-record matching, moderation, incident handling, and a risk policy do not |
 | Production controls | Not built | No auth, persistence, rate limiting, webhook signature validation, job queue, audit log, observability, or retention controls |
 
 Cached output is visibly labeled `cached` in the app. It must never be presented
@@ -67,6 +69,58 @@ as a live extraction during a demo.
    The tourist app receives the same state change in real time.
 7. Only after explicit operator consent may the business become a durable
    directory listing. Source evidence, consent, and later edits remain auditable.
+8. After the trip, the tourist adds a structured review to a living experience
+   record. Booking history, community reports, and public web evidence remain
+   visibly separate.
+
+## Jalan2 Live: the living experience record
+
+Jalan2 Live turns temporary social attention into a reusable record for the
+next traveler. The current Expo mobile and web app implements:
+
+- A stable experience URL derived from operator and activity identity.
+- A public record with operator, activity, meeting point, original discovery
+  source, last Jalan2 operator-confirmation time, and attributed web evidence.
+- Structured review dimensions for accuracy, communication, and value. There
+  is deliberately no combined safety or accreditation score.
+- Two explicit review labels: `booking_linked` requires a matching confirmed
+  Jalan2 booking, while `community_report` is open and unverified.
+- One booking-linked review per booking, server-side input validation, instant
+  publishing, pull-to-refresh, and five-second polling for updates.
+
+The implementation is demo-grade. A booking-linked review proves possession of
+a matching confirmed booking ID; it does not yet prove that the traveler
+attended or completed the activity. Reviews and experience records are held in
+memory and disappear on server restart. There is no user authentication,
+operator reply, abuse reporting, moderation queue, appeal process, fraud
+detection, or retention workflow. These are launch blockers for a public pilot.
+
+The server endpoints are:
+
+```text
+GET  /experiences/:id
+POST /experiences/:id/reviews
+```
+
+### Trust vocabulary and product rules
+
+Jalan2 surfaces evidence; it does not grant accreditation or certify safety.
+The product must keep these categories separate:
+
+1. **Official records:** an exact, attributed match to an applicable registry
+   or licence, including identifier, category, validity, source, and check time.
+2. **Community footprint:** public posts, comments, account longevity, and
+   independent community reports. Popularity is not proof of compliance or
+   operational safety.
+3. **Jalan2 booking history:** confirmed bookings and, once completion can be
+   established, completed-visit reviews. This is platform history, not a
+   government credential.
+
+Search discovery alone must never produce an "SSM verified", "MOTAC licensed",
+"accredited", or "safe" badge. "No match found" means Jalan2 did not establish
+a match; it does not prove that an operator is unlicensed. For a regulated
+activity, booking should remain disabled until the applicable licence is
+matched or the transaction is routed through a licensed partner.
 
 ## Recommended architecture
 
@@ -151,6 +205,14 @@ source-backed listings, and unsupported facts remain null rather than guessed.
 
 ### P3: move from demo to pilot
 
+- Persist experience records and reviews, authenticate reviewers, distinguish
+  a confirmed booking from a completed visit, and add duplicate-account and
+  coordinated-manipulation controls.
+- Add operator replies, review reporting, evidence preservation, moderation,
+  appeals, removal requests, and an incident escalation policy before opening
+  community submissions publicly.
+- Match official records through attributable sources. Public web search may
+  discover candidates but must not claim registry verification by itself.
 - Add cancellation, expiry, duplicate-request handling, timezone rules,
   capacity, price changes, and a clear payment boundary.
 - Add multilingual templates, operator support, data export/deletion, retention
@@ -198,9 +260,9 @@ many difficult systems in one live beat.
 - **The booking semantics are currently misleading.** Opening WhatsApp and
   starting a four-second mock timer demonstrates UI orchestration, not a closed
   WhatsApp round-trip. Keep the mock as stage insurance and show it honestly.
-- **The current inbound matching is unsafe.** If the sender does not match, the
-  server assigns the reply to the newest pending itinerary. That is acceptable
-  only in a one-booking mock and must not survive a pilot.
+- **Inbound matching remains demo-grade.** Unknown senders are rejected, but
+  multiple pending requests to the same controlled operator are resolved
+  newest-first. Production needs a booking token or provider message ID.
 - **Marketplace cold start is not solved by extraction.** A directory of
   inferred operators is not supply. Jalan2 needs a consent, response, and
   fulfilment loop, plus a reason for operators to keep details current.
@@ -241,6 +303,9 @@ split it into:
   revocation, and delivery channel.
 - `OperatorConsent`: purpose-specific opt-ins for this booking, directory
   listing, future contact, and data retention.
+- `Review`: reviewer identity, experience snapshot, booking/completion link,
+  visit date, structured ratings, text, evidence, moderation state, edits, and
+  operator response.
 
 Do not let a later edit to an extracted listing silently rewrite an already
 requested booking.

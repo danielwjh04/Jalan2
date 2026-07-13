@@ -39,3 +39,12 @@ export type {
 } from "./api";
 export { DishSchema, MenuJsonSchema, MenuJsonWireSchema } from "./menu";
 export type { Dish, MenuJson, MenuJsonWire } from "./menu";
+export { ReviewRatingsSchema, ReviewSubmissionSchema } from "./reviews";
+export type {
+  ExperienceRecord,
+  ExperienceReview,
+  ReviewRatings,
+  ReviewSubmission,
+  ReviewSummary,
+  ReviewVerification,
+} from "./reviews";

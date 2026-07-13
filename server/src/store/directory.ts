@@ -1,5 +1,6 @@
 import type { DirectoryEntry } from '@shared/api';
 import type { BookingJson } from '@shared/booking';
+import { experienceIdFor } from '../lib/experienceId';
 
 const entries = new Map<string, DirectoryEntry>();
 
@@ -13,6 +14,7 @@ export function recordDemand(booking: BookingJson): DirectoryEntry {
     return existing;
   }
   const entry: DirectoryEntry = {
+    experienceId: experienceIdFor(booking),
     operatorName: booking.operator_name,
     activity: booking.activity,
     meetingPointName: booking.meeting_point.name,

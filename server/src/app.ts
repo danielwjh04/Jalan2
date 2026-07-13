@@ -11,6 +11,7 @@ import { fixturesRouter } from "./routes/fixtures";
 import { ingestRouter } from "./routes/ingest";
 import { itineraryRouter } from "./routes/itinerary";
 import { menuRouter } from "./routes/menu";
+import { reviewsRouter } from "./routes/reviews";
 import { tripsRouter } from "./routes/trips";
 import { voiceRouter } from "./routes/voice";
 import { webhooksRouter } from "./routes/webhooks";
@@ -50,6 +51,7 @@ export function createApp(ctx: ServerContext): Express {
   app.use(tripsRouter(ctx.routing));
   app.use(bookRouter(ctx.messaging, ctx.config));
   app.use(directoryRouter());
+  app.use(reviewsRouter());
   app.use(fixturesRouter());
   app.use(voiceRouter(ctx.config, ctx.tts));
   app.use(webhooksRouter());

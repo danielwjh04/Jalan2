@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { Link, type Href, useFocusEffect } from 'expo-router';
 import type { DirectoryEntry } from '@shared/api';
 import { getDirectory } from '@/lib/api';
 import { cardShadow, colors, fonts, radius, spacing, type } from '@/lib/theme';
@@ -31,7 +31,7 @@ export default function DirectoryScreen(): React.ReactElement {
     <FlatList
       contentContainerStyle={styles.container}
       data={entries}
-      keyExtractor={(entry) => entry.operatorName}
+      keyExtractor={(entry) => entry.experienceId}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={load} tintColor={colors.tide} />
       }
@@ -42,26 +42,28 @@ export default function DirectoryScreen(): React.ReactElement {
         </Text>
       }
       renderItem={({ item }) => (
-        <View style={styles.row}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials(item.operatorName)}</Text>
-          </View>
-          <View style={styles.info}>
-            <Text style={styles.name}>{item.operatorName}</Text>
-            <Text style={styles.activity}>{item.activity}</Text>
-            <Text style={styles.meta}>
-              {item.demandCount} booking {item.demandCount === 1 ? 'signal' : 'signals'} ·{' '}
-              {item.meetingPointName}
-            </Text>
-          </View>
-          <View style={[styles.badge, item.optedIn ? styles.badgeIn : styles.badgeOut]}>
-            <Text
-              style={[styles.badgeText, { color: item.optedIn ? colors.confirm : colors.inkSoft }]}
-            >
-              {item.optedIn ? 'On Jalan2' : 'Invited on booking'}
-            </Text>
-          </View>
-        </View>
+        <Link href={`/experience/${item.experienceId}` as Href} asChild>
+          <Pressable style={styles.row}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>{initials(item.operatorName)}</Text>
+            </View>
+            <View style={styles.info}>
+              <Text style={styles.name}>{item.operatorName}</Text>
+              <Text style={styles.activity}>{item.activity}</Text>
+              <Text style={styles.meta}>
+                {item.demandCount} booking {item.demandCount === 1 ? 'signal' : 'signals'} ·{' '}
+                {item.meetingPointName}
+              </Text>
+            </View>
+            <View style={[styles.badge, item.optedIn ? styles.badgeIn : styles.badgeOut]}>
+              <Text
+                style={[styles.badgeText, { color: item.optedIn ? colors.confirm : colors.inkSoft }]}
+              >
+                {item.optedIn ? 'On Jalan2' : 'Invited on booking'}
+              </Text>
+            </View>
+          </Pressable>
+        </Link>
       )}
     />
   );

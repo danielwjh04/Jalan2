@@ -1,4 +1,5 @@
 export interface DirectoryEntry {
+  experienceId: string;
   operatorName: string;
   activity: string;
   meetingPointName: string;

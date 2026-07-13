@@ -10,6 +10,7 @@ import type {
 } from "@shared/api";
 import type { TripPlan } from "@shared/trip";
 import type { BookingRequest, Itinerary } from "@shared/status";
+import type { ExperienceRecord, ReviewSubmission } from "@shared/reviews";
 import { resolveBaseUrl } from "./baseUrl";
 
 function baseUrl(): string {
@@ -66,6 +67,17 @@ export function book(
 
 export function getDirectory(): Promise<DirectoryEntry[]> {
   return request("/directory");
+}
+
+export function getExperience(id: string): Promise<ExperienceRecord> {
+  return request(`/experiences/${encodeURIComponent(id)}`);
+}
+
+export function submitExperienceReview(
+  id: string,
+  review: ReviewSubmission,
+): Promise<ExperienceRecord> {
+  return post(`/experiences/${encodeURIComponent(id)}/reviews`, review);
 }
 
 export function getFixtures(): Promise<FixtureCard[]> {

@@ -35,6 +35,7 @@ export interface BookingRequest {
 
 export interface Itinerary {
   id: string;
+  experienceId: string | null;
   sourceUrl: string;
   coverUrl: string | null;
   status: ItineraryStatus;

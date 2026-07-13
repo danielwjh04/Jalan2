@@ -1,5 +1,6 @@
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { BookSheet } from "./BookSheet";
+import { ExperienceLink } from "./ExperienceLink";
 import { StatusPill } from "./StatusPill";
 import { useItinerary } from "@/lib/useItinerary";
 import {
@@ -66,6 +67,9 @@ export function TripBookingSection({
           ))}
         </View>
       )}
+      {itinerary.experienceId ? (
+        <ExperienceLink experienceId={itinerary.experienceId} bookingId={itinerary.id} />
+      ) : null}
       {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
   );
