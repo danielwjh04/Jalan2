@@ -14,6 +14,7 @@ import { menuRouter } from "./routes/menu";
 import { tripsRouter } from "./routes/trips";
 import { voiceRouter } from "./routes/voice";
 import { webhooksRouter } from "./routes/webhooks";
+import { localWebCors } from "./lib/cors";
 
 export interface ServerContext {
   config: Config;
@@ -26,6 +27,7 @@ export interface ServerContext {
 
 export function createApp(ctx: ServerContext): Express {
   const app = express();
+  app.use(localWebCors);
   // Menu uploads carry base64 photos, so that router parses its own body with
   // a larger limit and must mount before the global 1mb parser.
   app.use(

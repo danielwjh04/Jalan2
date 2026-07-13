@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { BookingJson } from "@shared/booking";
 import { composeBrief } from "../src/voice/brief";
+import { loadConfig } from "../src/config";
+import { createCachedTts } from "../src/adapters/tts/cached";
+import { briefClip } from "../src/services/voice";
 
 function booking(overrides: Partial<BookingJson> = {}): BookingJson {
   return {
@@ -53,5 +56,18 @@ describe("composeBrief", () => {
       "general advisory guidance",
     );
     expect(composeBrief(booking(), "ms")).toContain("panduan umum");
+  });
+});
+
+describe("briefClip", () => {
+  it("finds prepared audio when given a raw short video URL", async () => {
+    const clip = await briefClip(
+      { config: loadConfig({}), tts: createCachedTts() },
+      "https://vt.tiktok.com/ZSCt5cY1k/",
+      "Safety brief",
+      "en",
+    );
+    expect(clip.audioUrl).toBe("/voice/audio/kuching-city-guide-01.en.mp3");
+    expect(clip.servedFrom).toBe("fixture");
   });
 });

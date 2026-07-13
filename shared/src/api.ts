@@ -13,7 +13,8 @@ export interface FixtureRef {
 }
 
 export type IngestResponse =
-  { id: string; kind: "trip" } | { id: string; kind: "booking" };
+  | { id: string; kind: "trip"; bookingId: string }
+  | { id: string; kind: "booking" };
 
 // What GET /fixtures serves the home screen: one card per fixture, enriched
 // from its cached booking and cover image when those exist.

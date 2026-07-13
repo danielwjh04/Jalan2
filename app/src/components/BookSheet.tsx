@@ -1,11 +1,12 @@
-import { useMemo, useState } from 'react';
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
-import type { BookingJson } from '@shared/booking';
-import type { Itinerary } from '@shared/status';
-import { GradientButton } from '@/components/GradientButton';
-import { book } from '@/lib/api';
-import { cardShadow, colors, fonts, radius, spacing, type } from '@/lib/theme';
-import { buildWhatsAppDeepLink } from '@/lib/whatsappLink';
+import { useMemo, useState } from "react";
+import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import type { BookingJson } from "@shared/booking";
+import type { Itinerary } from "@shared/status";
+import { GradientButton } from "@/components/GradientButton";
+import { book } from "@/lib/api";
+import { cardShadow, colors, fonts, radius, spacing, type } from "@/lib/theme";
+import { buildWhatsAppDeepLink } from "@/lib/whatsappLink";
+import { tryOpenExternalUrl } from "@/lib/externalLink";
 
 interface Props {
   itineraryId: string;
@@ -29,7 +30,11 @@ function upcomingDates(count: number): DateOption[] {
   });
 }
 
-export function BookSheet({ itineraryId, booking, onBooked }: Props): React.ReactElement {
+export function BookSheet({
+  itineraryId,
+  booking,
+  onBooked,
+}: Props): React.ReactElement {
   const dates = useMemo(() => upcomingDates(3), []);
   const [dateISO, setDateISO] = useState(dates[0].iso);
   const [pax, setPax] = useState(2);
@@ -47,11 +52,17 @@ export function BookSheet({ itineraryId, booking, onBooked }: Props): React.Reac
         process.env.EXPO_PUBLIC_DEMO_WHATSAPP_NUMBER,
       );
       if (!link) {
-        throw new Error('Set EXPO_PUBLIC_DEMO_WHATSAPP_NUMBER to open WhatsApp.');
+        throw new Error(
+          "Set EXPO_PUBLIC_DEMO_WHATSAPP_NUMBER to open WhatsApp.",
+        );
       }
       const updated = await book(itineraryId, requested);
-      void Linking.openURL(link).catch(() => undefined);
       onBooked(updated);
+      if (!(await tryOpenExternalUrl(link, Linking.openURL))) {
+        setError(
+          "Booking request recorded, but WhatsApp could not open on this device.",
+        );
+      }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
@@ -61,7 +72,8 @@ export function BookSheet({ itineraryId, booking, onBooked }: Props): React.Reac
 
   return (
     <View style={styles.card}>
-      <Text style={styles.heading}>Book direct with the operator</Text>
+      <Text style={styles.heading}>WhatsApp {booking.operator_name}</Text>
+      <Text style={styles.activity}>{booking.activity}</Text>
       <View style={styles.chipRow}>
         {dates.map((option) => {
           const active = option.iso === dateISO;
@@ -80,17 +92,29 @@ export function BookSheet({ itineraryId, booking, onBooked }: Props): React.Reac
       </View>
       <View style={styles.paxRow}>
         <Text style={styles.paxLabel}>Pax</Text>
-        <Pressable style={styles.stepper} onPress={() => setPax(Math.max(1, pax - 1))}>
+        <Pressable
+          style={styles.stepper}
+          onPress={() => setPax(Math.max(1, pax - 1))}
+        >
           <Text style={styles.stepperText}>-</Text>
         </Pressable>
         <Text style={styles.paxValue}>{pax}</Text>
-        <Pressable style={styles.stepper} onPress={() => setPax(Math.min(8, pax + 1))}>
+        <Pressable
+          style={styles.stepper}
+          onPress={() => setPax(Math.min(8, pax + 1))}
+        >
           <Text style={styles.stepperText}>+</Text>
         </Pressable>
       </View>
-      <GradientButton label="Book via WhatsApp" busy={busy} onPress={() => void submit()} />
+      <GradientButton
+        label="Message operator on WhatsApp"
+        busy={busy}
+        onPress={() => void submit()}
+      />
       {error && <Text style={styles.error}>{error}</Text>}
-      <Text style={styles.note}>Nothing is sent or paid until you tap Book.</Text>
+      <Text style={styles.note}>
+        Nothing is sent or paid until you tap Book.
+      </Text>
     </View>
   );
 }
@@ -104,7 +128,8 @@ const styles = StyleSheet.create({
     ...cardShadow,
   },
   heading: { ...type.heading, color: colors.ink },
-  chipRow: { flexDirection: 'row', gap: spacing(2) },
+  activity: { ...type.body, color: colors.inkSoft },
+  chipRow: { flexDirection: "row", gap: spacing(2) },
   chip: {
     backgroundColor: colors.canvas,
     borderRadius: radius.pill,
@@ -114,15 +139,15 @@ const styles = StyleSheet.create({
   chipActive: { backgroundColor: colors.tide },
   chipText: { color: colors.inkSoft, fontFamily: fonts.medium, fontSize: 13 },
   chipTextActive: { color: colors.card },
-  paxRow: { flexDirection: 'row', alignItems: 'center', gap: spacing(3) },
+  paxRow: { flexDirection: "row", alignItems: "center", gap: spacing(3) },
   paxLabel: { ...type.body, color: colors.inkSoft, marginRight: spacing(1) },
   stepper: {
     width: 38,
     height: 38,
     borderRadius: radius.control,
     backgroundColor: colors.canvas,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   stepperText: { color: colors.ink, fontFamily: fonts.medium, fontSize: 18 },
   paxValue: {
@@ -130,8 +155,8 @@ const styles = StyleSheet.create({
     fontFamily: fonts.semibold,
     fontSize: 16,
     minWidth: 22,
-    textAlign: 'center',
+    textAlign: "center",
   },
   error: { ...type.label, color: colors.danger, fontFamily: fonts.regular },
-  note: { ...type.caption, color: colors.inkSoft, textAlign: 'center' },
+  note: { ...type.caption, color: colors.inkSoft, textAlign: "center" },
 });

@@ -1,6 +1,14 @@
-import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  Linking,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import type { TripStop } from "@shared/trip";
 import { colors, fonts, radius, spacing, type } from "@/lib/theme";
+import { tryOpenExternalUrl } from "@/lib/externalLink";
 
 interface Props {
   stop: TripStop;
@@ -17,6 +25,13 @@ export function TripStopCard({
 }: Props): React.ReactElement {
   const selected = position !== null;
   const source = stop.sources[0];
+  const openSource = async (): Promise<void> => {
+    if (await tryOpenExternalUrl(source.url, Linking.openURL)) return;
+    Alert.alert(
+      "Could not open source",
+      "Copy the source link and open it in your browser.",
+    );
+  };
   return (
     <View style={[styles.card, !selected && styles.inactive]}>
       <View style={styles.row}>
@@ -32,7 +47,7 @@ export function TripStopCard({
           <Text style={styles.meta}>{stop.duration_minutes} min</Text>
           <Text style={styles.summary}>{stop.summary}</Text>
           <View style={styles.actions}>
-            <Pressable onPress={() => void Linking.openURL(source.url)}>
+            <Pressable onPress={() => void openSource()}>
               <Text style={styles.link}>View source</Text>
             </Pressable>
             <Pressable disabled={selected && !canRemove} onPress={onToggle}>

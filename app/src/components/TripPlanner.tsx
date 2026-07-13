@@ -12,9 +12,11 @@ import { colors, eyebrow, radius, spacing, type } from "@/lib/theme";
 import { SafetyBriefCard } from "./SafetyBriefCard";
 import { TripMap } from "./TripMap";
 import { TripStopCard } from "./TripStopCard";
+import { TripBookingSection } from "./TripBookingSection";
 
 interface Props extends Omit<TripPlannerState, "trip"> {
   trip: TripPlan;
+  bookingId?: string;
 }
 
 function TripSummary({
@@ -103,6 +105,9 @@ export function TripPlanner(props: Props): React.ReactElement {
       />
       <View style={styles.body}>
         <TripSummary {...props} />
+        {props.bookingId ? (
+          <TripBookingSection bookingId={props.bookingId} />
+        ) : null}
         <StopList {...props} />
         <View style={styles.safety}>
           <SafetyBriefCard tripId={props.trip.id} />

@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { normalizeVideoUrl } from "@shared/videoUrl";
 import type { RoutingProvider } from "../src/adapters/routing/types";
-import { preparedTripForUrl } from "../src/routes/ingest";
+import {
+  createPreparedTripBooking,
+  preparedTripForUrl,
+} from "../src/routes/ingest";
 import { optimizePreparedTrip } from "../src/routes/trips";
+import { resetItineraries } from "../src/store/itineraries";
 
 describe("prepared trips", () => {
   function cityTrip() {
@@ -16,6 +20,17 @@ describe("prepared trips", () => {
     const trip = preparedTripForUrl(normalized?.url ?? "");
     expect(trip?.id).toBe("kuching-city-guide-01");
     expect(trip?.stops).toHaveLength(3);
+  });
+
+  it("creates a ready booking itinerary for the prepared trip", () => {
+    resetItineraries();
+    const normalized = normalizeVideoUrl("https://vt.tiktok.com/ZSCt5cY1k/");
+    if (!normalized) throw new Error("Test URL did not normalize");
+    const prepared = createPreparedTripBooking(normalized.url);
+    expect(prepared?.trip.id).toBe("kuching-city-guide-01");
+    expect(prepared?.itinerary.stage).toBe("READY");
+    expect(prepared?.itinerary.status).toBe("DRAFT");
+    expect(prepared?.itinerary.booking?.operator_name).toBe("Wanka Travel");
   });
 
   it("keeps the first selected stop fixed during optimization", async () => {

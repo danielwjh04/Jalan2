@@ -61,30 +61,6 @@ export function voiceRouter(config: Config, tts: TextToSpeech): Router {
     });
   });
 
-  router.get("/voice/trip/:tripId", (req, res) => {
-    const trip = loadCachedTrip(req.params.tripId);
-    const booking = loadCachedBooking(req.params.tripId);
-    if (!trip || !booking) {
-      res.status(404).json({ error: `No briefable trip ${req.params.tripId}` });
-      return;
-    }
-    const lang: BriefLang =
-      req.query.lang === "ms" || req.query.lang === "zh"
-        ? req.query.lang
-        : "en";
-    const text = composeBrief(booking, lang);
-    void briefClip(deps, trip.source_url, text, lang).then((clip) => {
-      const payload: VoiceBriefResponse = {
-        itineraryId: trip.id,
-        lang,
-        text,
-        synthetic: true,
-        ...clip,
-      };
-      res.json(payload);
-    });
-  });
-
   router.get("/voice/phrases", (_req, res) => {
     void Promise.all(
       PHRASE_CLIPS.map(async (phrase): Promise<PhraseClipResponse> => ({
