@@ -21,6 +21,7 @@ describe("FixtureExtractor", () => {
       normalized("https://vt.tiktok.com/ZSCt5cY1k/"),
     );
     expect(media.fixtureSlug).toBe("kuching-city-guide-01");
+    expect(media.coverPath).toMatch(/cover\.jpg$/);
     expect(media.caption).toContain("What To Do in Kuching");
   });
 

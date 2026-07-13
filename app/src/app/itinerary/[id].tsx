@@ -2,6 +2,7 @@ import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from 're
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams } from 'expo-router';
 import { BookSheet } from '@/components/BookSheet';
+import { BoboCard } from '@/components/BoboCard';
 import { ItineraryCard } from '@/components/ItineraryCard';
 import { MapCard } from '@/components/MapCard';
 import { SafetyBriefCard } from '@/components/SafetyBriefCard';
@@ -49,7 +50,16 @@ export default function ItineraryScreen(): React.ReactElement {
         </View>
       )}
       {!itinerary.coverUrl && booking && <StatusPill status={itinerary.status} />}
-      {!booking && <StageProgress stage={itinerary.stage} error={itinerary.error} />}
+      {!booking && (
+        <>
+          <BoboCard
+            compact
+            title="I am reading the clues"
+            message="Checking the post images, caption and local details before anything is bookable."
+          />
+          <StageProgress stage={itinerary.stage} error={itinerary.error} />
+        </>
+      )}
       {booking && (
         <>
           <ItineraryCard

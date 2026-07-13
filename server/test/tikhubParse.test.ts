@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { loadConfig } from '../src/config';
 import { pickExtractor } from '../src/adapters/extractor';
 import { parseHybridMedia, resolveTiktokShareUrl } from '../src/adapters/extractor/tikhub';
+import { parseXhsMedia } from '../src/adapters/extractor/xhsMedia';
 
 describe('parseHybridMedia', () => {
   it('reads a video post with a string HQ URL', () => {
@@ -92,12 +93,57 @@ describe('pickExtractor tikhub mode', () => {
     expect(media.fixtureSlug).toBe('kuching-cafes-03');
   });
 
-  it('throws the paid balance message for non-fixture XHS URLs', async () => {
-    const extractor = pickExtractor(loadConfig({ EXTRACTOR: 'tikhub', TIKHUB_TOKEN: 'fake' }));
+  it('requires a TikHub token for non-fixture XHS URLs', async () => {
+    const extractor = pickExtractor(loadConfig({ EXTRACTOR: 'tikhub', TIKHUB_TOKEN: '' }));
 
     await expect(
       extractor.extract('https://xhslink.com/o/not-in-the-manifest'),
-    ).rejects.toThrow(/paid balance/);
+    ).rejects.toThrow(/TIKHUB_TOKEN/);
+  });
+});
+
+describe('parseXhsMedia', () => {
+  it('reads carousel images and a caption from an XHS response', () => {
+    const media = parseXhsMedia({
+      code: 200,
+      data: {
+        note: {
+          title: 'Bengoh village escape',
+          image_list: [
+            { url_default: 'https://sns-img.example/one.jpg' },
+            { url_default: 'https://sns-img.example/two.webp' },
+          ],
+        },
+      },
+    });
+    expect(media).toEqual({
+      kind: 'image',
+      imageUrls: [
+        'https://sns-img.example/one.jpg',
+        'https://sns-img.example/two.webp',
+      ],
+      caption: 'Bengoh village escape',
+    });
+  });
+
+  it('prefers the playable video URL over a video cover', () => {
+    const media = parseXhsMedia({
+      code: 200,
+      data: {
+        note: {
+          desc: 'Local river guide',
+          video: {
+            cover: 'https://sns-img.example/cover.jpg',
+            media: { stream: { h264: [{ master_url: 'https://sns-video.example/post.mp4' }] } },
+          },
+        },
+      },
+    });
+    expect(media).toEqual({
+      kind: 'video',
+      playUrl: 'https://sns-video.example/post.mp4',
+      caption: 'Local river guide',
+    });
   });
 });
 

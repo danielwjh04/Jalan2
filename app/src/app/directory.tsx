@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { Link, type Href, useFocusEffect } from 'expo-router';
 import type { DirectoryEntry } from '@shared/api';
+import { BoboCard } from '@/components/BoboCard';
 import { getDirectory } from '@/lib/api';
 import { cardShadow, colors, fonts, radius, spacing, type } from '@/lib/theme';
 
@@ -35,11 +36,15 @@ export default function DirectoryScreen(): React.ReactElement {
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={load} tintColor={colors.tide} />
       }
+      ListHeaderComponent={
+        <BoboCard
+          compact
+          title="Meet the people behind the posts"
+          message="I keep each local operator connected to the experience travelers discovered."
+        />
+      }
       ListEmptyComponent={
-        <Text style={styles.empty}>
-          No operators yet. Every extracted video adds its operator here, ranked by tourist
-          demand.
-        </Text>
+        <Text style={styles.empty}>No operators yet. Share a local discovery and I will start the list.</Text>
       }
       renderItem={({ item }) => (
         <Link href={`/experience/${item.experienceId}` as Href} asChild>
@@ -71,7 +76,7 @@ export default function DirectoryScreen(): React.ReactElement {
 
 const styles = StyleSheet.create({
   container: { padding: spacing(4), gap: spacing(3), flexGrow: 1 },
-  empty: { ...type.body, color: colors.inkSoft, textAlign: 'center', marginTop: spacing(12) },
+  empty: { ...type.body, color: colors.inkSoft, textAlign: 'center', marginTop: spacing(6) },
   row: {
     backgroundColor: colors.card,
     borderRadius: radius.card,

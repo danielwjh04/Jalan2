@@ -9,6 +9,7 @@ import { downloadsRoot } from '../../lib/paths';
 import { imageToJpeg, imagesToSlideshow } from '../../pipeline/keyframes';
 import type { ExtractedMedia, Extractor } from './types';
 import { parseHybridMedia, type HybridMedia } from './tikhubMedia';
+import { fetchXhsMedia } from './xhsMedia';
 import { downloadTikTokWithYtDlp } from './ytdlp';
 
 const HYBRID_ENDPOINT = 'https://api.tikhub.io/api/v1/hybrid/video_data';
@@ -32,27 +33,36 @@ export function createTikhubExtractor(token: string | undefined): Extractor {
     async extract(normalizedUrl) {
       const lookupUrl = await resolveTiktokShareUrl(normalizedUrl);
       const normalized = normalizeVideoUrl(lookupUrl);
-      if (normalized?.platform === 'xhs') {
-        throw new Error(
-          'TikHub XHS endpoints require a paid balance (free credit is not accepted). Top up at user.tikhub.io or use a manifest fixture for XHS demos.',
-        );
-      }
       if (!token) {
         throw new NotConfiguredError('TikHub extractor', 'Set TIKHUB_TOKEN or EXTRACTOR=fixture.');
       }
       const outDir = path.join(downloadsRoot(), hashUrl(lookupUrl));
       mkdirSync(outDir, { recursive: true });
-      const media = await extractHybridOrFallback(lookupUrl, token, outDir, normalized?.platform);
+      const media = normalized?.platform === 'xhs'
+        ? await fetchXhsMedia(lookupUrl, token)
+        : await extractHybridOrFallback(lookupUrl, token, outDir, normalized?.platform);
       if ('videoPath' in media) return media;
       if (media.kind === 'video') {
         const videoPath = path.join(outDir, 'video.mp4');
         await downloadFile(media.playUrl, videoPath);
-        return { fixtureSlug: null, videoPath, audioPath: null, caption: media.caption };
+        return {
+          fixtureSlug: null,
+          videoPath,
+          audioPath: null,
+          coverPath: null,
+          caption: media.caption,
+        };
       }
       const imagePaths = await downloadImages(media.imageUrls, outDir);
       const videoPath = path.join(outDir, 'video.mp4');
       await imagesToSlideshow(imagePaths, videoPath);
-      return { fixtureSlug: null, videoPath, audioPath: null, caption: media.caption };
+      return {
+        fixtureSlug: null,
+        videoPath,
+        audioPath: null,
+        coverPath: imagePaths[0] ?? null,
+        caption: media.caption,
+      };
     },
   };
 }

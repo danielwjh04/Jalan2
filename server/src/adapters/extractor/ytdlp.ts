@@ -27,6 +27,7 @@ export async function downloadTikTokWithYtDlp(url: string, outDir: string): Prom
     fixtureSlug: null,
     videoPath,
     audioPath: null,
+    coverPath: null,
     caption: captionFromYtDlpInfo(info),
   };
 }

@@ -1,5 +1,6 @@
 import {
   findAudioPath,
+  findCoverPath,
   findVideoPath,
   knownFixtures,
   readCaption,
@@ -22,6 +23,7 @@ export function createFixtureExtractor(): Extractor {
         fixtureSlug: slug,
         videoPath: findVideoPath(slug),
         audioPath: findAudioPath(slug),
+        coverPath: findCoverPath(slug),
         caption: readCaption(slug),
       };
     },

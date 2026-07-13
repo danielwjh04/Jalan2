@@ -36,8 +36,8 @@ and the entire vendor-side experience remain to be built.
 
 | Capability | Status | Reality today |
 |---|---|---|
-| Expo tourist app | Working scaffold | Paste/share entry, fixture cards, itinerary, map, transit links, booking sheet, directory |
-| Video extraction | Partial | TikHub and yt-dlp paths exist; curated manifest fixtures are the reliable path; non-fixture XHS needs paid extraction access |
+| Expo tourist app | Working scaffold | Paste/share entry, source-media covers, Bobo guide cards, itinerary, map, transit links, booking sheet, menu flow, and directory |
+| Social media extraction | Partial | TikHub and yt-dlp paths exist; downloaded carousel images or an extracted video frame become the listing cover; non-fixture XHS requires a paid TikHub token |
 | Multimodal fusion | Partial | OpenAI frame reading and structured Booking JSON exist; quality has not been benchmarked on a representative dataset |
 | Speech and voice | Demo-grade | OpenAI and ElevenLabs STT adapters exist; cached and ElevenLabs TTS serve multilingual safety briefs and local phrases |
 | WhatsApp booking | Demo-grade | Twilio send/webhook adapters exist, but the recommended demo opens a `wa.me` draft and uses mock auto-confirmation |
@@ -52,6 +52,27 @@ and the entire vendor-side experience remain to be built.
 
 Cached output is visibly labeled `cached` in the app. It must never be presented
 as a live extraction during a demo.
+
+## Bobo, the Jalan2 guide
+
+Bobo is Jalan2's baby Malayan tapir travel companion. His songkok, batik
+neckerchief, and acid-yellow pouch detail connect the character to Malaysia and
+the product's visual system without turning him into a trust or safety badge.
+He guides the tourist through discovery, extraction progress, the operator
+directory, and local menu phrases.
+
+The transparent production asset lives at
+`app/assets/images/bobo.png`. `BoboCard` is the reusable React Native component;
+screen copy is passed in as props so Bobo can explain the current task without
+duplicating layouts. Keep his role informational and friendly. He must never
+claim that an operator is licensed, accredited, guaranteed, or safe.
+
+The current source-media cover flow uses the first downloaded carousel image
+for image posts and an extracted early frame for videos. Covers are copied to
+`server/data/source-covers/`, keyed by the normalized submitted URL, and served
+through `GET /source-covers/:key`. Curated fixture covers remain the fallback.
+Non-fixture XHS posts use TikHub's App V2 image and video endpoints and require
+a paid `TIKHUB_TOKEN`.
 
 ## Target closed loop
 
@@ -199,6 +220,10 @@ an expired or reused link is rejected.
 - Build source connectors behind policy-aware adapters. Prefer official APIs,
   user-provided shares, or licensed extractors; do not make mass scraping the
   product dependency.
+- Preserve user-submitted post imagery as the listing cover, with a generated
+  video frame and curated fixture image as explicit fallbacks. This now works
+  in the live TikHub pipeline; production still needs object storage and a
+  source-media retention policy.
 
 **Done when:** a video and a photographed flyer both produce editable,
 source-backed listings, and unsupported facts remain null rather than guessed.

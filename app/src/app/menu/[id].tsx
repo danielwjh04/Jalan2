@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import type { MenuResponse } from "@shared/api";
+import { BoboCard } from "@/components/BoboCard";
 import { SwipeDeck } from "@/components/SwipeDeck";
 import { VoiceButton } from "@/components/VoiceButton";
 import { getMenu, serverUrl } from "@/lib/api";
@@ -64,29 +65,36 @@ export default function MenuScreen(): React.ReactElement {
         />
       )}
       {(done || liked.length > 0) && (
-        <View style={styles.shortlist}>
-          <Text style={eyebrow}>Your shortlist</Text>
-          {liked.length === 0 && (
-            <Text style={styles.empty}>Nothing shortlisted yet.</Text>
-          )}
-          {liked.map((index) => {
-            const dish = menu.dishes[index];
-            const audio = dishAudio[index];
-            return (
-              <View key={`${dish.name_local}-${index}`} style={styles.item}>
-                <Text style={styles.itemName}>{dish.name_local}</Text>
-                <Text style={styles.itemPhrase}>Say: {dish.order_phrase}</Text>
-                {audio ? (
-                  <VoiceButton
-                    key={audio}
-                    audioUrl={serverUrl(audio)}
-                    label="Play order phrase"
-                  />
-                ) : null}
-              </View>
-            );
-          })}
-        </View>
+        <>
+          <BoboCard
+            compact
+            title="Ready to order?"
+            message="Play the local phrase, give it a try, and point to the dish if the kopitiam is noisy."
+          />
+          <View style={styles.shortlist}>
+            <Text style={eyebrow}>Your shortlist</Text>
+            {liked.length === 0 && (
+              <Text style={styles.empty}>Nothing shortlisted yet.</Text>
+            )}
+            {liked.map((index) => {
+              const dish = menu.dishes[index];
+              const audio = dishAudio[index];
+              return (
+                <View key={`${dish.name_local}-${index}`} style={styles.item}>
+                  <Text style={styles.itemName}>{dish.name_local}</Text>
+                  <Text style={styles.itemPhrase}>Say: {dish.order_phrase}</Text>
+                  {audio ? (
+                    <VoiceButton
+                      key={audio}
+                      audioUrl={serverUrl(audio)}
+                      label="Play order phrase"
+                    />
+                  ) : null}
+                </View>
+              );
+            })}
+          </View>
+        </>
       )}
     </ScrollView>
   );

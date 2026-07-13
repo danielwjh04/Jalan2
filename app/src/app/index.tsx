@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import type { FixtureCard as FixtureCardData } from '@shared/api';
 import { normalizeVideoUrl } from '@shared/videoUrl';
 import { FixtureCard } from '@/components/FixtureCard';
+import { BoboCard } from '@/components/BoboCard';
 import { HomeHeader } from '@/components/HomeHeader';
 import { PasteBar } from '@/components/PasteBar';
 import { getFixtures } from '@/lib/api';
@@ -68,6 +69,11 @@ export default function HomeScreen(): React.ReactElement {
         <PasteBar prefill={prefill} busy={busy} onSubmit={submit} />
       </View>
       <View style={styles.content}>
+        <BoboCard
+          tone="acid"
+          title="Found something local?"
+          message="Send me the post. I will pull out the place, price, operator and best photo."
+        />
         <View style={styles.quickRow}>
           <Pressable style={styles.menuCard} disabled={busy} onPress={chooseMenuSource}>
             <Text style={styles.menuEyebrow}>MENU MODE</Text>

@@ -48,6 +48,12 @@ export function setStage(id: string, stage: PipelineStage): Itinerary {
   return touch(itinerary);
 }
 
+export function setCoverUrl(id: string, coverUrl: string): Itinerary {
+  const itinerary = getOrThrow(id);
+  itinerary.coverUrl = coverUrl;
+  return touch(itinerary);
+}
+
 export function setBooking(
   id: string,
   booking: BookingJson,
