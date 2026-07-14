@@ -13,7 +13,7 @@ import {
 import { withLicensedPlaceImages } from "./adapters/places/withImages";
 import { pickStt } from "./adapters/stt";
 import { pickTts } from "./adapters/tts";
-import { handleInbound } from "./services/booking";
+import { deliverInbound } from "./routes/webhooks";
 
 const config = loadConfig();
 const openai = config.OPENAI_API_KEY
@@ -21,7 +21,7 @@ const openai = config.OPENAI_API_KEY
   : null;
 const messaging = pickMessagingProvider(
   config,
-  (message) => void handleInbound(message),
+  (message) => void deliverInbound(message),
 );
 const retrieval = pickRetrieval(config);
 const places = withLicensedPlaceImages(createPlaces(config), createWikimediaPlaceImages());

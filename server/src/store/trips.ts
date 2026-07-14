@@ -1,11 +1,16 @@
+import { randomUUID } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import type { SavedTripSummary } from '@shared/api';
 import { TripPlanSchema, type TripPlan } from '@shared/trip';
 import { loadCachedTrip } from '../lib/fixtures';
 import { loadDiscoveryTrip } from '../lib/discoveries';
 import { tripsDataRoot } from '../lib/paths';
 
 const trips = new Map<string, TripPlan>();
+const copyIds = new Map<string, string>();
+const savedSummaries = new Map<string, SavedTripSummary & { order: number }>();
+let savedOrder = 0;
 
 export function getTrip(id: string): TripPlan | null {
   const memory = trips.get(id);
@@ -18,12 +23,58 @@ export function getTrip(id: string): TripPlan | null {
 export function saveTrip(trip: TripPlan): TripPlan {
   const parsed = TripPlanSchema.parse(trip);
   trips.set(parsed.id, parsed);
-  persist(parsed);
+  if (parsed.origin === 'saved_discovery') touchSavedSummary(parsed);
+  else persist(parsed);
   return parsed;
+}
+
+export function copyDiscoveryTrip(id: string, clientRequestId: string): TripPlan {
+  const existingId = copyIds.get(clientRequestId);
+  if (existingId) return getRequiredTrip(existingId);
+  const source = loadDiscoveryTrip(id);
+  if (!source) throw new Error(`Unknown discovery ${id}`);
+  const copy = TripPlanSchema.parse({
+    ...structuredClone(source),
+    id: `saved-${id}-${randomUUID().slice(0, 8)}`,
+    origin: 'saved_discovery',
+    source_discovery_id: id,
+  });
+  copyIds.set(clientRequestId, copy.id);
+  return saveTrip(copy);
+}
+
+export function listSavedTrips(): SavedTripSummary[] {
+  return [...savedSummaries.values()]
+    .sort((a, b) => b.order - a.order)
+    .map(({ order: _order, ...summary }) => summary);
 }
 
 export function resetTrips(): void {
   trips.clear();
+  copyIds.clear();
+  savedSummaries.clear();
+  savedOrder = 0;
+}
+
+function getRequiredTrip(id: string): TripPlan {
+  const trip = trips.get(id);
+  if (!trip) throw new Error(`Unknown trip ${id}`);
+  return trip;
+}
+
+function touchSavedSummary(trip: TripPlan): void {
+  if (!trip.source_discovery_id) throw new Error('Saved trip is missing its discovery source');
+  savedOrder += 1;
+  savedSummaries.set(trip.id, {
+    id: trip.id,
+    sourceDiscoveryId: trip.source_discovery_id,
+    title: trip.title,
+    region: trip.region,
+    coverUrl: trip.cover_url,
+    stopCount: trip.selected_stop_ids.length,
+    updatedAt: new Date().toISOString(),
+    order: savedOrder,
+  });
 }
 
 function readStoredTrip(id: string): TripPlan | null {

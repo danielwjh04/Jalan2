@@ -23,6 +23,7 @@ export {
   OpeningWindowSchema,
   OptimizedRouteSchema,
   PlaceCandidateSchema,
+  ReservationHintSchema,
   TripPreferencesSchema,
   TripPlanSchema,
   TripSourceSchema,
@@ -35,6 +36,7 @@ export type {
   GeoPoint,
   OptimizedRoute,
   PlaceCandidate,
+  ReservationHint,
   TripPlan,
   TripPreferences,
   TripStop,
@@ -47,11 +49,33 @@ export type {
   FixtureCard,
   FixtureRef,
   ItinerarySummary,
+  SavedTripSummary,
   MenuResponse,
   PhraseClipResponse,
   VoiceBriefResponse,
   VoiceServedFrom,
 } from "./api";
+export {
+  CreateTripReservationRequestSchema,
+  ReservationEligibilitySchema,
+  ReservationPreviewRequestSchema,
+  ReservationPreviewSchema,
+  ReservationStatusSchema,
+  TripReservationBatchSchema,
+  TripStopReservationSchema,
+  reservationCounts,
+} from "./reservation";
+export type {
+  CreateTripReservationRequest,
+  ReservationCounts,
+  ReservationEligibility,
+  ReservationMessage,
+  ReservationPreview,
+  ReservationPreviewRequest,
+  ReservationStatus,
+  TripReservationBatch,
+  TripStopReservation,
+} from "./reservation";
 export { DishSchema, MenuJsonSchema, MenuJsonWireSchema } from "./menu";
 export type { Dish, MenuJson, MenuJsonWire } from "./menu";
 export { ReviewRatingsSchema, ReviewSubmissionSchema } from "./reviews";

@@ -90,6 +90,8 @@ function toCandidate(place: z.infer<typeof PlaceSchema>): PlaceCandidate {
     google_maps_url: mapsUrl,
     opening_window: firstOpeningWindow(place.regularOpeningHours?.periods ?? []),
     suggested_activity: activityFor(place.primaryType, place.primaryTypeDisplayName?.text),
+    primary_type: place.primaryType ?? null,
+    reservation_hint: null,
     place_photo_available: Boolean(photo),
     place_photo_attributions: attributionsFor(photo, mapsUrl),
     image_url: null,

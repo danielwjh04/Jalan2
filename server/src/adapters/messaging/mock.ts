@@ -13,11 +13,19 @@ export function createMockProvider(
     async sendBookingRequest(to, body) {
       console.info(`[mock messaging] -> ${to}\n${body}`);
       if (autoConfirmMs > 0) {
-        setTimeout(() => deliverInbound({ from: to, text: 'YES' }), autoConfirmMs).unref();
+        setTimeout(
+          () => deliverInbound({ from: to, text: referencedAutoReply(body) }),
+          autoConfirmMs,
+        ).unref();
       }
       return { messageId: randomUUID() };
     },
   };
+}
+
+export function referencedAutoReply(body: string): string {
+  const reference = body.toUpperCase().match(/\bJ2-[A-Z0-9]{4,8}\b/)?.[0];
+  return reference ? `YES ${reference}` : 'YES';
 }
 
 const MockInboundSchema = z.object({ from: z.string().min(1), text: z.string() });

@@ -12,6 +12,8 @@ const stops = [
     name: "Kuching Waterfront",
     summary: "Riverside promenade",
     location: { lat: 1.5593, lng: 110.3439 },
+    primary_type: null,
+    reservation_hint: null,
     image_url: null,
     place_photo_available: true,
     place_photo_attributions: [{
@@ -29,6 +31,8 @@ const stops = [
     name: "Borneo Cultures Museum",
     summary: "Sarawak culture and history",
     location: { lat: 1.5574, lng: 110.3438 },
+    primary_type: null,
+    reservation_hint: null,
     image_url: null,
     place_photo_available: false,
     place_photo_attributions: [],
@@ -42,6 +46,8 @@ const stops = [
     name: "Semenggoh Wildlife Centre",
     summary: "Orangutan rehabilitation centre",
     location: { lat: 1.3997, lng: 110.3157 },
+    primary_type: null,
+    reservation_hint: null,
     image_url: null,
     place_photo_available: false,
     place_photo_attributions: [],
@@ -53,6 +59,32 @@ const stops = [
 ];
 
 describe("TripPlanSchema", () => {
+  it("accepts saved discovery and reservation metadata", () => {
+    const parsed = TripPlanSchema.safeParse({
+      id: "saved-melaka",
+      title: "Melaka day out",
+      region: "Melaka, Malaysia",
+      source_creator: "Jalan2",
+      source_url: "https://example.com/discovery",
+      cover_url: null,
+      demo: false,
+      origin: "saved_discovery",
+      source_discovery_id: "melaka-river-and-heritage",
+      stops: stops.map((stop) => ({
+        ...stop,
+        primary_type: "tourist_attraction",
+        reservation_hint: "bookable",
+      })),
+      selected_stop_ids: stops.map((stop) => stop.id),
+      route: null,
+    });
+
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) return;
+    expect(parsed.data.source_discovery_id).toBe("melaka-river-and-heritage");
+    expect(parsed.data.stops[0].reservation_hint).toBe("bookable");
+  });
+
   it("accepts a complete prepared trip plan", () => {
     const parsed = TripPlanSchema.safeParse({
       id: "kuching-day",

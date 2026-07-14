@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import type { DiscoveryCard as DiscoveryCardData, FixtureCard as FixtureCardData } from "@shared/api";
+import type { DiscoveryCard as DiscoveryCardData, FixtureCard as FixtureCardData, SavedTripSummary } from "@shared/api";
 import { DiscoveryCard } from "./DiscoveryCard";
 import { cardShadow, colors, eyebrow, hairline, radius, spacing, type } from "@/lib/theme";
 
@@ -25,6 +25,9 @@ interface DiscoveryProps {
   devFixture?: FixtureCardData;
   busy: boolean;
   onOpen: (id: string) => void;
+  onPlan: (id: string) => void;
+  savedTrips: SavedTripSummary[];
+  planningId: string | null;
   onSubmit: (url: string) => void;
   onSeeAll: () => void;
 }
@@ -44,6 +47,9 @@ export function HomeDiscoveryPreview(props: DiscoveryProps): React.ReactElement 
           key={discovery.id}
           discovery={discovery}
           onPress={() => props.onOpen(discovery.id)}
+          onPlan={() => props.onPlan(discovery.id)}
+          savedTripId={props.savedTrips.find((trip) => trip.sourceDiscoveryId === discovery.id)?.id}
+          planning={props.planningId === discovery.id}
         />
       ))}
       {__DEV__ && props.devFixture ? <DevShare fixture={props.devFixture} busy={props.busy} onSubmit={props.onSubmit} /> : null}

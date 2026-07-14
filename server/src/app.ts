@@ -18,6 +18,7 @@ import { placePhotosRouter } from "./routes/placePhotos";
 import { reviewsRouter } from "./routes/reviews";
 import { sourceCoversRouter } from "./routes/sourceCovers";
 import { tripsRouter } from "./routes/trips";
+import { tripReservationsRouter } from "./routes/tripReservations";
 import { voiceRouter } from "./routes/voice";
 import { webhooksRouter } from "./routes/webhooks";
 import { localWebCors } from "./lib/cors";
@@ -57,6 +58,7 @@ export function createApp(ctx: ServerContext): Express {
   app.use(itineraryRouter());
   app.use(placePhotosRouter(ctx.places));
   app.use(tripsRouter(ctx.routing, ctx.places));
+  app.use(tripReservationsRouter(ctx.messaging, ctx.config));
   app.use(bookRouter(ctx.messaging, ctx.config));
   app.use(directoryRouter());
   app.use(discoveriesRouter());

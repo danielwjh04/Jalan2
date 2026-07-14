@@ -18,6 +18,9 @@ export const OpeningWindowSchema = z.object({
   close_minute: z.number().int().min(1).max(1440),
 });
 
+export const ReservationHintSchema = z.enum(["bookable", "walk_in"]);
+export type ReservationHint = z.infer<typeof ReservationHintSchema>;
+
 export const PlaceCandidateSchema = z.object({
   place_id: z.string().min(1),
   name: z.string().min(1),
@@ -26,6 +29,8 @@ export const PlaceCandidateSchema = z.object({
   google_maps_url: z.string().url(),
   opening_window: OpeningWindowSchema.nullable(),
   suggested_activity: z.string().min(1),
+  primary_type: z.string().min(1).nullable().optional(),
+  reservation_hint: ReservationHintSchema.nullable().optional(),
   place_photo_available: z.boolean().default(false),
   place_photo_attributions: z.array(ImageAttributionSchema).default([]),
   image_url: z.string().url().nullable().default(null),
@@ -50,6 +55,8 @@ export const TripStopSchema = z.object({
   address: z.string().min(1).nullable().optional(),
   google_maps_url: z.string().url().nullable().optional(),
   opening_window: OpeningWindowSchema.nullable().optional(),
+  primary_type: z.string().min(1).nullable().optional(),
+  reservation_hint: ReservationHintSchema.nullable().optional(),
   easybook_url: z.string().url().nullable().optional(),
 });
 
@@ -100,13 +107,21 @@ export const TripPlanSchema = z
     source_url: z.string().url(),
     cover_url: z.string().nullable(),
     demo: z.boolean(),
-    origin: z.enum(["video", "curated"]).default("video"),
+    origin: z.enum(["video", "curated", "saved_discovery"]).default("video"),
+    source_discovery_id: z.string().min(1).nullable().default(null),
     stops: z.array(TripStopSchema).min(1),
     selected_stop_ids: z.array(z.string().min(1)).min(1),
     preferences: TripPreferencesSchema.optional(),
     route: OptimizedRouteSchema.nullable(),
   })
   .superRefine((trip, context) => {
+    if (trip.origin === "saved_discovery" && !trip.source_discovery_id) {
+      context.addIssue({
+        code: "custom",
+        path: ["source_discovery_id"],
+        message: "Saved discovery trips require a source discovery id",
+      });
+    }
     const stopIds = new Set(trip.stops.map((stop) => stop.id));
     if (stopIds.size !== trip.stops.length) {
       context.addIssue({

@@ -13,7 +13,7 @@ import type { RoutingProvider } from '../adapters/routing/types';
 import { createOfflineRouting } from '../adapters/routing/offline';
 import { findEasybookRoute } from '../adapters/transit/easybook';
 import { fitBudget } from '../services/routeConstraints';
-import { getTrip, saveTrip } from '../store/trips';
+import { getTrip, listSavedTrips, saveTrip } from '../store/trips';
 
 type TransitRouteFinder = (origin: string, destination: string) => Promise<string | null>;
 
@@ -55,6 +55,7 @@ export async function optimizePreparedTrip(
 
 export function tripsRouter(routing: RoutingProvider, places: PlacesProvider): Router {
   const router = Router();
+  router.get('/trips', (_req, res) => res.json(listSavedTrips()));
   router.get('/trips/:id', (req, res) => {
     const trip = getTrip(req.params.id);
     if (!trip) res.status(404).json({ error: `Unknown trip ${req.params.id}` });
@@ -80,6 +81,7 @@ export function tripsRouter(routing: RoutingProvider, places: PlacesProvider): R
       res.status(400).json({ error: trip ? 'Invalid place' : 'Unknown trip' });
       return;
     }
+    if (!editable(trip, res)) return;
     const stop = await customStop(candidate.data, trip.region);
     const stops = replaceOrAppend(trip.stops, stop);
     const selected = [...new Set([...trip.selected_stop_ids, stop.id])];
@@ -91,6 +93,7 @@ export function tripsRouter(routing: RoutingProvider, places: PlacesProvider): R
       res.status(404).json({ error: 'Unknown trip' });
       return;
     }
+    if (!editable(trip, res)) return;
     const stops = trip.stops.filter((stop) => stop.id !== req.params.stopId);
     if (stops.length === 0) {
       res.status(400).json({ error: 'A trip needs at least one destination' });
@@ -104,6 +107,10 @@ export function tripsRouter(routing: RoutingProvider, places: PlacesProvider): R
     const preferences = TripPreferencesSchema.safeParse(req.body?.preferences);
     try {
       if (!trip) throw new Error('Unknown trip');
+      if (trip.origin === 'curated') {
+        res.status(409).json({ error: 'Add this discovery to Trips before editing' });
+        return;
+      }
       selectedStops(trip, ids);
       res.json(saveTrip({
         ...trip,
@@ -123,6 +130,7 @@ export function tripsRouter(routing: RoutingProvider, places: PlacesProvider): R
       res.status(404).json({ error: `Unknown trip ${req.params.id}` });
       return;
     }
+    if (!editable(trip, res)) return;
     const ids = Array.isArray(req.body?.stopIds) ? req.body.stopIds : [];
     const preferences = TripPreferencesSchema.safeParse(req.body?.preferences);
     try {
@@ -157,6 +165,8 @@ export async function customStop(
     address: place.address,
     google_maps_url: place.google_maps_url,
     opening_window: place.opening_window,
+    primary_type: place.primary_type,
+    reservation_hint: place.reservation_hint,
     place_photo_available: place.place_photo_available,
     place_photo_attributions: place.place_photo_attributions,
     image_attributions: place.image_attributions,
@@ -194,4 +204,10 @@ function slug(value: string): string {
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'Trip request failed';
+}
+
+function editable(trip: TripPlan, response: { status(code: number): { json(body: { error: string }): void } }): boolean {
+  if (trip.origin !== 'curated') return true;
+  response.status(409).json({ error: 'Add this discovery to Trips before editing' });
+  return false;
 }

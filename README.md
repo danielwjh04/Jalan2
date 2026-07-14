@@ -39,7 +39,7 @@ and the entire vendor-side experience remain to be built.
 | Expo tourist app | Working scaffold | Four-tab Home, Discover, Trips, and You shell with charcoal glass navigation, Bobo guide cards, image-led trip timelines, map and transit handoffs, booking states, and menu flow |
 | Social media extraction | Working demo | The self-hosted XHS sidecar handles XHS posts; TikHub handles supported TikTok videos and photo carousels, including source media and metadata |
 | Multimodal fusion | Partial | OpenAI frame reading and structured Booking JSON exist; quality has not been benchmarked on a representative dataset |
-| Editable trip planner | Working demo | Extracted places become an image-led persisted timeline; tourists can search Google Places, add or delete destinations, fix start and end stops, apply saved defaults, and re-optimize |
+| Editable trip planner | Working demo | Extracted and saved discovery journeys become image-led timelines; tourists can edit, optimize, review eligible stops, and explicitly send separate reservation requests |
 | Route constraints | Demo-grade | Google Routes is preferred, with an offline matrix fallback; ordering considers travel time, visit duration, opening windows, fixed endpoints, and known stop costs |
 | EasyBook handoff | Limited | A link appears only when Jalan2 validates an official EasyBook route page for the selected city pair; there is no inventory, fare, seat, payment, or booking API integration |
 | Speech and voice | Demo-grade | OpenAI and ElevenLabs STT adapters exist; cached and ElevenLabs TTS serve multilingual safety briefs and local phrases |
@@ -109,6 +109,10 @@ opening-hours data. A tourist can then:
   budget warnings.
 - See licensed Google Place photos when a photo reference is available, with
   provider attribution kept beside the image.
+- Copy a prepared journey from Home or Discover into Trips without changing the
+  original, then edit the saved copy.
+- Review dates, guests, and per-stop times before sending separate WhatsApp
+  availability requests for eligible stops. Walk-in stops remain in the plan.
 
 Budget optimization is intentionally conservative. It only reasons about
 costs Jalan2 actually knows, removes optional high-cost stops when necessary,
@@ -131,6 +135,11 @@ expose operator contact details or message bodies.
 Booking drafts and confirmations still live in process memory, so the Trips
 session list clears when the backend restarts. Persisted `TripPlan` JSON and
 on-device travel defaults have separate lifecycles and remain available.
+
+Saved discovery copies also live in server memory for this demo and clear on a
+backend restart. Trip reservation batches use unique `J2-` references so each
+operator reply updates only the matching stop. The app polls pending batches
+and shows confirmed, waiting, declined, failed, and walk-in states separately.
 
 ### EasyBook boundary
 

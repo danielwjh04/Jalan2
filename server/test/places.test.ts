@@ -34,6 +34,7 @@ describe('parseGooglePlaces', () => {
     expect(places[0]).toMatchObject({
       place_id: 'place-1',
       name: 'Borneo Cultures Museum',
+      primary_type: 'museum',
       opening_window: { open_minute: 540, close_minute: 990 },
       suggested_activity: 'Explore the exhibitions and learn about local history and culture.',
       place_photo_available: true,

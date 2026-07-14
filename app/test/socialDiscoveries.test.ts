@@ -25,6 +25,7 @@ describe("social discoveries", () => {
 
     expect(sections).toContain("DiscoveryCard");
     expect(sections).toContain("onOpen(discovery.id)");
+    expect(sections).toContain("onPlan(discovery.id)");
     expect(sections).not.toContain("onSubmit(discovery");
   });
 });

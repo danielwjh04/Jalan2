@@ -12,6 +12,7 @@
     "stops": [
       {
         "id": "batu-caves",
+        "reservation_hint": "walk_in",
         "name": "Batu Caves",
         "summary": "Climb the colourful temple steps early, explore the main limestone cavern and dress respectfully around active shrines.",
         "location": { "lat": 3.2379, "lng": 101.684 },
@@ -23,6 +24,7 @@
       },
       {
         "id": "central-market-kl",
+        "reservation_hint": "walk_in",
         "name": "Central Market Kuala Lumpur",
         "summary": "Browse batik, prints and Malaysian craft, then walk the nearby heritage lanes before lunch.",
         "location": { "lat": 3.1457, "lng": 101.6953 },
@@ -34,6 +36,7 @@
       },
       {
         "id": "kampung-baru",
+        "reservation_hint": "walk_in",
         "name": "Kampung Baru",
         "summary": "Build a shared dinner from nasi lemak, grilled fish and kuih while the city skyline rises behind the village streets.",
         "location": { "lat": 3.1647, "lng": 101.7067 },
@@ -45,6 +48,7 @@
       },
       {
         "id": "saloma-link",
+        "reservation_hint": "walk_in",
         "name": "Saloma Link",
         "summary": "Cross after sunset for the illuminated canopy and a clear view toward the Petronas Twin Towers.",
         "location": { "lat": 3.1618, "lng": 101.7066 },
@@ -71,6 +75,7 @@
     "stops": [
       {
         "id": "cheong-fatt-tze",
+        "reservation_hint": "bookable",
         "name": "Cheong Fatt Tze Mansion",
         "summary": "Join a guided visit to understand the blue mansion's courtyards, feng shui and restored Straits architecture.",
         "location": { "lat": 5.4213, "lng": 100.334 },
@@ -82,6 +87,7 @@
       },
       {
         "id": "armenian-street",
+        "reservation_hint": "walk_in",
         "name": "Armenian Street",
         "summary": "Walk slowly for murals, clan jetties side lanes and small studios tucked into George Town shophouses.",
         "location": { "lat": 5.4145, "lng": 100.3383 },
@@ -93,6 +99,7 @@
       },
       {
         "id": "khoo-kongsi",
+        "reservation_hint": "walk_in",
         "name": "Khoo Kongsi",
         "summary": "Study carved beams, tiled roofs and the clan courtyard, then read the small museum displays below the hall.",
         "location": { "lat": 5.4146, "lng": 100.3364 },
@@ -104,6 +111,7 @@
       },
       {
         "id": "new-lane-hawkers",
+        "reservation_hint": "walk_in",
         "name": "New Lane Hawker Centre",
         "summary": "Order char koay teow, satay and a cold drink from separate stalls, then share everything at one table.",
         "location": { "lat": 5.4146, "lng": 100.3267 },
@@ -130,6 +138,7 @@
     "stops": [
       {
         "id": "stadthuys",
+        "reservation_hint": "walk_in",
         "name": "The Stadthuys",
         "summary": "Begin at Dutch Square, visit the history galleries and look across the red civic buildings before crowds peak.",
         "location": { "lat": 2.1949, "lng": 102.2496 },
@@ -141,6 +150,7 @@
       },
       {
         "id": "cheng-hoon-teng",
+        "reservation_hint": "walk_in",
         "name": "Cheng Hoon Teng Temple",
         "summary": "Pause at Malaysia's oldest functioning Chinese temple and notice the roof figures, incense hall and carved doors.",
         "location": { "lat": 2.1978, "lng": 102.2465 },
@@ -152,6 +162,7 @@
       },
       {
         "id": "jonker-walk",
+        "reservation_hint": "walk_in",
         "name": "Jonker Walk",
         "summary": "Browse antiques and local snacks, with time for chicken rice balls or cendol when the market stalls open.",
         "location": { "lat": 2.1964, "lng": 102.247 },
@@ -163,6 +174,7 @@
       },
       {
         "id": "melaka-river-cruise",
+        "reservation_hint": "bookable",
         "name": "Melaka River Cruise",
         "summary": "Board near the old town before dusk to see riverside murals, bridges and Kampung Morten light up from the water.",
         "location": { "lat": 2.2022, "lng": 102.248 },
@@ -189,6 +201,7 @@
     "stops": [
       {
         "id": "ipoh-railway-station",
+        "reservation_hint": "walk_in",
         "name": "Ipoh Railway Station",
         "summary": "Start beneath the station's broad arches, then cross the heritage square for an easy introduction to old Ipoh.",
         "location": { "lat": 4.5973, "lng": 101.0738 },
@@ -200,6 +213,7 @@
       },
       {
         "id": "han-chin-pet-soo",
+        "reservation_hint": "bookable",
         "name": "Han Chin Pet Soo",
         "summary": "Book a tour through the former miners' clubhouse to understand tin, migration and the social history of Kinta Valley.",
         "location": { "lat": 4.5963, "lng": 101.0788 },
@@ -211,6 +225,7 @@
       },
       {
         "id": "concubine-lane",
+        "reservation_hint": "walk_in",
         "name": "Concubine Lane",
         "summary": "Explore the narrow lane's restored shophouses, try a small snack and continue into the surrounding mural alleys.",
         "location": { "lat": 4.5963, "lng": 101.0781 },
@@ -222,6 +237,7 @@
       },
       {
         "id": "ipoh-white-coffee",
+        "reservation_hint": "walk_in",
         "name": "Old town white coffee stop",
         "summary": "Order a hot white coffee with kaya toast or egg tarts and compare the smooth roast with a regular kopitiam coffee.",
         "location": { "lat": 4.5944, "lng": 101.0776 },
@@ -248,6 +264,7 @@
     "stops": [
       {
         "id": "gaya-street-market",
+        "reservation_hint": "walk_in",
         "name": "Gaya Street Market",
         "summary": "Arrive on Sunday morning for produce, crafts and snacks, or use the same historic street as a relaxed breakfast base.",
         "location": { "lat": 5.984, "lng": 116.0772 },
@@ -259,6 +276,7 @@
       },
       {
         "id": "sabah-state-museum",
+        "reservation_hint": "bookable",
         "name": "Sabah State Museum",
         "summary": "Move through galleries on archaeology, textiles and natural history, then explore the heritage village outdoors.",
         "location": { "lat": 5.9606, "lng": 116.0715 },
@@ -270,6 +288,7 @@
       },
       {
         "id": "tanjung-aru-beach",
+        "reservation_hint": "walk_in",
         "name": "Tanjung Aru Beach",
         "summary": "Reach the beach before golden hour, find a clear stretch of sand and stay for the wide sunset over the islands.",
         "location": { "lat": 5.947, "lng": 116.0456 },
@@ -281,6 +300,7 @@
       },
       {
         "id": "filipino-market-kk",
+        "reservation_hint": "walk_in",
         "name": "Anjung Kinabalu night market",
         "summary": "Finish with grilled seafood, vegetables and fresh fruit at the former Filipino Market, now known as Anjung Kinabalu.",
         "location": { "lat": 5.981, "lng": 116.0711 },

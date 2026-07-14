@@ -1,12 +1,13 @@
 import { useCallback, useState } from "react";
 import { Alert, ActivityIndicator, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
-import type { FixtureCard as FixtureCardData, ItinerarySummary } from "@shared/api";
+import type { FixtureCard as FixtureCardData, ItinerarySummary, SavedTripSummary } from "@shared/api";
 import { FixtureCard } from "@/components/FixtureCard";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { StateCard } from "@/components/StateCard";
 import { TripSummaryCard } from "@/components/TripSummaryCard";
-import { deleteItinerary, getFixtures, getItineraries } from "@/lib/api";
+import { SavedTripCard } from "@/components/SavedTripCard";
+import { deleteItinerary, getFixtures, getItineraries, getSavedTrips } from "@/lib/api";
 import { groupItineraries } from "@/lib/tripSections";
 import { colors, eyebrow, spacing, type } from "@/lib/theme";
 
@@ -30,6 +31,12 @@ export default function TripsScreen(): React.ReactElement {
           <Section title="Confirmed" items={groups.confirmed} onOpen={(id) => router.push(`/itinerary/${id}`)} />
           <Section title="Draft" items={groups.draft} onOpen={(id) => router.push(`/itinerary/${id}`)} />
           <Section title="Needs attention" items={groups.failed} onOpen={(id) => router.push(`/itinerary/${id}`)} onDelete={requestDelete} />
+          {data.savedTrips.length > 0 ? (
+            <View style={styles.list}>
+              <View><Text style={styles.eyebrow}>YOUR PLANS</Text><Text style={styles.heading}>Saved discoveries</Text></View>
+              {data.savedTrips.map((trip) => <SavedTripCard key={trip.id} trip={trip} onPress={() => router.push(`/trip/${trip.id}`)} />)}
+            </View>
+          ) : null}
           {data.summaries.length === 0 ? (
             <StateCard title="No session trips yet" message="Paste a travel video on Home. Your drafts and confirmations will collect here until the demo server restarts." />
           ) : null}
@@ -47,17 +54,29 @@ export default function TripsScreen(): React.ReactElement {
   );
 }
 
-function useTripsData(): { fixtures: FixtureCardData[]; summaries: ItinerarySummary[]; loading: boolean; error: string | null; load: () => Promise<void>; removeFailed: (id: string) => Promise<void> } {
+interface TripsData {
+  fixtures: FixtureCardData[];
+  summaries: ItinerarySummary[];
+  savedTrips: SavedTripSummary[];
+  loading: boolean;
+  error: string | null;
+  load: () => Promise<void>;
+  removeFailed: (id: string) => Promise<void>;
+}
+
+function useTripsData(): TripsData {
   const [fixtures, setFixtures] = useState<FixtureCardData[]>([]);
   const [summaries, setSummaries] = useState<ItinerarySummary[]>([]);
+  const [savedTrips, setSavedTrips] = useState<SavedTripSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const load = useCallback(async (): Promise<void> => {
     setLoading(true);
     try {
-      const [nextFixtures, nextSummaries] = await Promise.all([getFixtures(), getItineraries()]);
+      const [nextFixtures, nextSummaries, nextSaved] = await Promise.all([getFixtures(), getItineraries(), getSavedTrips()]);
       setFixtures(nextFixtures);
       setSummaries(nextSummaries);
+      setSavedTrips(nextSaved);
       setError(null);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Could not load Trips");
@@ -73,7 +92,7 @@ function useTripsData(): { fixtures: FixtureCardData[]; summaries: ItinerarySumm
       setError(cause instanceof Error ? cause.message : "Could not delete trip");
     }
   }, []);
-  return { fixtures, summaries, loading, error, load, removeFailed };
+  return { fixtures, summaries, savedTrips, loading, error, load, removeFailed };
 }
 
 function Section({ title, items, onOpen, onDelete }: { title: string; items: ItinerarySummary[]; onOpen: (id: string) => void; onDelete?: (id: string) => void }): React.ReactElement | null {

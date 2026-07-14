@@ -4,6 +4,7 @@ import { parseTelegramInbound } from '../adapters/messaging/telegram';
 import { parseTwilioInbound } from '../adapters/messaging/twilio';
 import type { InboundMessage } from '../adapters/messaging/types';
 import { handleInbound } from '../services/booking';
+import { handleTripReservationInbound } from '../services/tripReservations';
 
 export function webhooksRouter(): Router {
   const router = Router();
@@ -24,7 +25,7 @@ export function webhooksRouter(): Router {
       res.status(400).json({ error: 'Body must include from and text' });
       return;
     }
-    const updated = handleInbound(message);
+    const updated = deliverInbound(message);
     res.json({ matched: updated?.id ?? null, status: updated?.status ?? null });
   });
 
@@ -32,5 +33,9 @@ export function webhooksRouter(): Router {
 }
 
 function deliver(message: InboundMessage | null): void {
-  if (message) handleInbound(message);
+  if (message) deliverInbound(message);
+}
+
+export function deliverInbound(message: InboundMessage) {
+  return handleTripReservationInbound(message) ?? handleInbound(message);
 }

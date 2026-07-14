@@ -14,6 +14,7 @@ describe("curated discoveries", () => {
       expect(trip.stops.length).toBeGreaterThanOrEqual(3);
       expect(trip.stops.length).toBeLessThanOrEqual(4);
       expect(trip.source_url).not.toMatch(/tiktok|xiaohongshu|xhslink/i);
+      expect(trip.stops.every(({ reservation_hint: hint }) => hint !== null)).toBe(true);
     }
   });
 

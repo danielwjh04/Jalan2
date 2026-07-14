@@ -36,6 +36,16 @@ export interface DiscoveryCard {
   durationMinutes: number;
 }
 
+export interface SavedTripSummary {
+  id: string;
+  sourceDiscoveryId: string;
+  title: string;
+  region: string;
+  coverUrl: string | null;
+  stopCount: number;
+  updatedAt: string;
+}
+
 export interface FixtureRef {
   slug: string;
   url: string;

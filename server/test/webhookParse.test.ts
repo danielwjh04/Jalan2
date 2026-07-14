@@ -5,6 +5,7 @@ import {
   normalizeTwilioWhatsAppAddress,
   parseTwilioInbound,
 } from "../src/adapters/messaging/twilio";
+import { referencedAutoReply } from "../src/adapters/messaging/mock";
 
 describe("parseTwilioInbound", () => {
   it("normalizes phone numbers into Twilio WhatsApp addresses", () => {
@@ -61,6 +62,11 @@ describe("parseTelegramInbound", () => {
 });
 
 describe("parseMockInbound", () => {
+  it("keeps a reservation reference in automatic confirmations", () => {
+    expect(referencedAutoReply("Reply YES J2-K4P7 to confirm")).toBe("YES J2-K4P7");
+    expect(referencedAutoReply("Reply YES to confirm")).toBe("YES");
+  });
+
   it("parses from and text", () => {
     expect(parseMockInbound({ from: "mock:operator", text: "YES" })).toEqual({
       from: "mock:operator",

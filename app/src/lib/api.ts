@@ -6,6 +6,7 @@ import type {
   FixtureCard,
   IngestResponse,
   ItinerarySummary,
+  SavedTripSummary,
   MenuResponse,
   PhraseClipResponse,
   VoiceBriefResponse,
@@ -13,6 +14,12 @@ import type {
 import type { PlaceCandidate, TripPlan, TripPreferences } from "@shared/trip";
 import type { BookingRequest, Itinerary } from "@shared/status";
 import type { ExperienceRecord, ReviewSubmission } from "@shared/reviews";
+import type {
+  CreateTripReservationRequest,
+  ReservationPreview,
+  ReservationPreviewRequest,
+  TripReservationBatch,
+} from "@shared/reservation";
 import { buildPlacePhotoUrl, resolveBaseUrl } from "./baseUrl";
 import { parseApiResponse } from "./httpResponse";
 
@@ -121,6 +128,34 @@ export function getFixtures(): Promise<FixtureCard[]> {
 
 export function getDiscoveries(): Promise<DiscoveryCard[]> {
   return request("/discoveries");
+}
+
+export function getSavedTrips(): Promise<SavedTripSummary[]> {
+  return request("/trips");
+}
+
+export function copyDiscoveryTrip(id: string, clientRequestId: string): Promise<TripPlan> {
+  return post(`/discoveries/${id}/trips`, { clientRequestId });
+}
+
+export function previewTripReservations(
+  input: ReservationPreviewRequest,
+): Promise<ReservationPreview> {
+  return post("/trip-reservations/preview", input);
+}
+
+export function createTripReservations(
+  input: CreateTripReservationRequest,
+): Promise<TripReservationBatch> {
+  return post("/trip-reservations", input);
+}
+
+export function getCurrentTripReservation(tripId: string): Promise<TripReservationBatch> {
+  return request(`/trip-reservations/current?tripId=${encodeURIComponent(tripId)}`);
+}
+
+export function getTripReservation(id: string): Promise<TripReservationBatch> {
+  return request(`/trip-reservations/${encodeURIComponent(id)}`);
 }
 
 export function getVoiceBrief(

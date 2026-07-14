@@ -1,16 +1,21 @@
+import { useEffect } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useRouter } from "expo-router";
 import type { TripPlan, TripStop } from "@shared/trip";
 import type { TripPlannerState } from "@/lib/useTripPlanner";
 import { useUserPreferences } from "@/lib/useUserPreferences";
 import { colors, eyebrow, radius, spacing, type } from "@/lib/theme";
 import { BoboCard } from "./BoboCard";
 import { DestinationSearch } from "./DestinationSearch";
+import { GradientButton } from "./GradientButton";
 import { SafetyBriefCard } from "./SafetyBriefCard";
 import { SurfaceCard } from "./SurfaceCard";
 import { TripBookingSection } from "./TripBookingSection";
 import { TripMap } from "./TripMap";
 import { TripPreferencesCard } from "./TripPreferencesCard";
 import { TripStopCard } from "./TripStopCard";
+import { TripReservationSection } from "./TripReservationSection";
+import { useSavedDiscoveryTrips } from "@/lib/useSavedDiscoveryTrips";
 
 interface Props extends Omit<TripPlannerState, "trip"> {
   trip: TripPlan;
@@ -19,24 +24,53 @@ interface Props extends Omit<TripPlannerState, "trip"> {
 
 export function TripPlanner(props: Props): React.ReactElement {
   const user = useUserPreferences();
+  const router = useRouter();
+  const saved = useSavedDiscoveryTrips();
+  const curated = props.trip.origin === "curated";
+  useEffect(() => { if (curated) void saved.load(); }, [curated, saved.load]);
+  const savedId = saved.savedByDiscovery.get(props.trip.id);
+  const planDiscovery = async (): Promise<void> => {
+    try {
+      if (savedId) {
+        router.replace(`/trip/${savedId}`);
+        return;
+      }
+      const trip = await saved.plan(props.trip.id);
+      router.replace(`/trip/${trip.id}`);
+    } catch {
+      return;
+    }
+  };
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <TripSummary {...props} />
-      <TripPreferencesCard
-        stops={props.trip.stops}
-        selected={props.selected}
-        preferences={props.preferences}
-        onChange={props.setPreferences}
-        onApplyDefaults={props.applyDefaults}
-      />
+      {curated ? (
+        <SurfaceCard style={styles.planCard}>
+          <Text style={styles.planTitle}>Make this journey yours</Text>
+          <Text style={styles.description}>Add all stops to Trips, then edit the route and reserve eligible places.</Text>
+          <GradientButton label={savedId ? "Open my trip" : "Add to my trips"} busy={saved.busyId === props.trip.id} onPress={() => void planDiscovery()} />
+          {saved.error ? <Text style={styles.warning}>{saved.error}</Text> : null}
+        </SurfaceCard>
+      ) : (
+        <TripPreferencesCard
+          stops={props.trip.stops}
+          selected={props.selected}
+          preferences={props.preferences}
+          onChange={props.setPreferences}
+          onApplyDefaults={props.applyDefaults}
+        />
+      )}
       {props.bookingId ? <TripBookingSection bookingId={props.bookingId} /> : null}
-      <StopList {...props} />
-      <DestinationSearch
-        results={props.searchResults}
-        busy={props.busy}
-        onSearch={props.search}
-        onAdd={props.addDestination}
-      />
+      {!curated ? <TripReservationSection trip={props.trip} /> : null}
+      <StopList {...props} editable={!curated} />
+      {!curated ? (
+        <DestinationSearch
+          results={props.searchResults}
+          busy={props.busy}
+          onSearch={props.search}
+          onAdd={props.addDestination}
+        />
+      ) : null}
       <BoboCard compact title="Bobo route note" message={routeNote(props.trip)} />
       <View style={styles.mapFrame}>
         <TripMap stops={props.trip.stops} orderedIds={props.selected} path={props.trip.route?.path ?? []} />
@@ -63,9 +97,9 @@ function TripSummary(props: Props): React.ReactElement {
           <Text style={styles.subtitle}>{props.trip.region} | {props.trip.source_creator}</Text>
           {props.trip.summary ? <Text style={styles.description}>{props.trip.summary}</Text> : null}
         </View>
-        <Pressable style={styles.optimize} disabled={props.busy} onPress={() => void props.optimize()}>
+        {props.trip.origin !== "curated" ? <Pressable style={styles.optimize} disabled={props.busy} onPress={() => void props.optimize()}>
           {props.busy ? <ActivityIndicator color={colors.kopi} /> : <Text style={styles.optimizeText}>Optimize</Text>}
-        </Pressable>
+        </Pressable> : null}
       </View>
       <View style={styles.metrics}>
         <Metric value={`${props.selected.length}`} label="stops" />
@@ -83,14 +117,14 @@ function Metric({ value, label }: { value: string; label: string }): React.React
   return <View style={styles.metric}><Text style={styles.metricValue}>{value}</Text><Text style={styles.metricLabel}>{label}</Text></View>;
 }
 
-function StopList(props: Props): React.ReactElement {
+function StopList(props: Props & { editable: boolean }): React.ReactElement {
   const ordered = props.selected.map((id) => props.trip.stops.find((stop) => stop.id === id)).filter((stop): stop is TripStop => Boolean(stop));
   const available = props.trip.stops.filter((stop) => !props.selected.includes(stop.id));
   return (
     <View>
       <Text style={styles.section}>Your itinerary</Text>
       {ordered.map((stop, index) => (
-        <TripStopCard key={stop.id} stop={stop} position={index} isLast={index === ordered.length - 1} canRemove={props.selected.length > 2} onToggle={() => void props.toggle(stop.id)} onDelete={() => void props.removeDestination(stop.id)} />
+        <TripStopCard key={stop.id} stop={stop} position={index} isLast={index === ordered.length - 1} canRemove={props.selected.length > 2} editable={props.editable} onToggle={() => void props.toggle(stop.id)} onDelete={() => void props.removeDestination(stop.id)} />
       ))}
       {available.length ? <Text style={styles.section}>Available places</Text> : null}
       {available.map((stop) => (
@@ -121,6 +155,8 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.canvas },
   content: { padding: spacing(5), paddingBottom: spacing(34), gap: spacing(4) },
   summaryCard: { gap: spacing(3) },
+  planCard: { gap: spacing(3) },
+  planTitle: { ...type.heading, color: colors.ink },
   summaryTop: { flexDirection: "row", gap: spacing(3), alignItems: "flex-start" },
   summaryCopy: { flex: 1, gap: spacing(1) },
   eyebrow: { ...eyebrow },

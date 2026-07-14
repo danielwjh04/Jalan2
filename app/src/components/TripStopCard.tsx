@@ -11,6 +11,7 @@ interface Props {
   position: number | null;
   isLast: boolean;
   canRemove: boolean;
+  editable?: boolean;
   onToggle: () => void;
   onDelete: () => void;
 }
@@ -62,17 +63,17 @@ function showStopActions(props: Props): void {
   const buttons: AlertButton[] = [
     { text: "View source", onPress: () => void openSource(props.stop.sources[0].url) },
   ];
-  if (!selected || props.canRemove) {
+  if (props.editable !== false && (!selected || props.canRemove)) {
     buttons.push({ text: selected ? "Remove" : "Add to trip", onPress: props.onToggle });
   }
   if (props.stop.easybook_url) {
     const url = props.stop.easybook_url;
     buttons.push({ text: "EasyBook", onPress: () => void openEasybook(url) });
   }
-  buttons.push(
-    { text: "Delete", style: "destructive", onPress: props.onDelete },
-    { text: "Cancel", style: "cancel" },
-  );
+  if (props.editable !== false) {
+    buttons.push({ text: "Delete", style: "destructive", onPress: props.onDelete });
+  }
+  buttons.push({ text: "Cancel", style: "cancel" });
   Alert.alert(props.stop.name, "Choose an action", buttons);
 }
 

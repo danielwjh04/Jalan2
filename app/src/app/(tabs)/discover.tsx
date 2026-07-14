@@ -14,6 +14,7 @@ import {
   type DiscoverSection,
 } from "@/lib/discoverPresentation";
 import { colors, eyebrow, spacing, type } from "@/lib/theme";
+import { useSavedDiscoveryTrips } from "@/lib/useSavedDiscoveryTrips";
 
 const SECTIONS = [
   { value: "places", label: "Places" },
@@ -25,8 +26,10 @@ export default function DiscoverScreen(): React.ReactElement {
   const router = useRouter();
   const [section, setSection] = useState<DiscoverSection>(() => sectionFromParam(params.section));
   const { discoveries, operators, loading, error, load } = useDiscoverData();
+  const saved = useSavedDiscoveryTrips();
   useEffect(() => setSection(sectionFromParam(params.section)), [params.section]);
   useFocusEffect(useCallback(() => { void load(); }, [load]));
+  useFocusEffect(useCallback(() => { void saved.load(); }, [saved.load]));
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -45,7 +48,13 @@ export default function DiscoverScreen(): React.ReactElement {
           onAction={() => void load()}
         />
       ) : section === "places" ? (
-        <Places discoveries={discoveries} onOpen={(id) => router.push(`/trip/${id}`)} />
+        <Places
+          discoveries={discoveries}
+          savedTrips={saved.savedTrips}
+          planningId={saved.busyId}
+          onOpen={(id) => router.push(`/trip/${id}`)}
+          onPlan={(id) => void saved.plan(id).then((trip) => router.push(`/trip/${trip.id}`)).catch(() => undefined)}
+        />
       ) : (
         <Operators entries={operators} onOpen={(id) => router.push(`/experience/${id}`)} />
       )}
@@ -74,7 +83,15 @@ function useDiscoverData(): { discoveries: DiscoveryCardData[]; operators: Direc
   return { discoveries, operators, loading, error, load };
 }
 
-function Places({ discoveries, onOpen }: { discoveries: DiscoveryCardData[]; onOpen: (id: string) => void }): React.ReactElement {
+interface PlacesProps {
+  discoveries: DiscoveryCardData[];
+  savedTrips: import("@shared/api").SavedTripSummary[];
+  planningId: string | null;
+  onOpen: (id: string) => void;
+  onPlan: (id: string) => void;
+}
+
+function Places({ discoveries, savedTrips, planningId, onOpen, onPlan }: PlacesProps): React.ReactElement {
   if (discoveries.length === 0) {
     return <StateCard title="No discoveries yet" message="Try again when the curated Malaysia catalog is available." />;
   }
@@ -82,7 +99,14 @@ function Places({ discoveries, onOpen }: { discoveries: DiscoveryCardData[]; onO
     <View style={styles.list}>
       <View><Text style={styles.eyebrow}>CURATED JOURNEYS</Text><Text style={styles.heading}>Malaysia through local eyes</Text></View>
       {discoveriesForCatalog(discoveries).map((discovery) => (
-        <DiscoveryCard key={discovery.id} discovery={discovery} onPress={() => onOpen(discovery.id)} />
+        <DiscoveryCard
+          key={discovery.id}
+          discovery={discovery}
+          savedTripId={savedTrips.find((trip) => trip.sourceDiscoveryId === discovery.id)?.id}
+          planning={planningId === discovery.id}
+          onPress={() => onOpen(discovery.id)}
+          onPlan={() => onPlan(discovery.id)}
+        />
       ))}
     </View>
   );
