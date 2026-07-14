@@ -4,10 +4,8 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 const directory = dirname(fileURLToPath(import.meta.url));
-const read = (name: string): string => readFileSync(
-  resolve(directory, `../src/components/${name}.tsx`),
-  "utf8",
-);
+const read = (name: string): string =>
+  readFileSync(resolve(directory, `../src/components/${name}.tsx`), "utf8");
 
 describe("visual primitives", () => {
   it("uses accessible navigation and recovery controls", () => {
@@ -21,5 +19,12 @@ describe("visual primitives", () => {
     expect(source).toContain("colors.card");
     expect(source).toContain("cardShadow");
     expect(source).toContain("radius.card");
+  });
+
+  it("keeps required photo credits behind an image overlay control", () => {
+    const source = read("ImageAttribution");
+    expect(source).toContain('accessibilityLabel="Photo credits"');
+    expect(source).toContain('name="information-circle-outline"');
+    expect(source).toContain('position: "absolute"');
   });
 });

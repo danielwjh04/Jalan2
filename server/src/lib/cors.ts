@@ -18,7 +18,7 @@ export function localWebCors(
   }
   res.set("Access-Control-Allow-Origin", origin);
   res.set("Access-Control-Allow-Headers", "Content-Type");
-  res.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.set("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
   res.set("Vary", "Origin");
   if (req.method === "OPTIONS") {
     res.sendStatus(204);

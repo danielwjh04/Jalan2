@@ -39,7 +39,7 @@ and the entire vendor-side experience remain to be built.
 | Expo tourist app | Working scaffold | Four-tab Home, Discover, Trips, and You shell with charcoal glass navigation, Bobo guide cards, image-led trip timelines, map and transit handoffs, booking states, and menu flow |
 | Social media extraction | Working demo | The self-hosted XHS sidecar handles XHS posts; TikHub handles supported TikTok videos and photo carousels, including source media and metadata |
 | Multimodal fusion | Partial | OpenAI frame reading and structured Booking JSON exist; quality has not been benchmarked on a representative dataset |
-| Editable trip planner | Working demo | Extracted and saved discovery journeys become image-led timelines; tourists can edit, optimize, review eligible stops, and explicitly send separate reservation requests |
+| Editable trip planner | Working demo | Extracted and saved discovery journeys become image-led timelines; tourists can remove, restore, or delete stops through an in-app action menu, optimize the selected route, and explicitly send separate reservation requests |
 | Route constraints | Demo-grade | Google Routes is preferred, with an offline matrix fallback; ordering considers travel time, visit duration, opening windows, fixed endpoints, and known stop costs |
 | EasyBook handoff | Limited | A link appears only when Jalan2 validates an official EasyBook route page for the selected city pair; there is no inventory, fare, seat, payment, or booking API integration |
 | Speech and voice | Demo-grade | OpenAI and ElevenLabs STT adapters exist; cached and ElevenLabs TTS serve multilingual safety briefs and local phrases |
@@ -99,8 +99,8 @@ stores Google place IDs, coordinates, addresses, Maps links, and available
 opening-hours data. A tourist can then:
 
 - Search for any destination in Malaysia and add a live Google Places result.
-- Add, remove, or reselect destinations and keep those edits across a server
-  restart through the demo JSON store.
+- Open the ellipsis menu on any stop to remove it from the itinerary, add it
+  back from Available places, or delete it from the saved trip.
 - Set a trip start time, an optional known-spend budget, and fixed start and end
   stops.
 - Optimize with Google Routes when possible and fall back visibly to the
@@ -108,11 +108,13 @@ opening-hours data. A tourist can then:
 - See estimated travel plus visit time, known spend, and opening-hours or
   budget warnings.
 - See licensed Google Place photos when a photo reference is available, with
-  provider attribution kept beside the image.
+  required provider or creator credit behind a compact image info control
+  instead of a footer under every photo.
 - Copy a prepared journey from Home or Discover into Trips without changing the
   original, then edit the saved copy.
 - Review dates, guests, and per-stop times before sending separate WhatsApp
-  availability requests for eligible stops. Walk-in stops remain in the plan.
+  availability requests for eligible selected stops. Stops removed from the
+  itinerary are excluded, while walk-in stops remain in the plan.
 
 Budget optimization is intentionally conservative. It only reasons about
 costs Jalan2 actually knows, removes optional high-cost stops when necessary,

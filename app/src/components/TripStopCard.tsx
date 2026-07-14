@@ -1,9 +1,18 @@
-import { Alert, Linking, Pressable, StyleSheet, Text, View, type AlertButton } from "react-native";
+import { useState } from "react";
+import {
+  Alert,
+  Linking,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import type { TripStop } from "@shared/trip";
 import { colors, hairline, radius, spacing, type } from "@/lib/theme";
 import { tryOpenExternalUrl } from "@/lib/externalLink";
 import { PlaceImage } from "./PlaceImage";
+import { StopActionMenu } from "./StopActionMenu";
 import { TimelineRail } from "./TimelineRail";
 
 interface Props {
@@ -19,6 +28,11 @@ interface Props {
 export function TripStopCard(props: Props): React.ReactElement {
   const { stop, position } = props;
   const selected = position !== null;
+  const [actionsOpen, setActionsOpen] = useState(false);
+  const runAction = (action: () => void): void => {
+    setActionsOpen(false);
+    action();
+  };
   return (
     <View style={styles.timelineRow}>
       <TimelineRail position={position} isLast={props.isLast} />
@@ -35,19 +49,46 @@ export function TripStopCard(props: Props): React.ReactElement {
           <View style={styles.titleRow}>
             <View style={styles.titleCopy}>
               <Text style={styles.name}>{stop.name}</Text>
-              {stop.address ? <Text style={styles.address} numberOfLines={2}>{stop.address}</Text> : null}
+              {stop.address ? (
+                <Text style={styles.address} numberOfLines={2}>
+                  {stop.address}
+                </Text>
+              ) : null}
             </View>
             <Pressable
               accessibilityLabel="More stop actions"
               style={styles.more}
-              onPress={() => showStopActions(props)}
+              onPress={() => setActionsOpen((open) => !open)}
             >
-              <Ionicons name="ellipsis-horizontal" size={20} color={colors.ink} />
+              <Ionicons
+                name="ellipsis-horizontal"
+                size={20}
+                color={colors.ink}
+              />
             </Pressable>
           </View>
+          {actionsOpen ? (
+            <StopActionMenu
+              selected={selected}
+              canRemove={props.canRemove}
+              editable={props.editable !== false}
+              hasEasybook={Boolean(stop.easybook_url)}
+              onViewSource={() =>
+                runAction(() => void openSource(stop.sources[0].url))
+              }
+              onToggle={() => runAction(props.onToggle)}
+              onEasybook={() =>
+                runAction(() => void openEasybook(stop.easybook_url ?? ""))
+              }
+              onDelete={() => runAction(props.onDelete)}
+              onClose={() => setActionsOpen(false)}
+            />
+          ) : null}
           <View style={styles.chips}>
             <Text style={styles.chip}>{stop.duration_minutes} min</Text>
-            {stop.estimated_spend_myr !== null ? <Text style={styles.chip}>RM{stop.estimated_spend_myr}</Text> : null}
+            {stop.estimated_spend_myr !== null ? (
+              <Text style={styles.chip}>RM{stop.estimated_spend_myr}</Text>
+            ) : null}
             <Text style={styles.chip}>From source</Text>
           </View>
           <Text style={styles.activityLabel}>What to do</Text>
@@ -58,28 +99,12 @@ export function TripStopCard(props: Props): React.ReactElement {
   );
 }
 
-function showStopActions(props: Props): void {
-  const selected = props.position !== null;
-  const buttons: AlertButton[] = [
-    { text: "View source", onPress: () => void openSource(props.stop.sources[0].url) },
-  ];
-  if (props.editable !== false && (!selected || props.canRemove)) {
-    buttons.push({ text: selected ? "Remove" : "Add to trip", onPress: props.onToggle });
-  }
-  if (props.stop.easybook_url) {
-    const url = props.stop.easybook_url;
-    buttons.push({ text: "EasyBook", onPress: () => void openEasybook(url) });
-  }
-  if (props.editable !== false) {
-    buttons.push({ text: "Delete", style: "destructive", onPress: props.onDelete });
-  }
-  buttons.push({ text: "Cancel", style: "cancel" });
-  Alert.alert(props.stop.name, "Choose an action", buttons);
-}
-
 async function openSource(url: string): Promise<void> {
   if (await tryOpenExternalUrl(url, Linking.openURL)) return;
-  Alert.alert("Could not open source", "Copy the source link and open it in your browser.");
+  Alert.alert(
+    "Could not open source",
+    "Copy the source link and open it in your browser.",
+  );
 }
 
 async function openEasybook(url: string): Promise<void> {
@@ -89,7 +114,14 @@ async function openEasybook(url: string): Promise<void> {
 
 const styles = StyleSheet.create({
   timelineRow: { flexDirection: "row", gap: spacing(2), alignItems: "stretch" },
-  card: { flex: 1, backgroundColor: colors.card, borderRadius: radius.card, overflow: "hidden", marginBottom: spacing(3), ...hairline },
+  card: {
+    flex: 1,
+    backgroundColor: colors.card,
+    borderRadius: radius.card,
+    overflow: "hidden",
+    marginBottom: spacing(3),
+    ...hairline,
+  },
   inactive: { opacity: 0.72 },
   image: { width: "100%", height: 184 },
   body: { padding: spacing(3.5), gap: spacing(2) },
@@ -97,9 +129,23 @@ const styles = StyleSheet.create({
   titleCopy: { flex: 1, gap: spacing(1) },
   name: { ...type.heading, color: colors.ink },
   address: { ...type.caption, color: colors.inkSoft },
-  more: { width: 38, height: 38, borderRadius: radius.control, backgroundColor: colors.canvas, alignItems: "center", justifyContent: "center" },
+  more: {
+    width: 38,
+    height: 38,
+    borderRadius: radius.control,
+    backgroundColor: colors.canvas,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: spacing(1.5) },
-  chip: { ...type.caption, color: colors.sageDeep, backgroundColor: colors.halo, borderRadius: radius.pill, paddingHorizontal: spacing(2.5), paddingVertical: spacing(1) },
+  chip: {
+    ...type.caption,
+    color: colors.sageDeep,
+    backgroundColor: colors.halo,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing(2.5),
+    paddingVertical: spacing(1),
+  },
   activityLabel: { ...type.label, color: colors.sageDeep },
   summary: { ...type.body, color: colors.inkSoft },
 });
