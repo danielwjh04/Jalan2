@@ -10,3 +10,7 @@ export function resolveBaseUrl({ apiUrl, apiBaseUrl, hostUri }: BaseUrlInput): s
   const host = hostUri?.split(':')[0];
   return host ? `http://${host}:3001` : 'http://localhost:3001';
 }
+
+export function buildPlacePhotoUrl(apiBaseUrl: string, placeId: string): string {
+  return `${apiBaseUrl}/places/${encodeURIComponent(placeId)}/photo`;
+}

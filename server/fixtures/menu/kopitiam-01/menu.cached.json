@@ -5,7 +5,14 @@
       "name_local": "Kolo mee",
       "name_english": "Springy egg noodles tossed in shallot oil with minced pork",
       "price_myr": 8,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/36/Sarawak_Kolo_Mee.jpg",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Kolo%20Mee.jpg?width=1200",
+      "image_attributions": [
+        {
+          "label": "Photo by Chongkian",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Kolo_Mee.jpg",
+          "license": "CC BY-SA 4.0"
+        }
+      ],
       "order_phrase": "Kolo mee satu, bang.",
       "allergens": ["gluten", "egg"]
     },
@@ -13,7 +20,14 @@
       "name_local": "Laksa Sarawak",
       "name_english": "Rice vermicelli in spicy coconut prawn broth",
       "price_myr": 12,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Laksa_Sarawak_%28Yee_Fung%29.jpg/960px-Laksa_Sarawak_%28Yee_Fung%29.jpg",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Laksa%20Sarawak%20%28Yee%20Fung%29.jpg?width=1200",
+      "image_attributions": [
+        {
+          "label": "Photo by Sweizhong",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Laksa_Sarawak_(Yee_Fung).jpg",
+          "license": "CC BY-SA 4.0"
+        }
+      ],
       "order_phrase": "Laksa Sarawak satu, kurang pedas.",
       "allergens": ["shellfish", "coconut"]
     },
@@ -21,7 +35,14 @@
       "name_local": "Mee rebus",
       "name_english": "Noodles in sweet-savoury gravy",
       "price_myr": 7.5,
-      "image_url": "https://www.halaltag.com/images/photo/3409-photo1.jpg",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/MeeRebus.JPG?width=1200",
+      "image_attributions": [
+        {
+          "label": "Photo by Kcdtsg",
+          "source_url": "https://commons.wikimedia.org/wiki/File:MeeRebus.JPG",
+          "license": "Public domain"
+        }
+      ],
       "order_phrase": "Mee rebus satu, boleh?",
       "allergens": ["gluten", "peanuts"]
     },
@@ -29,7 +50,14 @@
       "name_local": "Kopi O",
       "name_english": "Black coffee with sugar",
       "price_myr": 2.5,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/53/Kopi_O.jpg",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Kopi%20O.jpg?width=1024",
+      "image_attributions": [
+        {
+          "label": "Photo by Digital Terrorist",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Kopi_O.jpg",
+          "license": "CC BY-SA 2.0"
+        }
+      ],
       "order_phrase": "Kopi O satu.",
       "allergens": []
     },
@@ -37,7 +65,14 @@
       "name_local": "Teh C peng",
       "name_english": "Iced tea with evaporated milk",
       "price_myr": 3,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Teh_C_Peng.jpg/960px-Teh_C_Peng.jpg",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Teh%20C%20Peng.jpg?width=1200",
+      "image_attributions": [
+        {
+          "label": "Photo by CherylGarnet",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Teh_C_Peng.jpg",
+          "license": "CC BY-SA 4.0"
+        }
+      ],
       "order_phrase": "Teh C peng satu, kurang manis.",
       "allergens": ["dairy"]
     }

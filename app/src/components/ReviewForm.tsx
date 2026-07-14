@@ -69,7 +69,7 @@ export function ReviewForm({
       ))}
       <TextInput style={[styles.input, styles.body]} value={body} onChangeText={setBody} placeholder="What should the next traveler know?" placeholderTextColor={colors.inkSoft} multiline maxLength={1000} />
       <Pressable style={styles.submit} onPress={() => void submit()} disabled={busy}>
-        {busy ? <ActivityIndicator color={colors.black} /> : <Text style={styles.submitText}>Publish review</Text>}
+        {busy ? <ActivityIndicator color={colors.white} /> : <Text style={styles.submitText}>Publish review</Text>}
       </Pressable>
       {message ? <Text style={styles.message}>{message}</Text> : null}
     </View>
@@ -85,10 +85,10 @@ const styles = StyleSheet.create({
   ratingRow: { flexDirection: "row", alignItems: "center", gap: spacing(2) },
   ratingLabel: { ...type.label, color: colors.ink, flex: 1 },
   score: { width: 34, height: 34, borderRadius: radius.pill, backgroundColor: colors.canvas, alignItems: "center", justifyContent: "center" },
-  scoreActive: { backgroundColor: colors.tide },
+  scoreActive: { backgroundColor: colors.sage },
   scoreText: { ...type.label, color: colors.inkSoft },
-  scoreTextActive: { color: colors.black },
-  submit: { height: 48, borderRadius: radius.control, backgroundColor: colors.tide, alignItems: "center", justifyContent: "center" },
-  submitText: { ...type.button, color: colors.black },
+  scoreTextActive: { color: colors.white },
+  submit: { height: 48, borderRadius: radius.control, backgroundColor: colors.sageDeep, alignItems: "center", justifyContent: "center" },
+  submitText: { ...type.button, color: colors.white },
   message: { ...type.caption, color: colors.inkSoft },
 });

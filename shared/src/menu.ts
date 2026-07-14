@@ -1,10 +1,12 @@
 import { z } from 'zod';
+import { ImageAttributionSchema } from './media';
 
 export const DishSchema = z.object({
   name_local: z.string().min(1),
   name_english: z.string().min(1),
   price_myr: z.number().nonnegative().nullable(),
   image_url: z.string().nullable(),
+  image_attributions: z.array(ImageAttributionSchema).default([]),
   order_phrase: z.string().min(1),
   allergens: z.array(z.string()),
 });

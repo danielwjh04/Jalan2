@@ -14,18 +14,19 @@ function sourceFiles(directory: string): string[] {
 }
 
 describe("typography system", () => {
-  test("uses the approved DM Sans families and scale", () => {
+  test("uses the approved DM Sans and Fraunces families and scale", () => {
     expect(fonts).toEqual({
       regular: "DMSans_400Regular",
       medium: "DMSans_500Medium",
       semibold: "DMSans_600SemiBold",
+      display: "Fraunces_600SemiBold",
     });
     expect(type).toEqual({
       display: {
-        fontFamily: fonts.semibold,
-        fontSize: 28,
-        lineHeight: 35,
-        letterSpacing: -0.6,
+        fontFamily: fonts.display,
+        fontSize: 30,
+        lineHeight: 36,
+        letterSpacing: -0.4,
       },
       title: {
         fontFamily: fonts.semibold,

@@ -3,7 +3,7 @@ import type { ItineraryStatus } from '@shared/status';
 import { colors, fonts, radius, spacing } from '@/lib/theme';
 
 const APPEARANCE: Record<ItineraryStatus, { label: string; color: string; bg: string }> = {
-  DRAFT: { label: 'Ready to book', color: colors.tide, bg: colors.tideSoft },
+  DRAFT: { label: 'Ready to book', color: colors.sageDeep, bg: colors.halo },
   PENDING_CONFIRM: { label: 'Waiting for operator...', color: colors.pending, bg: colors.pendingSoft },
   CONFIRMED: { label: 'Confirmed', color: colors.confirm, bg: colors.confirmSoft },
   FAILED: { label: 'Failed', color: colors.danger, bg: colors.dangerSoft },

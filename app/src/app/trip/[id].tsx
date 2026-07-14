@@ -20,7 +20,7 @@ export default function TripScreen(): React.ReactElement {
       {planner.error ? (
         <Text style={styles.error}>{planner.error}</Text>
       ) : (
-        <ActivityIndicator color={colors.tide} />
+        <ActivityIndicator color={colors.sage} />
       )}
     </View>
   );

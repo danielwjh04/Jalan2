@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import { MenuJsonSchema, MenuJsonWireSchema, type MenuJson } from '@shared/menu';
 import type { Config } from '../config';
-import type { Retrieval } from '../adapters/retrieval/types';
+import type { FoodImageProvider } from '../adapters/foodImages/types';
 import { NotConfiguredError } from '../lib/errors';
 import { loadCachedMenu } from '../lib/fixtures';
 
@@ -19,7 +19,7 @@ const MENU_INSTRUCTIONS = [
 export interface MenuDeps {
   config: Config;
   openai: OpenAI | null;
-  retrieval: Retrieval;
+  foodImages: FoodImageProvider;
 }
 
 export interface MenuProduceResult {
@@ -60,6 +60,7 @@ export async function readMenu(
       // keep the menu honest with null instead.
       price_myr: dish.price_myr !== null && dish.price_myr <= 0 ? null : dish.price_myr,
       image_url: null,
+      image_attributions: [],
     })),
   };
   const validated = MenuJsonSchema.safeParse(candidate);
@@ -70,15 +71,22 @@ export async function readMenu(
   return validated.data;
 }
 
-export async function attachDishImages(retrieval: Retrieval, menu: MenuJson): Promise<MenuJson> {
+export async function attachDishImages(
+  foodImages: FoodImageProvider,
+  menu: MenuJson,
+): Promise<MenuJson> {
   const dishes = await Promise.all(
     menu.dishes.map(async (dish) => {
+      if (dish.image_url) return dish;
       try {
-        const results = await retrieval.search(`${dish.name_english} malaysian dish photo`, 3);
-        const imageUrl = results.find((result) => result.imageUrl)?.imageUrl ?? null;
-        return { ...dish, image_url: dish.image_url ?? imageUrl };
-      } catch (error) {
-        console.warn(`dish image search failed: ${(error as Error).message}`);
+        const photo = await foodImages.findDishPhoto(dish.name_local);
+        if (!photo) return dish;
+        return {
+          ...dish,
+          image_url: photo.imageUrl,
+          image_attributions: photo.imageAttributions,
+        };
+      } catch {
         return dish;
       }
     }),
@@ -101,7 +109,7 @@ export async function produceMenu(
       throw new NotConfiguredError('OpenAI', 'Set OPENAI_API_KEY or use PIPELINE_MODE=cached.');
     }
     const menu = await readMenu(deps.openai, deps.config.OPENAI_MENU_MODEL, imageBase64, mimeType);
-    return { menu: await attachDishImages(deps.retrieval, menu), servedFrom: 'live' };
+    return { menu: await attachDishImages(deps.foodImages, menu), servedFrom: 'live' };
   } catch (error) {
     if (deps.config.PIPELINE_MODE === 'live') throw error;
     const cached = loadCachedMenu();

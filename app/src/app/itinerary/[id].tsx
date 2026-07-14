@@ -25,7 +25,7 @@ export default function ItineraryScreen(): React.ReactElement {
         {error ? (
           <Text style={styles.error}>{error}</Text>
         ) : (
-          <ActivityIndicator color={colors.tide} />
+          <ActivityIndicator color={colors.sage} />
         )}
       </View>
     );
@@ -67,6 +67,14 @@ export default function ItineraryScreen(): React.ReactElement {
       )}
       {booking && (
         <>
+          {itinerary.status === 'CONFIRMED' && (
+            <BoboCard
+              hero
+              eyebrow="BOOKING CONFIRMED"
+              title="Confirmed lah!"
+              message={`${booking.operator_name} said yes on WhatsApp. Your plan is locked in.`}
+            />
+          )}
           <ItineraryCard
             booking={booking}
             servedFrom={itinerary.servedFrom}
@@ -134,7 +142,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.control,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.tide,
+    backgroundColor: colors.sageDeep,
   },
-  planButtonText: { color: colors.black, fontFamily: fonts.semibold, fontSize: 14 },
+  planButtonText: { color: colors.white, fontFamily: fonts.semibold, fontSize: 14 },
 });

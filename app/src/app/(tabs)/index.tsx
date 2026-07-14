@@ -3,6 +3,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import * as Clipboard from 'expo-clipboard';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { Ionicons } from '@expo/vector-icons';
 import type { FixtureCard as FixtureCardData } from '@shared/api';
 import { normalizeVideoUrl } from '@shared/videoUrl';
 import { FixtureCard } from '@/components/FixtureCard';
@@ -12,7 +13,7 @@ import { PasteBar } from '@/components/PasteBar';
 import { getFixtures } from '@/lib/api';
 import { ingestVideo } from '@/lib/ingest';
 import { scanMenu, type MenuSource } from '@/lib/menu';
-import { cardShadow, colors, eyebrow, radius, spacing, type } from '@/lib/theme';
+import { cardShadow, colors, eyebrow, hairline, radius, spacing, type } from '@/lib/theme';
 
 export default function HomeScreen(): React.ReactElement {
   const router = useRouter();
@@ -63,27 +64,37 @@ export default function HomeScreen(): React.ReactElement {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <HomeHeader regions={regions} />
-      <View style={styles.pasteWrap}>
-        <PasteBar prefill={prefill} busy={busy} onSubmit={submit} />
-      </View>
       <View style={styles.content}>
         <BoboCard
-          tone="acid"
-          title="Found something local?"
-          message="Send me the post. I will pull out the place, price, operator and best photo."
+          hero
+          eyebrow="BOBO SAYS SELAMAT DATANG"
+          title="Where shall we jalan today?"
+          message="Paste a Malaysian adventure video and I will shape it into a real day out."
         />
-        <View style={styles.quickRow}>
-          <Pressable style={styles.menuCard} disabled={busy} onPress={chooseMenuSource}>
-            <Text style={styles.menuEyebrow}>MENU MODE</Text>
-            <Text style={styles.menuTitle}>Scan a kopitiam menu</Text>
-            <Text style={styles.menuArrow}>↗</Text>
+        <PasteBar prefill={prefill} busy={busy} onSubmit={submit} />
+        <View style={styles.quickCard}>
+          <Pressable style={styles.quickRow} disabled={busy} onPress={chooseMenuSource}>
+            <View style={[styles.quickIcon, styles.quickIconKaya]}>
+              <Ionicons name="restaurant-outline" size={19} color={colors.kopi} />
+            </View>
+            <View style={styles.quickCopy}>
+              <Text style={styles.quickTitle}>Scan a kopitiam menu</Text>
+              <Text style={styles.quickSub}>Dishes, prices and how to order</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.inkSoft} />
           </Pressable>
-          <Pressable style={styles.operatorCard} onPress={() => router.push('/directory')}>
-            <Text style={styles.operatorEyebrow}>LOCAL SUPPLY</Text>
-            <Text style={styles.operatorTitle}>Meet the operators</Text>
-            <Text style={styles.operatorArrow}>→</Text>
+          <View style={styles.quickDivider} />
+          <Pressable style={styles.quickRow} onPress={() => router.push('/directory')}>
+            <View style={[styles.quickIcon, styles.quickIconSage]}>
+              <Ionicons name="people-outline" size={19} color={colors.sageDeep} />
+            </View>
+            <View style={styles.quickCopy}>
+              <Text style={styles.quickTitle}>Meet the local operators</Text>
+              <Text style={styles.quickSub}>The people behind the trips</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.inkSoft} />
           </Pressable>
         </View>
         {fixtures.length > 0 && (
@@ -91,7 +102,7 @@ export default function HomeScreen(): React.ReactElement {
             <View style={styles.sectionRow}>
               <View>
                 <Text style={styles.section}>SOCIAL DISCOVERIES</Text>
-                <Text style={styles.sectionTitle}>Popular near you</Text>
+                <Text style={styles.sectionTitle}>Discover Malaysia</Text>
               </View>
               <View style={styles.livePill}><Text style={styles.liveText}>LIVE</Text></View>
             </View>
@@ -121,41 +132,49 @@ export default function HomeScreen(): React.ReactElement {
 
 const styles = StyleSheet.create({
   screen: { backgroundColor: colors.canvas },
-  container: { paddingBottom: spacing(12) },
-  pasteWrap: { paddingHorizontal: spacing(5), marginTop: spacing(1) },
-  content: { padding: spacing(5), gap: spacing(5) },
-  quickRow: { flexDirection: 'row', gap: spacing(3), marginTop: spacing(1) },
-  menuCard: {
-    flex: 1,
-    minHeight: 142,
-    borderRadius: radius.card,
-    padding: spacing(4),
-    justifyContent: 'space-between',
-    backgroundColor: colors.tide,
-    ...cardShadow,
-  },
-  operatorCard: {
-    flex: 1,
-    minHeight: 142,
-    borderRadius: radius.card,
-    padding: spacing(4),
-    justifyContent: 'space-between',
+  container: { paddingBottom: spacing(30) },
+  content: { paddingHorizontal: spacing(5), gap: spacing(4) },
+  quickCard: {
     backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.mist,
+    borderRadius: radius.card,
+    ...hairline,
     ...cardShadow,
   },
-  menuEyebrow: { ...eyebrow, color: 'rgba(5,5,5,0.58)' },
-  operatorEyebrow: { ...eyebrow, color: colors.inkSoft },
-  menuTitle: { ...type.heading, color: colors.black, maxWidth: 130 },
-  operatorTitle: { ...type.heading, color: colors.ink, maxWidth: 130 },
-  menuArrow: { color: colors.black, fontSize: 24 },
-  operatorArrow: { color: colors.tide, fontSize: 24 },
-  sectionRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: spacing(2) },
+  quickRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing(3),
+    paddingHorizontal: spacing(4),
+    paddingVertical: spacing(3.5),
+  },
+  quickDivider: { height: 1, backgroundColor: colors.mist, marginLeft: spacing(13) },
+  quickIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickIconKaya: { backgroundColor: colors.kayaTint },
+  quickIconSage: { backgroundColor: colors.halo },
+  quickCopy: { flex: 1, gap: 1 },
+  quickTitle: { ...type.label, color: colors.ink, fontSize: 14 },
+  quickSub: { ...type.caption, color: colors.inkSoft },
+  sectionRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    marginTop: spacing(2),
+  },
   section: { ...eyebrow },
   sectionTitle: { ...type.title, color: colors.ink, marginTop: spacing(1) },
-  livePill: { backgroundColor: colors.tideSoft, borderRadius: radius.pill, paddingHorizontal: spacing(3), paddingVertical: spacing(1.5) },
-  liveText: { ...type.caption, color: colors.tide, fontFamily: 'DMSans_600SemiBold' },
+  livePill: {
+    backgroundColor: colors.confirmSoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing(3),
+    paddingVertical: spacing(1.5),
+  },
+  liveText: { ...type.caption, color: colors.confirm, fontFamily: 'DMSans_600SemiBold' },
   devButton: {
     borderColor: colors.mist,
     borderWidth: 1,

@@ -41,9 +41,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing(3.5),
     alignItems: 'center',
   },
-  primary: { backgroundColor: colors.tide },
-  tonal: { backgroundColor: colors.tideSoft },
+  primary: { backgroundColor: colors.sageDeep },
+  tonal: { backgroundColor: colors.halo },
   text: { fontFamily: fonts.semibold, fontSize: 14 },
-  primaryText: { color: colors.black },
-  tonalText: { color: colors.tide },
+  primaryText: { color: colors.white },
+  tonalText: { color: colors.sageDeep },
 });

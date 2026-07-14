@@ -11,7 +11,7 @@ import type {
 import type { PlaceCandidate, TripPlan, TripPreferences } from "@shared/trip";
 import type { BookingRequest, Itinerary } from "@shared/status";
 import type { ExperienceRecord, ReviewSubmission } from "@shared/reviews";
-import { resolveBaseUrl } from "./baseUrl";
+import { buildPlacePhotoUrl, resolveBaseUrl } from "./baseUrl";
 
 function baseUrl(): string {
   return resolveBaseUrl({
@@ -72,6 +72,10 @@ export function updateTrip(
 
 export function searchTripPlaces(id: string, query: string): Promise<PlaceCandidate[]> {
   return post(`/trips/${id}/search`, { query });
+}
+
+export function placePhotoUrl(placeId: string): string {
+  return buildPlacePhotoUrl(baseUrl(), placeId);
 }
 
 export function addTripPlace(id: string, place: PlaceCandidate): Promise<TripPlan> {

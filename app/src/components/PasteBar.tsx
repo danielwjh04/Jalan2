@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { cardShadow, colors, fonts, radius, spacing, type } from '@/lib/theme';
+import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { cardShadow, colors, fonts, hairline, radius, spacing } from '@/lib/theme';
 
 interface Props {
   prefill: string;
@@ -18,7 +19,7 @@ export function PasteBar({ prefill, busy, onSubmit }: Props): React.ReactElement
   const disabled = busy || !value.trim();
   return (
     <View style={styles.bar}>
-      <Text style={styles.searchIcon}>⌕</Text>
+      <Ionicons name="link-outline" size={20} color={colors.inkSoft} style={styles.searchIcon} />
       <TextInput
         style={styles.input}
         value={value}
@@ -34,7 +35,11 @@ export function PasteBar({ prefill, busy, onSubmit }: Props): React.ReactElement
         disabled={disabled}
         onPress={() => onSubmit(value)}
       >
-        {busy ? <ActivityIndicator color={colors.black} /> : <Text style={styles.buttonText}>→</Text>}
+        {busy ? (
+          <ActivityIndicator color={colors.kopi} />
+        ) : (
+          <Ionicons name="arrow-forward" size={20} color={colors.kopi} />
+        )}
       </Pressable>
     </View>
   );
@@ -49,8 +54,7 @@ const styles = StyleSheet.create({
     paddingLeft: spacing(3.5),
     paddingRight: spacing(1.5),
     paddingVertical: spacing(1.5),
-    borderWidth: 1,
-    borderColor: '#353535',
+    ...hairline,
     ...cardShadow,
   },
   input: {
@@ -60,9 +64,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     paddingVertical: spacing(2),
   },
-  searchIcon: { color: colors.ink, fontFamily: fonts.regular, fontSize: 28, marginRight: spacing(2) },
+  searchIcon: { marginRight: spacing(2) },
   button: {
-    backgroundColor: colors.tide,
+    backgroundColor: colors.kaya,
     borderRadius: radius.pill,
     width: 46,
     height: 46,
@@ -71,5 +75,4 @@ const styles = StyleSheet.create({
     marginLeft: spacing(2),
   },
   buttonDisabled: { opacity: 0.4 },
-  buttonText: { ...type.button, color: colors.black, fontSize: 20 },
 });

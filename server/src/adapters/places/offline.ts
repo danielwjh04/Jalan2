@@ -12,6 +12,9 @@ export function createOfflinePlaces(): PlacesProvider {
         .slice(0, 5)
         .map(toCandidate);
     },
+    async photo() {
+      return null;
+    },
   };
 }
 
@@ -23,6 +26,11 @@ function toCandidate(place: { name: string; lat: number; lng: number }): PlaceCa
     location: { lat: place.lat, lng: place.lng },
     google_maps_url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}`,
     opening_window: null,
+    suggested_activity: `Explore ${place.name} and check the latest visitor information before you go.`,
+    place_photo_available: false,
+    place_photo_attributions: [],
+    image_url: null,
+    image_attributions: [],
   };
 }
 

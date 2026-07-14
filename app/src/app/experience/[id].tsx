@@ -37,7 +37,7 @@ export default function ExperienceScreen(): React.ReactElement {
   if (!record) {
     return (
       <View style={styles.center}>
-        {error ? <Text style={styles.error}>{error}</Text> : <ActivityIndicator color={colors.tide} />}
+        {error ? <Text style={styles.error}>{error}</Text> : <ActivityIndicator color={colors.sage} />}
       </View>
     );
   }
@@ -49,7 +49,7 @@ export default function ExperienceScreen(): React.ReactElement {
     <ScrollView
       style={styles.screen}
       contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void load(true)} tintColor={colors.tide} />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void load(true)} tintColor={colors.sage} />}
     >
       {record.coverUrl ? (
         <View style={styles.hero}>
@@ -127,12 +127,12 @@ const styles = StyleSheet.create({
   heroTitle: { ...type.display, color: colors.white, fontSize: 30, lineHeight: 35 },
   heroMeta: { ...type.body, color: "rgba(255,255,255,0.78)" },
   confirmation: { ...type.caption, color: colors.confirm },
-  source: { ...type.button, color: colors.tide },
+  source: { ...type.button, color: colors.sageDeep },
   summaryCard: { backgroundColor: colors.card, borderRadius: radius.card, padding: spacing(4), gap: spacing(3), ...cardShadow },
   sectionTitle: { ...type.heading, color: colors.ink },
   scoreRow: { flexDirection: "row", gap: spacing(2) },
   score: { flex: 1, backgroundColor: colors.canvas, borderRadius: radius.control, padding: spacing(3), alignItems: "center" },
-  scoreValue: { ...type.heading, color: colors.tide },
+  scoreValue: { ...type.heading, color: colors.sageDeep },
   scoreLabel: { ...type.caption, color: colors.inkSoft, textAlign: "center" },
   counts: { ...type.caption, color: colors.inkSoft },
   evidenceCard: { backgroundColor: colors.card, borderRadius: radius.card, padding: spacing(4), gap: spacing(2), ...cardShadow },

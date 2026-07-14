@@ -4,6 +4,7 @@ import type { MessagingProvider } from "./adapters/messaging/types";
 import type { Retrieval } from "./adapters/retrieval/types";
 import type { RoutingProvider } from "./adapters/routing/types";
 import type { PlacesProvider } from "./adapters/places/types";
+import type { FoodImageProvider } from "./adapters/foodImages/types";
 import type { TextToSpeech } from "./adapters/tts/types";
 import type { PipelineDeps } from "./pipeline/run";
 import { bookRouter } from "./routes/book";
@@ -12,6 +13,7 @@ import { fixturesRouter } from "./routes/fixtures";
 import { ingestRouter } from "./routes/ingest";
 import { itineraryRouter } from "./routes/itinerary";
 import { menuRouter } from "./routes/menu";
+import { placePhotosRouter } from "./routes/placePhotos";
 import { reviewsRouter } from "./routes/reviews";
 import { sourceCoversRouter } from "./routes/sourceCovers";
 import { tripsRouter } from "./routes/trips";
@@ -27,6 +29,7 @@ export interface ServerContext {
   retrieval: Retrieval;
   routing: RoutingProvider;
   places: PlacesProvider;
+  foodImages: FoodImageProvider;
 }
 
 export function createApp(ctx: ServerContext): Express {
@@ -39,7 +42,7 @@ export function createApp(ctx: ServerContext): Express {
       {
         config: ctx.config,
         openai: ctx.pipeline.openai,
-        retrieval: ctx.retrieval,
+        foodImages: ctx.foodImages,
       },
       ctx.tts,
     ),
@@ -51,6 +54,7 @@ export function createApp(ctx: ServerContext): Express {
   });
   app.use(ingestRouter(ctx.pipeline));
   app.use(itineraryRouter());
+  app.use(placePhotosRouter(ctx.places));
   app.use(tripsRouter(ctx.routing, ctx.places));
   app.use(bookRouter(ctx.messaging, ctx.config));
   app.use(directoryRouter());

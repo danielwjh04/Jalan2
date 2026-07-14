@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     ...cardShadow,
   },
   activity: { ...type.title, color: colors.ink },
-  operator: { ...type.label, color: colors.tide },
+  operator: { ...type.label, color: colors.sageDeep },
   prepared: { ...type.caption, color: colors.inkSoft },
   detailRow: {
     flexDirection: "row",

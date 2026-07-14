@@ -32,7 +32,7 @@ export function TripMap({ stops, orderedIds }: Props): React.ReactElement {
 const styles = StyleSheet.create({
   map: {
     minHeight: 220,
-    backgroundColor: colors.tideSoft,
+    backgroundColor: colors.halo,
     padding: spacing(6),
     justifyContent: "center",
   },
@@ -48,10 +48,10 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: colors.tide,
+    backgroundColor: colors.sage,
     alignItems: "center",
     justifyContent: "center",
   },
-  markerText: { color: colors.black, fontFamily: fonts.semibold, fontSize: 13 },
+  markerText: { color: colors.white, fontFamily: fonts.semibold, fontSize: 13 },
   name: { ...type.label, color: colors.ink },
 });

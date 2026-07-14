@@ -64,6 +64,11 @@ function fallbackPlace(name: string, booking: BookingJson): PlaceCandidate {
     location: booking.meeting_point,
     google_maps_url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`,
     opening_window: null,
+    suggested_activity: `Explore ${name} and use the submitted travel post as your guide.`,
+    place_photo_available: false,
+    place_photo_attributions: [],
+    image_url: null,
+    image_attributions: [],
   };
 }
 
@@ -71,9 +76,9 @@ export function toStop(place: PlaceCandidate, sourceUrl: string): TripStop {
   return {
     id: slug(place.place_id),
     name: place.name,
-    summary: 'Place identified from the submitted travel post.',
+    summary: place.suggested_activity,
     location: place.location,
-    image_url: null,
+    image_url: place.image_url,
     estimated_spend_myr: null,
     duration_minutes: 60,
     sources: [{ title: 'Submitted travel post', url: sourceUrl }],
@@ -81,6 +86,9 @@ export function toStop(place: PlaceCandidate, sourceUrl: string): TripStop {
     address: place.address,
     google_maps_url: place.google_maps_url,
     opening_window: place.opening_window,
+    place_photo_available: place.place_photo_available,
+    place_photo_attributions: place.place_photo_attributions,
+    image_attributions: place.image_attributions,
     easybook_url: null,
   };
 }

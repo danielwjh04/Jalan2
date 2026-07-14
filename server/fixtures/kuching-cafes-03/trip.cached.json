@@ -12,7 +12,15 @@
       "name": "Carpenter Street",
       "summary": "Begin among heritage shophouses, temples and independent shops in Kuching's old town.",
       "location": { "lat": 1.5582653, "lng": 110.3459455 },
-      "image_url": null,
+      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Chinese-style%20Gate.jpg?width=1400",
+      "image_attributions": [
+        {
+          "label": "Photo by Travelust",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Chinese-style_Gate.jpg",
+          "license": "CC BY 2.0"
+        }
+      ],
+      "place_id": "ChIJq_hyZu6n-zERIpBWNmZgM0A",
       "estimated_spend_myr": 0,
       "duration_minutes": 35,
       "sources": [
@@ -27,7 +35,15 @@
       "name": "Black Bean Coffee",
       "summary": "Pause for locally roasted Sarawak coffee in a compact old-town cafe.",
       "location": { "lat": 1.557732, "lng": 110.3477083 },
-      "image_url": null,
+      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Coffee%20cup%20and%20coffee%20bean.jpg?width=1400",
+      "image_attributions": [
+        {
+          "label": "Coffee photo by mcfoodie",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Coffee_cup_and_coffee_bean.jpg",
+          "license": "CC0 1.0"
+        }
+      ],
+      "place_id": "ChIJ4TKkHOyn-zERMSpng14URfk",
       "estimated_spend_myr": null,
       "duration_minutes": 45,
       "sources": [
@@ -42,7 +58,15 @@
       "name": "The Old Court House",
       "summary": "End at a restored civic landmark with courtyard dining near the waterfront.",
       "location": { "lat": 1.5596034, "lng": 110.3447998 },
-      "image_url": null,
+      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/KuchingOldCourtHouse.JPG?width=1400",
+      "image_attributions": [
+        {
+          "label": "Photo by Mattun0211",
+          "source_url": "https://commons.wikimedia.org/wiki/File:KuchingOldCourtHouse.JPG",
+          "license": "CC0 1.0"
+        }
+      ],
+      "place_id": "ChIJN9e-Q-6n-zER2clKbwn6q2g",
       "estimated_spend_myr": null,
       "duration_minutes": 60,
       "sources": [

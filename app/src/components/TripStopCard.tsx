@@ -1,6 +1,5 @@
 import {
   Alert,
-  Image,
   Linking,
   Pressable,
   StyleSheet,
@@ -8,8 +7,9 @@ import {
   View,
 } from "react-native";
 import type { TripStop } from "@shared/trip";
-import { colors, fonts, radius, spacing, type } from "@/lib/theme";
+import { colors, fonts, hairline, radius, spacing, type } from "@/lib/theme";
 import { tryOpenExternalUrl } from "@/lib/externalLink";
+import { PlaceImage } from "./PlaceImage";
 
 interface Props {
   stop: TripStop;
@@ -27,26 +27,16 @@ export function TripStopCard({
   onDelete,
 }: Props): React.ReactElement {
   const selected = position !== null;
-  const source = stop.sources[0];
-  const openSource = async (): Promise<void> => {
-    if (await tryOpenExternalUrl(source.url, Linking.openURL)) return;
-    Alert.alert(
-      "Could not open source",
-      "Copy the source link and open it in your browser.",
-    );
-  };
-  const openEasybook = async (): Promise<void> => {
-    if (!stop.easybook_url) return;
-    if (await tryOpenExternalUrl(stop.easybook_url, Linking.openURL)) return;
-    Alert.alert("Could not open EasyBook", "Try the route again later.");
-  };
   return (
     <View style={[styles.card, !selected && styles.inactive]}>
-      {stop.image_url ? (
-        <Image source={{ uri: stop.image_url }} style={styles.image} />
-      ) : (
-        <View style={[styles.image, styles.imageFallback]} />
-      )}
+      <PlaceImage
+        placeId={stop.place_id}
+        placePhotoAvailable={stop.place_photo_available}
+        fallbackUrl={stop.image_url}
+        placeAttributions={stop.place_photo_attributions}
+        fallbackAttributions={stop.image_attributions}
+        style={styles.image}
+      />
       <View style={styles.row}>
         <View style={[styles.marker, selected && styles.markerSelected]}>
           <Text
@@ -58,48 +48,79 @@ export function TripStopCard({
         <View style={styles.content}>
           <Text style={styles.name}>{stop.name}</Text>
           <Text style={styles.meta}>{stop.duration_minutes} min</Text>
-          {stop.address ? <Text style={styles.address}>{stop.address}</Text> : null}
-          <Text style={styles.summary}>{stop.summary}</Text>
-          <View style={styles.actions}>
-            <Pressable onPress={() => void openSource()}>
-              <Text style={styles.link}>View source</Text>
-            </Pressable>
-            <Pressable disabled={selected && !canRemove} onPress={onToggle}>
-              <Text
-                style={[
-                  styles.toggle,
-                  selected && !canRemove && styles.disabled,
-                ]}
-              >
-                {selected ? "Remove" : "Add to trip"}
-              </Text>
-            </Pressable>
-            {stop.easybook_url ? (
-              <Pressable onPress={() => void openEasybook()}>
-                <Text style={styles.link}>EasyBook</Text>
-              </Pressable>
-            ) : null}
-            <Pressable onPress={onDelete}>
-              <Text style={styles.delete}>Delete</Text>
-            </Pressable>
-          </View>
+          {stop.address ? (
+            <Text style={styles.address} numberOfLines={1}>{stop.address}</Text>
+          ) : null}
+          <Text style={styles.activityLabel}>What to do</Text>
+          <Text style={styles.summary} numberOfLines={2}>{stop.summary}</Text>
+          <StopActions
+            stop={stop}
+            selected={selected}
+            canRemove={canRemove}
+            onToggle={onToggle}
+            onDelete={onDelete}
+          />
         </View>
       </View>
     </View>
   );
 }
 
+function StopActions({
+  stop,
+  selected,
+  canRemove,
+  onToggle,
+  onDelete,
+}: Pick<Props, "stop" | "canRemove" | "onToggle" | "onDelete"> & {
+  selected: boolean;
+}): React.ReactElement {
+  const easybookUrl = stop.easybook_url;
+  return (
+    <View style={styles.actions}>
+      <Pressable onPress={() => void openSource(stop.sources[0].url)}>
+        <Text style={styles.link}>View source</Text>
+      </Pressable>
+      <Pressable disabled={selected && !canRemove} onPress={onToggle}>
+        <Text style={[styles.toggle, selected && !canRemove && styles.disabled]}>
+          {selected ? "Remove" : "Add to trip"}
+        </Text>
+      </Pressable>
+      {easybookUrl ? (
+        <Pressable onPress={() => void openEasybook(easybookUrl)}>
+          <Text style={styles.link}>EasyBook</Text>
+        </Pressable>
+      ) : null}
+      <Pressable onPress={onDelete}>
+        <Text style={styles.delete}>Delete</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+async function openSource(url: string): Promise<void> {
+  if (await tryOpenExternalUrl(url, Linking.openURL)) return;
+  Alert.alert("Could not open source", "Copy the source link and open it in your browser.");
+}
+
+async function openEasybook(url: string): Promise<void> {
+  if (await tryOpenExternalUrl(url, Linking.openURL)) return;
+  Alert.alert("Could not open EasyBook", "Try the route again later.");
+}
+
+// The photo takes about twice the vertical space of the text block below it,
+// so the image leads and the copy stays a compact caption.
+const IMAGE_HEIGHT = 184;
+
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.card,
     borderRadius: radius.card,
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: colors.mist,
+    ...hairline,
   },
   inactive: { opacity: 0.72 },
-  image: { width: "100%", height: 154 },
-  imageFallback: { backgroundColor: colors.tideSoft },
+  image: { width: "100%", height: IMAGE_HEIGHT },
   row: { flexDirection: "row", gap: spacing(3), padding: spacing(4) },
   marker: {
     width: 30,
@@ -107,24 +128,25 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.mist,
+    backgroundColor: colors.halo,
   },
-  markerSelected: { backgroundColor: colors.tide },
-  markerText: { ...type.label, color: colors.inkSoft },
-  markerTextSelected: { color: colors.black, fontFamily: fonts.semibold },
+  markerSelected: { backgroundColor: colors.sage },
+  markerText: { ...type.label, color: colors.sageDeep },
+  markerTextSelected: { color: colors.white, fontFamily: fonts.semibold },
   content: { flex: 1 },
   name: { ...type.heading, color: colors.ink },
   meta: { ...type.caption, color: colors.inkSoft, marginTop: 1 },
   address: { ...type.caption, color: colors.inkSoft, marginTop: spacing(1) },
-  summary: { ...type.body, color: colors.inkSoft, marginTop: spacing(2) },
+  activityLabel: { ...type.label, color: colors.sageDeep, marginTop: spacing(1.5) },
+  summary: { ...type.caption, color: colors.inkSoft, marginTop: spacing(1.5) },
   actions: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: spacing(3),
-    marginTop: spacing(3),
+    marginTop: spacing(2.5),
   },
-  link: { ...type.label, color: colors.tide },
-  toggle: { ...type.label, color: colors.tide },
+  link: { ...type.label, color: colors.sageDeep },
+  toggle: { ...type.label, color: colors.sageDeep },
   delete: { ...type.label, color: colors.danger },
   disabled: { color: colors.inkSoft },
 });

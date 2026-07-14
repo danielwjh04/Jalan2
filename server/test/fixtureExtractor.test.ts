@@ -65,6 +65,14 @@ describe("fixture data integrity", () => {
       expect(trip?.selected_stop_ids).toEqual(
         trip?.stops.map((stop) => stop.id),
       );
+      for (const stop of trip?.stops ?? []) {
+        expect(stop.place_id, `${slug}: ${stop.name} place id`).toBeTruthy();
+        expect(stop.image_url, `${slug}: ${stop.name} image`).toContain(
+          'commons.wikimedia.org',
+        );
+        expect(stop.image_attributions, `${slug}: ${stop.name} credit`).not.toHaveLength(0);
+        if (stop.address) expect(stop.summary).not.toBe(stop.address);
+      }
     }
   });
 });

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ImageAttributionSchema } from "./media";
 
 export const GeoPointSchema = z.object({
   lat: z.number().min(-90).max(90),
@@ -24,6 +25,11 @@ export const PlaceCandidateSchema = z.object({
   location: GeoPointSchema,
   google_maps_url: z.string().url(),
   opening_window: OpeningWindowSchema.nullable(),
+  suggested_activity: z.string().min(1),
+  place_photo_available: z.boolean().default(false),
+  place_photo_attributions: z.array(ImageAttributionSchema).default([]),
+  image_url: z.string().url().nullable().default(null),
+  image_attributions: z.array(ImageAttributionSchema).default([]),
 });
 
 export type PlaceCandidate = z.infer<typeof PlaceCandidateSchema>;
@@ -34,6 +40,9 @@ export const TripStopSchema = z.object({
   summary: z.string().min(1),
   location: GeoPointSchema,
   image_url: z.string().url().nullable(),
+  place_photo_available: z.boolean().default(false),
+  place_photo_attributions: z.array(ImageAttributionSchema).default([]),
+  image_attributions: z.array(ImageAttributionSchema).default([]),
   estimated_spend_myr: z.number().nonnegative().nullable(),
   duration_minutes: z.number().int().positive(),
   sources: z.array(TripSourceSchema).min(1),

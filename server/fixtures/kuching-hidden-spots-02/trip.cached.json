@@ -12,7 +12,15 @@
       "name": "Semenggoh Wildlife Centre",
       "summary": "Start early for the best chance to observe rehabilitated orangutans in protected forest.",
       "location": { "lat": 1.4019845, "lng": 110.3144405 },
-      "image_url": null,
+      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Orang%20Utan%20%28Semenggoh%20Wildlife%20Centre%2C%20June%202025%29.jpg?width=1400",
+      "image_attributions": [
+        {
+          "label": "Photo by Apocru",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Orang_Utan_(Semenggoh_Wildlife_Centre,_June_2025).jpg",
+          "license": "CC BY-SA 4.0"
+        }
+      ],
+      "place_id": "ChIJYS7oo2R1-zERbLMHEKPgYGo",
       "estimated_spend_myr": null,
       "duration_minutes": 120,
       "sources": [
@@ -27,7 +35,15 @@
       "name": "Fairy Cave",
       "summary": "Walk into a dramatic limestone chamber near Bau and allow time for the steep access steps.",
       "location": { "lat": 1.3817723, "lng": 110.1171684 },
-      "image_url": null,
+      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Fairy%20Cave%2C%20Bau%2C%20Kuching%20Sarawak%2C%20Malaysia%2001.jpg?width=1400",
+      "image_attributions": [
+        {
+          "label": "Photo by Borneo mobilegrapher",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Fairy_Cave,_Bau,_Kuching_Sarawak,_Malaysia_01.jpg",
+          "license": "CC0 1.0"
+        }
+      ],
+      "place_id": "ChIJn38e5pdt-zER_lGRIiX5u9M",
       "estimated_spend_myr": null,
       "duration_minutes": 90,
       "sources": [
@@ -42,7 +58,15 @@
       "name": "Bako National Park",
       "summary": "Continue to Sarawak's oldest national park for coastal trails, wildlife and sandstone scenery.",
       "location": { "lat": 1.7066874, "lng": 110.4663249 },
-      "image_url": null,
+      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Bako%20National%20Park%2C%20Kuching%2C%20Sarawak%2C%20Malaysia%2002.jpg?width=1400",
+      "image_attributions": [
+        {
+          "label": "Photo by Borneo mobilegrapher",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Bako_National_Park,_Kuching,_Sarawak,_Malaysia_02.jpg",
+          "license": "CC BY-SA 4.0"
+        }
+      ],
+      "place_id": "ChIJB2jltixT-jERpv3vxRTzu1o",
       "estimated_spend_myr": null,
       "duration_minutes": 240,
       "sources": [

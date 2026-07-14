@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.card,
     borderWidth: 1,
     borderColor: colors.mist,
-    backgroundColor: colors.tideSoft,
+    backgroundColor: colors.halo,
     padding: spacing(5),
     justifyContent: "center",
     gap: spacing(2),

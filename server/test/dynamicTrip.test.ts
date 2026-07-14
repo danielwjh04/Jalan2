@@ -24,8 +24,13 @@ describe('createDynamicTrip', () => {
       location: { lat: 1.5, lng: 110.3 },
       google_maps_url: `https://maps.google.com/?q=${encodeURIComponent(query)}`,
       opening_window: null,
+      suggested_activity: `Explore ${query} and check the latest visitor information.`,
+      place_photo_available: true,
+      place_photo_attributions: [],
+      image_url: null,
+      image_attributions: [],
     }]);
-    const places: PlacesProvider = { name: 'google', search };
+    const places: PlacesProvider = { name: 'google', search, photo: async () => null };
     const trip = await createDynamicTrip('trip-1', 'https://tiktok.com/video/1', booking, {
       frames: [{
         ts: '4.0s',
@@ -41,5 +46,7 @@ describe('createDynamicTrip', () => {
     expect(trip.demo).toBe(false);
     expect(trip.stops.map((stop) => stop.name)).toEqual(['Bengoh Dam', 'Susung Waterfall']);
     expect(trip.selected_stop_ids).toHaveLength(2);
+    expect(trip.stops[0].summary).toContain('Explore Bengoh Dam');
+    expect(trip.stops[0].place_photo_available).toBe(true);
   });
 });

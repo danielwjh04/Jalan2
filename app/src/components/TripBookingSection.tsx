@@ -24,7 +24,7 @@ export function TripBookingSection({
         {error ? (
           <Text style={styles.error}>{error}</Text>
         ) : (
-          <ActivityIndicator color={colors.tide} />
+          <ActivityIndicator color={colors.sage} />
         )}
       </View>
     );

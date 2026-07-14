@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  PlaceCandidateSchema,
   TripPlanSchema,
   haversineMeters,
   optimizeStopOrder,
@@ -12,6 +13,13 @@ const stops = [
     summary: "Riverside promenade",
     location: { lat: 1.5593, lng: 110.3439 },
     image_url: null,
+    place_photo_available: true,
+    place_photo_attributions: [{
+      label: "Photo by Jalan Kuching",
+      source_url: "https://maps.google.com/maps/contrib/123",
+      license: null,
+    }],
+    image_attributions: [],
     estimated_spend_myr: 0,
     duration_minutes: 60,
     sources: [{ title: "Source post", url: "https://example.com/source" }],
@@ -22,6 +30,9 @@ const stops = [
     summary: "Sarawak culture and history",
     location: { lat: 1.5574, lng: 110.3438 },
     image_url: null,
+    place_photo_available: false,
+    place_photo_attributions: [],
+    image_attributions: [],
     estimated_spend_myr: 20,
     duration_minutes: 90,
     sources: [{ title: "Official site", url: "https://example.com/museum" }],
@@ -32,6 +43,9 @@ const stops = [
     summary: "Orangutan rehabilitation centre",
     location: { lat: 1.3997, lng: 110.3157 },
     image_url: null,
+    place_photo_available: false,
+    place_photo_attributions: [],
+    image_attributions: [],
     estimated_spend_myr: 10,
     duration_minutes: 120,
     sources: [{ title: "Official site", url: "https://example.com/semenggoh" }],
@@ -54,6 +68,11 @@ describe("TripPlanSchema", () => {
     });
 
     expect(parsed.success).toBe(true);
+    if (!parsed.success) return;
+    expect(parsed.data.stops[0].place_photo_available).toBe(true);
+    expect(parsed.data.stops[0].place_photo_attributions[0]?.label).toBe(
+      "Photo by Jalan Kuching",
+    );
   });
 
   it("rejects selected stop ids that do not exist", () => {
@@ -68,6 +87,57 @@ describe("TripPlanSchema", () => {
       stops,
       selected_stop_ids: ["waterfront", "missing"],
       route: null,
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+});
+
+describe("PlaceCandidateSchema", () => {
+  it("retains Google photo availability and attribution", () => {
+    const parsed = PlaceCandidateSchema.parse({
+      place_id: "place-1",
+      name: "Borneo Cultures Museum",
+      address: "Kuching, Sarawak",
+      location: { lat: 1.555, lng: 110.342 },
+      google_maps_url: "https://maps.google.com/?cid=1",
+      opening_window: null,
+      suggested_activity: "Explore the exhibitions and learn about local culture.",
+      place_photo_available: true,
+      place_photo_attributions: [{
+        label: "Photo by Sarawak Traveller",
+        source_url: "https://maps.google.com/maps/contrib/456",
+        license: null,
+      }],
+      image_url: "https://upload.wikimedia.org/museum.jpg",
+      image_attributions: [{
+        label: "Photo by Museum Guide",
+        source_url: "https://commons.wikimedia.org/wiki/File:Museum.jpg",
+        license: "CC BY-SA 4.0",
+      }],
+    });
+
+    expect(parsed.place_photo_available).toBe(true);
+    expect(parsed.suggested_activity).toContain("Explore the exhibitions");
+    expect(parsed.place_photo_attributions).toHaveLength(1);
+    expect(parsed.image_attributions[0]?.license).toBe("CC BY-SA 4.0");
+  });
+
+  it("rejects an invalid attribution source URL", () => {
+    const parsed = PlaceCandidateSchema.safeParse({
+      place_id: "place-1",
+      name: "Borneo Cultures Museum",
+      address: "Kuching, Sarawak",
+      location: { lat: 1.555, lng: 110.342 },
+      google_maps_url: "https://maps.google.com/?cid=1",
+      opening_window: null,
+      suggested_activity: "Explore the exhibitions and learn about local culture.",
+      place_photo_available: true,
+      place_photo_attributions: [{
+        label: "Unknown source",
+        source_url: "not-a-url",
+        license: null,
+      }],
     });
 
     expect(parsed.success).toBe(false);

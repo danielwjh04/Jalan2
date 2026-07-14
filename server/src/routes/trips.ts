@@ -141,9 +141,9 @@ async function customStop(place: PlaceCandidate): Promise<TripStop> {
   return {
     id: slug(place.place_id),
     name: place.name,
-    summary: place.address,
+    summary: place.suggested_activity,
     location: place.location,
-    image_url: null,
+    image_url: place.image_url,
     estimated_spend_myr: null,
     duration_minutes: 60,
     sources: [{ title: 'Google Maps place', url: place.google_maps_url }],
@@ -151,6 +151,9 @@ async function customStop(place: PlaceCandidate): Promise<TripStop> {
     address: place.address,
     google_maps_url: place.google_maps_url,
     opening_window: place.opening_window,
+    place_photo_available: place.place_photo_available,
+    place_photo_attributions: place.place_photo_attributions,
+    image_attributions: place.image_attributions,
     easybook_url: await findEasybookRoute('Kuching', place.name),
   };
 }

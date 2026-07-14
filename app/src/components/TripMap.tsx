@@ -36,7 +36,7 @@ export function TripMap({
               latitude: point.lat,
               longitude: point.lng,
             }))}
-            strokeColor={colors.tide}
+            strokeColor={colors.sage}
             strokeWidth={4}
           />
         ) : null}
@@ -48,7 +48,7 @@ export function TripMap({
               longitude: stop.location.lng,
             }}
             title={`${index + 1}. ${stop.name}`}
-            pinColor={index === 0 ? colors.sun : colors.tide}
+            pinColor={index === 0 ? colors.kaya : colors.sage}
           />
         ))}
       </MapView>

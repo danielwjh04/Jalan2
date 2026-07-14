@@ -34,7 +34,7 @@ export default function DirectoryScreen(): React.ReactElement {
       data={entries}
       keyExtractor={(entry) => entry.experienceId}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={load} tintColor={colors.tide} />
+        <RefreshControl refreshing={refreshing} onRefresh={load} tintColor={colors.sage} />
       }
       ListHeaderComponent={
         <BoboCard
@@ -75,7 +75,7 @@ export default function DirectoryScreen(): React.ReactElement {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: spacing(4), gap: spacing(3), flexGrow: 1 },
+  container: { padding: spacing(4), paddingBottom: spacing(28), gap: spacing(3), flexGrow: 1 },
   empty: { ...type.body, color: colors.inkSoft, textAlign: 'center', marginTop: spacing(6) },
   row: {
     backgroundColor: colors.card,
@@ -90,14 +90,14 @@ const styles = StyleSheet.create({
     width: 46,
     height: 46,
     borderRadius: radius.pill,
-    backgroundColor: colors.tideSoft,
+    backgroundColor: colors.halo,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { color: colors.tide, fontFamily: fonts.medium, fontSize: 15 },
+  avatarText: { color: colors.sageDeep, fontFamily: fonts.medium, fontSize: 15 },
   info: { flex: 1, gap: spacing(0.5) },
   name: { ...type.heading, color: colors.ink },
-  activity: { ...type.label, color: colors.tide },
+  activity: { ...type.label, color: colors.sageDeep },
   meta: { ...type.caption, color: colors.inkSoft },
   badge: {
     borderRadius: radius.pill,

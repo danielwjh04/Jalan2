@@ -78,7 +78,7 @@ export function SafetyBriefCard({
         </View>
       </View>
       {error && <Text style={styles.error}>{error}</Text>}
-      {!brief && !error && <ActivityIndicator color={colors.tide} />}
+      {!brief && !error && <ActivityIndicator color={colors.sage} />}
       {brief && (
         <>
           <Text style={styles.body}>{brief.text}</Text>
@@ -114,9 +114,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing(2.5),
     backgroundColor: colors.canvas,
   },
-  langChipActive: { backgroundColor: colors.tideSoft },
+  langChipActive: { backgroundColor: colors.halo },
   langText: { ...type.label, color: colors.inkSoft },
-  langTextActive: { color: colors.tide },
+  langTextActive: { color: colors.sageDeep },
   body: { ...type.body, color: colors.ink },
   caption: { ...type.caption, color: colors.inkSoft },
   error: { ...type.caption, color: colors.danger },

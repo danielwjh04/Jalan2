@@ -31,7 +31,7 @@ export function StageProgress({ stage, error }: Props): React.ReactElement {
         return (
           <View key={step.stage} style={styles.row}>
             {state === 'active' ? (
-              <ActivityIndicator size="small" color={colors.tide} />
+              <ActivityIndicator size="small" color={colors.sage} />
             ) : (
               <View style={[styles.dot, state === 'done' && styles.dotDone]} />
             )}

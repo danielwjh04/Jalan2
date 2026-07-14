@@ -44,6 +44,6 @@ const styles = StyleSheet.create({
   badgeText: { ...type.caption, color: colors.inkSoft },
   linkedText: { color: colors.confirm },
   ratings: { flexDirection: "row", flexWrap: "wrap", gap: spacing(2) },
-  rating: { ...type.caption, color: colors.tide, backgroundColor: colors.tideSoft, padding: spacing(1.5), borderRadius: radius.pill },
+  rating: { ...type.caption, color: colors.sageDeep, backgroundColor: colors.halo, padding: spacing(1.5), borderRadius: radius.pill },
   body: { ...type.body, color: colors.ink },
 });

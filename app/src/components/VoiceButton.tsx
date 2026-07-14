@@ -43,13 +43,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing(2),
-    backgroundColor: colors.tide,
+    backgroundColor: colors.sageDeep,
     borderRadius: radius.control,
     paddingVertical: spacing(3),
     paddingHorizontal: spacing(3.5),
   },
   disabled: { backgroundColor: colors.mist },
-  label: { color: colors.black, fontFamily: fonts.semibold, fontSize: 14, flexShrink: 1 },
+  label: { color: colors.white, fontFamily: fonts.semibold, fontSize: 14, flexShrink: 1 },
   labelDisabled: { color: colors.inkSoft },
   tag: {
     backgroundColor: 'rgba(255,255,255,0.22)',
@@ -57,5 +57,5 @@ const styles = StyleSheet.create({
     paddingVertical: spacing(0.75),
     paddingHorizontal: spacing(2),
   },
-  tagText: { color: colors.black, fontFamily: fonts.medium, fontSize: 11, letterSpacing: 0.6 },
+  tagText: { color: colors.white, fontFamily: fonts.medium, fontSize: 11, letterSpacing: 0.6 },
 });

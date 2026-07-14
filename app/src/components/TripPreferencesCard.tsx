@@ -94,6 +94,6 @@ const styles = StyleSheet.create({
   input: { minHeight: 44, borderRadius: radius.control, backgroundColor: colors.canvas, color: colors.ink, paddingHorizontal: spacing(3) },
   inputButton: { minHeight: 44, borderRadius: radius.control, backgroundColor: colors.canvas, justifyContent: "center", paddingHorizontal: spacing(3) },
   inputButtonText: { ...type.body, color: colors.ink },
-  cycle: { flex: 1, minHeight: 48, justifyContent: "center", borderRadius: radius.control, backgroundColor: colors.tideSoft, padding: spacing(2) },
-  cycleText: { ...type.label, color: colors.tide, textAlign: "center" },
+  cycle: { flex: 1, minHeight: 48, justifyContent: "center", borderRadius: radius.control, backgroundColor: colors.halo, padding: spacing(2) },
+  cycleText: { ...type.label, color: colors.sageDeep, textAlign: "center" },
 });

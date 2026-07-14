@@ -62,7 +62,7 @@ function TripSummary({
         disabled={busy}
       >
         {busy ? (
-          <ActivityIndicator color={colors.black} />
+          <ActivityIndicator color={colors.kopi} />
         ) : (
           <Text style={styles.optimizeText}>Optimize route</Text>
         )}
@@ -169,10 +169,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.control,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.tide,
+    backgroundColor: colors.kaya,
     marginTop: spacing(4),
   },
-  optimizeText: { ...type.button, color: colors.black },
+  optimizeText: { ...type.button, color: colors.kopi },
   error: { ...type.caption, color: colors.danger, marginTop: spacing(2) },
   section: {
     ...type.title,

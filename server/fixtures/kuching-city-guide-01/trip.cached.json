@@ -12,7 +12,15 @@
       "name": "Kuching Waterfront",
       "summary": "Begin beside the Sarawak River with an easy walk through the historic city centre.",
       "location": { "lat": 1.5604695, "lng": 110.3457446 },
-      "image_url": null,
+      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Kuching%20waterfront%20%2817773645672%29.jpg?width=1400",
+      "image_attributions": [
+        {
+          "label": "Photo by Marufish",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Kuching_waterfront_(17773645672).jpg",
+          "license": "CC BY-SA 2.0"
+        }
+      ],
+      "place_id": "ChIJ8ZPJfLSn-zERcm674Uq78Z8",
       "estimated_spend_myr": 0,
       "duration_minutes": 45,
       "sources": [
@@ -27,7 +35,15 @@
       "name": "Borneo Cultures Museum",
       "summary": "Explore Sarawak history, material culture and contemporary Borneo in a landmark museum.",
       "location": { "lat": 1.5554849, "lng": 110.3423788 },
-      "image_url": null,
+      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/View%20of%20Borneo%20Cultures%20Museum%20and%20Sarawak%20State%20Museum%20from%20Tugu%20Pahlawan.jpg?width=1400",
+      "image_attributions": [
+        {
+          "label": "Photo by Cerevisae",
+          "source_url": "https://commons.wikimedia.org/wiki/File:View_of_Borneo_Cultures_Museum_and_Sarawak_State_Museum_from_Tugu_Pahlawan.jpg",
+          "license": "CC BY-SA 4.0"
+        }
+      ],
+      "place_id": "ChIJJQQqoDGn-zERTw2i1LGpqnk",
       "estimated_spend_myr": null,
       "duration_minutes": 90,
       "sources": [
@@ -42,7 +58,15 @@
       "name": "Topspot Food Court",
       "summary": "Finish with a relaxed local seafood dinner above the city centre.",
       "location": { "lat": 1.5565097, "lng": 110.3524369 },
-      "image_url": null,
+      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Malaysian%20prawn%20noodles.jpg?width=1400",
+      "image_attributions": [
+        {
+          "label": "Food photo by Misaochan",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Malaysian_prawn_noodles.jpg",
+          "license": "CC BY-SA 4.0"
+        }
+      ],
+      "place_id": "ChIJV5R-Tuqn-zERDwFypnywUIs",
       "estimated_spend_myr": null,
       "duration_minutes": 75,
       "sources": [

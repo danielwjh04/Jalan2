@@ -21,12 +21,12 @@ export function ExperienceLink({
 
 const styles = StyleSheet.create({
   link: {
-    borderColor: colors.tide,
+    borderColor: colors.sage,
     borderWidth: 1,
     borderRadius: radius.control,
     paddingVertical: spacing(3),
     paddingHorizontal: spacing(4),
     alignItems: "center",
   },
-  text: { ...type.button, color: colors.tide },
+  text: { ...type.button, color: colors.sageDeep },
 });

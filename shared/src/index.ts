@@ -14,6 +14,8 @@ export type {
 } from "./status";
 export { normalizeVideoUrl } from "./videoUrl";
 export type { NormalizedVideoUrl, VideoPlatform } from "./videoUrl";
+export { ImageAttributionSchema } from "./media";
+export type { ImageAttribution } from "./media";
 export { buildTransitLinks } from "./transit";
 export type { MeetingPoint, TransitLinks } from "./transit";
 export {

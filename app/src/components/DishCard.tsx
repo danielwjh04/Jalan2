@@ -1,6 +1,7 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
 import type { Dish } from '@shared/menu';
 import { cardShadow, colors, fonts, radius, spacing, type } from '@/lib/theme';
+import { ImageAttribution } from './ImageAttribution';
 
 export function DishCard({ dish }: { dish: Dish }): React.ReactElement {
   return (
@@ -14,6 +15,7 @@ export function DishCard({ dish }: { dish: Dish }): React.ReactElement {
         </View>
       )}
       <View style={styles.body}>
+        <ImageAttribution items={dish.image_attributions} />
         <Text style={styles.name}>{dish.name_local}</Text>
         <Text style={styles.english}>{dish.name_english}</Text>
         <Text style={styles.price}>
@@ -42,13 +44,13 @@ const styles = StyleSheet.create({
     ...cardShadow,
   },
   image: { width: '100%', height: 240 },
-  placeholder: { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.tideSoft },
-  placeholderText: { color: colors.tide, fontFamily: fonts.semibold, fontSize: 64 },
+  placeholder: { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.halo },
+  placeholderText: { color: colors.sage, fontFamily: fonts.semibold, fontSize: 64 },
   placeholderCaption: { ...type.caption, color: colors.inkSoft, marginTop: spacing(1) },
   body: { padding: spacing(4), gap: spacing(1.5) },
   name: { ...type.title, color: colors.ink },
   english: { ...type.body, color: colors.inkSoft },
-  price: { color: colors.tide, fontFamily: fonts.semibold, fontSize: 16 },
+  price: { color: colors.sageDeep, fontFamily: fonts.semibold, fontSize: 16 },
   allergenRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(1.5) },
   allergen: {
     color: colors.pending,

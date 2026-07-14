@@ -24,7 +24,7 @@ export function GradientButton({
         style={[styles.button, (disabled || busy) && styles.dimmed]}
       >
         {busy ? (
-          <ActivityIndicator color={colors.black} />
+          <ActivityIndicator color={colors.kopi} />
         ) : (
           <Text style={styles.text}>{label}</Text>
         )}
@@ -38,12 +38,12 @@ const styles = StyleSheet.create({
     borderRadius: radius.control,
     paddingVertical: spacing(4),
     alignItems: 'center',
-    shadowColor: colors.tide,
+    shadowColor: colors.kaya,
     shadowOpacity: 0.35,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 5 },
     elevation: 3,
   },
   dimmed: { opacity: 0.55 },
-  text: { ...type.button, color: colors.black },
+  text: { ...type.button, color: colors.kopi },
 });

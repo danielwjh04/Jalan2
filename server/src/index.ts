@@ -6,6 +6,11 @@ import { pickMessagingProvider } from "./adapters/messaging";
 import { pickRetrieval } from "./adapters/retrieval";
 import { createRouting } from "./adapters/routing";
 import { createPlaces } from "./adapters/places";
+import {
+  createWikimediaFoodImages,
+  createWikimediaPlaceImages,
+} from "./adapters/foodImages/wikimedia";
+import { withLicensedPlaceImages } from "./adapters/places/withImages";
 import { pickStt } from "./adapters/stt";
 import { pickTts } from "./adapters/tts";
 import { handleInbound } from "./services/booking";
@@ -19,7 +24,7 @@ const messaging = pickMessagingProvider(
   (message) => void handleInbound(message),
 );
 const retrieval = pickRetrieval(config);
-const places = createPlaces(config);
+const places = withLicensedPlaceImages(createPlaces(config), createWikimediaPlaceImages());
 
 const app = createApp({
   config,
@@ -28,6 +33,7 @@ const app = createApp({
   retrieval,
   routing: createRouting(config),
   places,
+  foodImages: createWikimediaFoodImages(),
   pipeline: {
     config,
     extractor: pickExtractor(config),
