@@ -26,6 +26,9 @@ export function buildFusionMessages(
     'Rules:',
     '- Use only the supplied caption, transcript, and vision readout. Never invent.',
     '- Prefer null over a guessed price, phone number, or date.',
+    '- operator_name must be a named person or business from the evidence. If no',
+    '  operator is named, use exactly "Unnamed local operator". Never treat a',
+    '  platform name such as Facebook, fb, WhatsApp, XHS, or TikTok as an operator.',
     '- Never use 0 or an empty string as a placeholder. Use null when a field is',
     '  not evidenced.',
     '- contact.source names the evidence stream where the number was actually found.',
@@ -138,7 +141,8 @@ function sanitizeContact(contact: unknown): unknown {
 }
 
 function hasPhoneEvidence(value: string): boolean {
-  return /\d/.test(value);
+  const digits = value.replace(/\D/g, '');
+  return !/[a-z]/i.test(value) && digits.length >= 8 && digits.length <= 15;
 }
 
 function toIsoDatetime(value: string): string | null {

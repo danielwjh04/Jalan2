@@ -36,7 +36,11 @@ export default function ItineraryScreen(): React.ReactElement {
       {error && <Text style={styles.error}>{error}</Text>}
       {itinerary.coverUrl && (
         <View style={styles.heroWrap}>
-          <Image source={{ uri: serverUrl(itinerary.coverUrl) }} style={styles.hero} />
+          <Image
+            resizeMode="cover"
+            source={{ uri: serverUrl(itinerary.coverUrl) }}
+            style={styles.hero}
+          />
           <LinearGradient colors={gradients.scrim} style={styles.heroScrim} />
           {booking && (
             <View style={styles.heroText}>

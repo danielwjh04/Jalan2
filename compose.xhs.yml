@@ -1,0 +1,12 @@
+services:
+  xhs-downloader:
+    image: ghcr.io/joeanamier/xhs-downloader:latest
+    command: ["python", "main.py", "api"]
+    ports:
+      - "127.0.0.1:5556:5556"
+    volumes:
+      - xhs-downloader-data:/app/Volume
+    restart: unless-stopped
+
+volumes:
+  xhs-downloader-data:

@@ -24,6 +24,7 @@ export function createFixtureExtractor(): Extractor {
         videoPath: findVideoPath(slug),
         audioPath: findAudioPath(slug),
         coverPath: findCoverPath(slug),
+        coverCandidates: [],
         caption: readCaption(slug),
       };
     },

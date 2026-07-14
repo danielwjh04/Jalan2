@@ -11,6 +11,7 @@ import { persistSourceCover, selectSourceCover } from '../lib/sourceCovers';
 import { recordDemand } from '../store/directory';
 import { setBooking, setCoverUrl, setItineraryError, setStage } from '../store/itineraries';
 import { extractAudio, extractKeyframes } from './keyframes';
+import { chooseAestheticCover } from './cover';
 import { fuse } from './fusion';
 import { enrichTrust } from './trust';
 import { readFrames } from './vision';
@@ -106,7 +107,15 @@ async function runLive(
   }
   const workDir = runWorkDir(id);
   const frames = await extractKeyframes(media.videoPath, workDir, KEYFRAME_COUNT);
-  const coverUrl = await persistSourceCover(url, selectSourceCover(media, frames));
+  const aestheticCover = await chooseAestheticCover(
+    openai,
+    config.OPENAI_VISION_MODEL,
+    media.coverCandidates,
+  );
+  const coverUrl = await persistSourceCover(
+    url,
+    aestheticCover ?? selectSourceCover(media, frames),
+  );
   if (coverUrl) setCoverUrl(id, coverUrl);
   const audioPath = media.audioPath ?? (await tryExtractAudio(media.videoPath, workDir));
   setStage(id, 'TRANSCRIBING');

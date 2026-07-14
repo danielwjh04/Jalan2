@@ -18,6 +18,7 @@ function media(coverPath: string | null): ExtractedMedia {
     videoPath: '/tmp/source.mp4',
     audioPath: null,
     coverPath,
+    coverCandidates: coverPath ? [coverPath] : [],
     caption: null,
   };
 }

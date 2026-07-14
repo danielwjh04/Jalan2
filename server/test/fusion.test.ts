@@ -117,4 +117,12 @@ describe('validateFusedBooking', () => {
     });
     expect(outcome.ok && outcome.booking.contact.whatsapp).toBeNull();
   });
+
+  it('coerces a prefixed null-like whatsapp value to null', () => {
+    const outcome = validateFusedBooking({
+      ...validBooking,
+      contact: { whatsapp: '+60null', source: 'caption' },
+    });
+    expect(outcome.ok && outcome.booking.contact.whatsapp).toBeNull();
+  });
 });

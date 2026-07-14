@@ -28,6 +28,7 @@ export async function downloadTikTokWithYtDlp(url: string, outDir: string): Prom
     videoPath,
     audioPath: null,
     coverPath: null,
+    coverCandidates: [],
     caption: captionFromYtDlpInfo(info),
   };
 }

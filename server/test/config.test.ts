@@ -16,6 +16,7 @@ describe("loadConfig", () => {
     expect(config.PIPELINE_MODE).toBe("auto");
     expect(config.PORT).toBe(3001);
     expect(config.ROUTING_PROVIDER).toBe("auto");
+    expect(config.XHS_DOWNLOADER_URL).toBe("http://127.0.0.1:5556");
   });
 
   it("loads with the optional keys entirely absent", () => {

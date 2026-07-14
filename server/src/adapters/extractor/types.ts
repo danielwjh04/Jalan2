@@ -3,10 +3,11 @@ export interface ExtractedMedia {
   videoPath: string | null;
   audioPath: string | null;
   coverPath: string | null;
+  coverCandidates: string[];
   caption: string | null;
 }
 
 export interface Extractor {
-  readonly name: 'fixture' | 'tikhub';
+  readonly name: 'fixture' | 'tikhub' | 'xhs-downloader';
   extract(normalizedUrl: string): Promise<ExtractedMedia>;
 }

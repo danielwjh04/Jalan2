@@ -37,7 +37,7 @@ and the entire vendor-side experience remain to be built.
 | Capability | Status | Reality today |
 |---|---|---|
 | Expo tourist app | Working scaffold | Paste/share entry, source-media covers, Bobo guide cards, itinerary, map, transit links, booking sheet, menu flow, and directory |
-| Social media extraction | Partial | TikHub and yt-dlp paths exist; downloaded carousel images or an extracted video frame become the listing cover; non-fixture XHS requires a paid TikHub token |
+| Social media extraction | Working demo | A self-hosted XHS sidecar extracts captions and source media; TikHub and yt-dlp remain optional paths |
 | Multimodal fusion | Partial | OpenAI frame reading and structured Booking JSON exist; quality has not been benchmarked on a representative dataset |
 | Speech and voice | Demo-grade | OpenAI and ElevenLabs STT adapters exist; cached and ElevenLabs TTS serve multilingual safety briefs and local phrases |
 | WhatsApp booking | Demo-grade | Twilio send/webhook adapters exist, but the recommended demo opens a `wa.me` draft and uses mock auto-confirmation |
@@ -67,12 +67,17 @@ screen copy is passed in as props so Bobo can explain the current task without
 duplicating layouts. Keep his role informational and friendly. He must never
 claim that an operator is licensed, accredited, guaranteed, or safe.
 
-The current source-media cover flow uses the first downloaded carousel image
-for image posts and an extracted early frame for videos. Covers are copied to
-`server/data/source-covers/`, keyed by the normalized submitted URL, and served
-through `GET /source-covers/:key`. Curated fixture covers remain the fallback.
-Non-fixture XHS posts use TikHub's App V2 image and video endpoints and require
-a paid `TIKHUB_TOKEN`.
+The current source-media flow downloads every XHS carousel image through the
+self-hosted XHS-Downloader sidecar. A low-detail vision pass samples up to ten
+source images and chooses the strongest listing hero. It prefers sharp scenes
+and rejects text-heavy title cards, collages, app UI, and heavy watermarks. The
+selected file is not edited or regenerated. The downloaded candidates remain
+in the server's per-source working directory for pipeline evidence.
+
+Covers are copied to `server/data/source-covers/`, keyed by the normalized
+submitted URL, and served through `GET /source-covers/:key`. Video posts use an
+extracted frame and curated fixture covers remain the offline fallback. TikHub
+remains an optional hosted extractor rather than the only route into XHS.
 
 ## Target closed loop
 
@@ -222,8 +227,8 @@ an expired or reused link is rejected.
   product dependency.
 - Preserve user-submitted post imagery as the listing cover, with a generated
   video frame and curated fixture image as explicit fallbacks. This now works
-  in the live TikHub pipeline; production still needs object storage and a
-  source-media retention policy.
+  in the live self-hosted XHS pipeline; production still needs object storage,
+  creator permission rules, and a source-media retention policy.
 
 **Done when:** a video and a photographed flyer both produce editable,
 source-backed listings, and unsupported facts remain null rather than guessed.
@@ -356,6 +361,24 @@ npm install
 copy .env.example .env
 npm run dev
 ```
+
+For live XHS extraction, start the self-hosted sidecar and select it in
+`server/.env`:
+
+```
+docker compose -f compose.xhs.yml up -d
+```
+
+```env
+EXTRACTOR=xhs-downloader
+XHS_DOWNLOADER_URL=http://127.0.0.1:5556
+PIPELINE_MODE=live
+```
+
+The sidecar exposes `POST /xhs/detail` on port 5556. It is GPL-3.0 software;
+review its license obligations before distributing a combined deployment. Keep
+any optional XHS Cookie in the sidecar's private volume, never in Git or client
+configuration.
 
 App (Expo Go on a phone, same Wi-Fi):
 
