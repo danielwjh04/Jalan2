@@ -29,6 +29,7 @@ const EnvSchema = z.object({
   OPENAI_MENU_MODEL: z.string().default("gpt-4o-mini"),
   RETRIEVAL_PROVIDER: z.enum(["exa", "fixture"]).default("fixture"),
   ROUTING_PROVIDER: z.enum(["auto", "google", "offline"]).default("auto"),
+  PLACES_PROVIDER: z.enum(["auto", "google", "offline"]).default("auto"),
   GOOGLE_MAPS_API_KEY: optionalKey(),
   EXA_API_KEY: optionalKey(),
   TIKHUB_TOKEN: optionalKey(),

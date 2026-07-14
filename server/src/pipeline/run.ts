@@ -3,17 +3,20 @@ import type { BookingJson } from '@shared/booking';
 import type { Config } from '../config';
 import type { Extractor } from '../adapters/extractor/types';
 import type { Retrieval } from '../adapters/retrieval/types';
+import type { PlacesProvider } from '../adapters/places/types';
 import type { SpeechToText, Transcript } from '../adapters/stt/types';
 import { NotConfiguredError } from '../lib/errors';
 import { loadCachedBooking, resolveFixtureSlug } from '../lib/fixtures';
 import { runWorkDir } from '../lib/paths';
 import { persistSourceCover, selectSourceCover } from '../lib/sourceCovers';
 import { recordDemand } from '../store/directory';
-import { setBooking, setCoverUrl, setItineraryError, setStage } from '../store/itineraries';
+import { setBooking, setCoverUrl, setItineraryError, setStage, setTripId } from '../store/itineraries';
+import { saveTrip } from '../store/trips';
 import { extractAudio, extractKeyframes } from './keyframes';
 import { chooseAestheticCover } from './cover';
 import { fuse } from './fusion';
 import { enrichTrust } from './trust';
+import { createDynamicTrip } from './trip';
 import { readFrames } from './vision';
 
 export interface PipelineDeps {
@@ -22,6 +25,7 @@ export interface PipelineDeps {
   stt: SpeechToText | null;
   openai: OpenAI | null;
   retrieval: Retrieval;
+  places: PlacesProvider;
 }
 
 const KEYFRAME_COUNT = 6;
@@ -107,10 +111,15 @@ async function runLive(
   }
   const workDir = runWorkDir(id);
   const frames = await extractKeyframes(media.videoPath, workDir, KEYFRAME_COUNT);
+  const coverCandidates = media.coverCandidates.length > 0
+    ? media.coverCandidates
+    : media.coverPath
+      ? []
+      : frames.map((frame) => frame.path);
   const aestheticCover = await chooseAestheticCover(
     openai,
     config.OPENAI_VISION_MODEL,
-    media.coverCandidates,
+    coverCandidates,
   );
   const coverUrl = await persistSourceCover(
     url,
@@ -130,6 +139,9 @@ async function runLive(
     transcript,
     vision,
   });
+  const trip = await createDynamicTrip(id, url, booking, vision, deps.places);
+  saveTrip({ ...trip, cover_url: coverUrl });
+  setTripId(id, trip.id);
   return { booking, coverUrl };
 }
 

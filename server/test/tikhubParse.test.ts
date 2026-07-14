@@ -149,13 +149,15 @@ describe('parseXhsMedia', () => {
 
 describe('resolveTiktokShareUrl', () => {
   it('follows TikTok share redirects before TikHub lookup', async () => {
+    const cancel = vi.fn();
     const fetcher = vi.fn(async () => ({
       url: 'https://www.tiktok.com/@jonlzx/video/7359768031976754439?_r=1',
-      body: { cancel: vi.fn() },
+      body: { cancel },
     }));
 
     await expect(resolveTiktokShareUrl('https://vt.tiktok.com/ZSCtb9qPy', fetcher)).resolves.toBe(
       'https://tiktok.com/@jonlzx/video/7359768031976754439',
     );
+    expect(cancel).not.toHaveBeenCalled();
   });
 });

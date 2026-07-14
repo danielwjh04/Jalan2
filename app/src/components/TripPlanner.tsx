@@ -13,6 +13,8 @@ import { SafetyBriefCard } from "./SafetyBriefCard";
 import { TripMap } from "./TripMap";
 import { TripStopCard } from "./TripStopCard";
 import { TripBookingSection } from "./TripBookingSection";
+import { DestinationSearch } from "./DestinationSearch";
+import { TripPreferencesCard } from "./TripPreferencesCard";
 
 interface Props extends Omit<TripPlannerState, "trip"> {
   trip: TripPlan;
@@ -29,7 +31,9 @@ function TripSummary({
   const route = trip.route;
   return (
     <>
-      <Text style={eyebrow}>CURATED DEMO TRIP</Text>
+      <Text style={eyebrow}>
+        {trip.demo ? "CURATED DEMO TRIP" : "EDITABLE TRIP"}
+      </Text>
       <Text style={styles.title}>{trip.title}</Text>
       <Text style={styles.subtitle}>
         {trip.region} | Featured by {trip.source_creator}
@@ -42,6 +46,16 @@ function TripSummary({
             : "Ready to optimize"}
         </Text>
       </View>
+      {route?.estimated_spend_myr !== undefined ? (
+        <Text style={styles.spend}>
+          {route.estimated_spend_myr > 0
+            ? `Known spend: RM${route.estimated_spend_myr}`
+            : "No stop prices available"}
+        </Text>
+      ) : null}
+      {route?.warnings?.map((warning) => (
+        <Text key={warning} style={styles.warning}>{warning}</Text>
+      ))}
       <Pressable
         style={styles.optimize}
         onPress={() => void optimize()}
@@ -58,7 +72,7 @@ function TripSummary({
   );
 }
 
-function StopList({ trip, selected, toggle }: Props): React.ReactElement {
+function StopList({ trip, selected, toggle, removeDestination }: Props): React.ReactElement {
   const ordered = selected
     .map((id) => trip.stops.find((stop) => stop.id === id))
     .filter((stop): stop is TripStop => !!stop);
@@ -73,7 +87,8 @@ function StopList({ trip, selected, toggle }: Props): React.ReactElement {
             stop={stop}
             position={index}
             canRemove={selected.length > 2}
-            onToggle={() => toggle(stop.id)}
+            onToggle={() => void toggle(stop.id)}
+            onDelete={() => void removeDestination(stop.id)}
           />
         ))}
       </View>
@@ -87,7 +102,8 @@ function StopList({ trip, selected, toggle }: Props): React.ReactElement {
             stop={stop}
             position={null}
             canRemove
-            onToggle={() => toggle(stop.id)}
+            onToggle={() => void toggle(stop.id)}
+            onDelete={() => void removeDestination(stop.id)}
           />
         ))}
       </View>
@@ -105,12 +121,29 @@ export function TripPlanner(props: Props): React.ReactElement {
       />
       <View style={styles.body}>
         <TripSummary {...props} />
+        <View style={styles.preferences}>
+          <TripPreferencesCard
+            stops={props.trip.stops}
+            selected={props.selected}
+            preferences={props.preferences}
+            onChange={props.setPreferences}
+          />
+        </View>
         {props.bookingId ? (
           <TripBookingSection bookingId={props.bookingId} />
         ) : null}
         <StopList {...props} />
+        <DestinationSearch
+          results={props.searchResults}
+          busy={props.busy}
+          onSearch={props.search}
+          onAdd={props.addDestination}
+        />
         <View style={styles.safety}>
-          <SafetyBriefCard tripId={props.trip.id} />
+          <SafetyBriefCard
+            tripId={props.trip.demo ? props.trip.id : undefined}
+            itineraryId={!props.trip.demo ? props.bookingId : undefined}
+          />
         </View>
       </View>
     </ScrollView>
@@ -129,6 +162,8 @@ const styles = StyleSheet.create({
     marginTop: spacing(4),
   },
   summary: { ...type.label, color: colors.ink },
+  spend: { ...type.label, color: colors.ink, marginTop: spacing(2) },
+  warning: { ...type.caption, color: colors.danger, marginTop: spacing(1) },
   optimize: {
     height: 50,
     borderRadius: radius.control,
@@ -146,5 +181,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing(3),
   },
   list: { gap: spacing(3) },
+  preferences: { marginTop: spacing(4) },
   safety: { marginTop: spacing(6) },
 });

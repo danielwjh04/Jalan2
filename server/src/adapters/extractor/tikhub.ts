@@ -15,7 +15,6 @@ const ErrorMessageSchema = z
 
 interface RedirectResponse {
   readonly url: string;
-  readonly body: { cancel(): Promise<void> | void } | null;
 }
 
 type RedirectFetch = (url: string) => Promise<RedirectResponse>;
@@ -63,7 +62,6 @@ export async function resolveTiktokShareUrl(
   if (!normalized || !isTikTokShortHost(normalized.url)) return normalizedUrl;
   try {
     const response = await fetcher(normalizedUrl);
-    await response.body?.cancel();
     const redirected = normalizeVideoUrl(response.url);
     return redirected?.platform === 'tiktok' ? redirected.url : normalizedUrl;
   } catch {
@@ -72,7 +70,7 @@ export async function resolveTiktokShareUrl(
 }
 
 async function defaultRedirectFetch(url: string): Promise<RedirectResponse> {
-  return fetch(url, { redirect: 'follow' });
+  return fetch(url, { method: 'HEAD', redirect: 'follow' });
 }
 
 function isTikTokShortHost(normalizedUrl: string): boolean {

@@ -5,6 +5,7 @@ import { pickExtractor } from "./adapters/extractor";
 import { pickMessagingProvider } from "./adapters/messaging";
 import { pickRetrieval } from "./adapters/retrieval";
 import { createRouting } from "./adapters/routing";
+import { createPlaces } from "./adapters/places";
 import { pickStt } from "./adapters/stt";
 import { pickTts } from "./adapters/tts";
 import { handleInbound } from "./services/booking";
@@ -18,6 +19,7 @@ const messaging = pickMessagingProvider(
   (message) => void handleInbound(message),
 );
 const retrieval = pickRetrieval(config);
+const places = createPlaces(config);
 
 const app = createApp({
   config,
@@ -25,12 +27,14 @@ const app = createApp({
   tts: pickTts(config),
   retrieval,
   routing: createRouting(config),
+  places,
   pipeline: {
     config,
     extractor: pickExtractor(config),
     stt: pickStt(config, openai),
     openai,
     retrieval,
+    places,
   },
 });
 

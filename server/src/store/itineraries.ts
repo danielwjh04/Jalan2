@@ -16,6 +16,7 @@ export function createItinerary(sourceUrl: string, coverUrl: string | null = nul
   const now = new Date().toISOString();
   const itinerary: Itinerary = {
     id: randomUUID(),
+    tripId: null,
     experienceId: null,
     sourceUrl,
     coverUrl,
@@ -51,6 +52,12 @@ export function setStage(id: string, stage: PipelineStage): Itinerary {
 export function setCoverUrl(id: string, coverUrl: string): Itinerary {
   const itinerary = getOrThrow(id);
   itinerary.coverUrl = coverUrl;
+  return touch(itinerary);
+}
+
+export function setTripId(id: string, tripId: string): Itinerary {
+  const itinerary = getOrThrow(id);
+  itinerary.tripId = tripId;
   return touch(itinerary);
 }
 

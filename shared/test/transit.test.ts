@@ -4,16 +4,14 @@ import { buildTransitLinks } from '../src/transit';
 const bakoJetty = { name: 'Bako jetty', lat: 1.7169, lng: 110.4462 };
 
 describe('buildTransitLinks', () => {
-  it('builds an EasyBook route page URL for a known route', () => {
+  it('does not invent an EasyBook route from a meeting-point name', () => {
     const links = buildTransitLinks(bakoJetty);
-    expect(links.easybookUrl).toBe('https://www.easybook.com/en-my/bus/booking/kuching-to-bako');
+    expect(links.easybookUrl).toBeNull();
   });
 
-  it('lowercases and strips spaces from multi-word places', () => {
+  it('leaves route validation to the server provider', () => {
     const links = buildTransitLinks({ name: 'Telaga Air jetty', lat: 1.6884, lng: 110.1721 });
-    expect(links.easybookUrl).toBe(
-      'https://www.easybook.com/en-my/bus/booking/kuching-to-telagaair',
-    );
+    expect(links.easybookUrl).toBeNull();
   });
 
   it('returns null EasyBook URL for places off the route table', () => {

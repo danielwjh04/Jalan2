@@ -38,8 +38,8 @@ describe("prepared trips", () => {
     if (!trip) throw new Error("Missing test trip");
     const routing: RoutingProvider = {
       name: "offline",
-      optimize: async (_stops, startId) => ({
-        ordered_stop_ids: [startId, "topspot", "borneo-museum"],
+      optimize: async (_stops, preferences) => ({
+        ordered_stop_ids: [preferences.start_stop_id ?? "waterfront", "topspot", "borneo-museum"],
         distance_meters: 1200,
         duration_minutes: 9,
         path: trip.stops.map((stop) => stop.location),

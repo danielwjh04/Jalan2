@@ -15,6 +15,10 @@ export function sourceCoversRoot(): string {
   return path.join(serverRoot, 'data', 'source-covers');
 }
 
+export function tripsDataRoot(): string {
+  return path.join(serverRoot, 'data', 'trips');
+}
+
 export function runWorkDir(id: string): string {
   return path.join(serverRoot, 'data', 'runs', id);
 }

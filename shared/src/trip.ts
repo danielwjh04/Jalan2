@@ -12,6 +12,22 @@ export const TripSourceSchema = z.object({
   url: z.string().url(),
 });
 
+export const OpeningWindowSchema = z.object({
+  open_minute: z.number().int().min(0).max(1439),
+  close_minute: z.number().int().min(1).max(1440),
+});
+
+export const PlaceCandidateSchema = z.object({
+  place_id: z.string().min(1),
+  name: z.string().min(1),
+  address: z.string().min(1),
+  location: GeoPointSchema,
+  google_maps_url: z.string().url(),
+  opening_window: OpeningWindowSchema.nullable(),
+});
+
+export type PlaceCandidate = z.infer<typeof PlaceCandidateSchema>;
+
 export const TripStopSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -21,9 +37,36 @@ export const TripStopSchema = z.object({
   estimated_spend_myr: z.number().nonnegative().nullable(),
   duration_minutes: z.number().int().positive(),
   sources: z.array(TripSourceSchema).min(1),
+  place_id: z.string().min(1).nullable().optional(),
+  address: z.string().min(1).nullable().optional(),
+  google_maps_url: z.string().url().nullable().optional(),
+  opening_window: OpeningWindowSchema.nullable().optional(),
+  easybook_url: z.string().url().nullable().optional(),
 });
 
 export type TripStop = z.infer<typeof TripStopSchema>;
+
+export const TripPreferencesSchema = z.object({
+  budget_myr: z.number().nonnegative().nullable(),
+  day_start_minute: z.number().int().min(0).max(1439),
+  start_stop_id: z.string().min(1).nullable(),
+  end_stop_id: z.string().min(1).nullable(),
+});
+
+export type TripPreferences = z.infer<typeof TripPreferencesSchema>;
+
+export const DEFAULT_TRIP_PREFERENCES: TripPreferences = {
+  budget_myr: null,
+  day_start_minute: 9 * 60,
+  start_stop_id: null,
+  end_stop_id: null,
+};
+
+export const RouteVisitSchema = z.object({
+  stop_id: z.string().min(1),
+  arrival_minute: z.number().int().nonnegative(),
+  departure_minute: z.number().int().nonnegative(),
+});
 
 export const OptimizedRouteSchema = z.object({
   ordered_stop_ids: z.array(z.string().min(1)).min(2),
@@ -31,6 +74,9 @@ export const OptimizedRouteSchema = z.object({
   duration_minutes: z.number().int().nonnegative(),
   path: z.array(GeoPointSchema).min(2),
   provider: z.enum(["google", "offline"]),
+  estimated_spend_myr: z.number().nonnegative().optional(),
+  schedule: z.array(RouteVisitSchema).optional(),
+  warnings: z.array(z.string()).optional(),
 });
 
 export type OptimizedRoute = z.infer<typeof OptimizedRouteSchema>;
@@ -43,9 +89,10 @@ export const TripPlanSchema = z
     source_creator: z.string().min(1),
     source_url: z.string().url(),
     cover_url: z.string().nullable(),
-    demo: z.literal(true),
-    stops: z.array(TripStopSchema).min(2),
-    selected_stop_ids: z.array(z.string().min(1)).min(2),
+    demo: z.boolean(),
+    stops: z.array(TripStopSchema).min(1),
+    selected_stop_ids: z.array(z.string().min(1)).min(1),
+    preferences: TripPreferencesSchema.optional(),
     route: OptimizedRouteSchema.nullable(),
   })
   .superRefine((trip, context) => {
@@ -72,6 +119,19 @@ export const TripPlanSchema = z
           code: "custom",
           path: ["selected_stop_ids"],
           message: `Unknown selected stop ${id}`,
+        });
+      }
+    }
+    const preferenceIds = [
+      trip.preferences?.start_stop_id,
+      trip.preferences?.end_stop_id,
+    ].filter((id): id is string => Boolean(id));
+    for (const id of preferenceIds) {
+      if (!stopIds.has(id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["preferences"],
+          message: `Unknown preference stop ${id}`,
         });
       }
     }

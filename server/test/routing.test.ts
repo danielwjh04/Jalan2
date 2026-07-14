@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { TripStop } from "@shared/trip";
+import { DEFAULT_TRIP_PREFERENCES, type TripStop } from "@shared/trip";
 import { createOfflineRouting } from "../src/adapters/routing/offline";
 import {
   decodePolyline,
@@ -41,7 +41,10 @@ const stops: TripStop[] = [
 
 describe("offline routing", () => {
   it("keeps the requested start and returns route metrics", async () => {
-    const route = await createOfflineRouting().optimize(stops, "a");
+    const route = await createOfflineRouting().optimize(stops, {
+      ...DEFAULT_TRIP_PREFERENCES,
+      start_stop_id: "a",
+    });
 
     expect(route.provider).toBe("offline");
     expect(route.ordered_stop_ids).toEqual(["a", "b", "c"]);

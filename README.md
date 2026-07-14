@@ -37,18 +37,21 @@ and the entire vendor-side experience remain to be built.
 | Capability | Status | Reality today |
 |---|---|---|
 | Expo tourist app | Working scaffold | Paste/share entry, source-media covers, Bobo guide cards, itinerary, map, transit links, booking sheet, menu flow, and directory |
-| Social media extraction | Working demo | A self-hosted XHS sidecar extracts captions and source media; TikHub and yt-dlp remain optional paths |
+| Social media extraction | Working demo | The self-hosted XHS sidecar handles XHS posts; TikHub handles supported TikTok videos and photo carousels, including source media and metadata |
 | Multimodal fusion | Partial | OpenAI frame reading and structured Booking JSON exist; quality has not been benchmarked on a representative dataset |
+| Editable trip planner | Working demo | Extracted places become a persisted trip; tourists can search Google Places, add or delete destinations, fix start and end stops, set a budget and start time, and re-optimize |
+| Route constraints | Demo-grade | Google Routes is preferred, with an offline matrix fallback; ordering considers travel time, visit duration, opening windows, fixed endpoints, and known stop costs |
+| EasyBook handoff | Limited | A link appears only when Jalan2 validates an official EasyBook route page for the selected city pair; there is no inventory, fare, seat, payment, or booking API integration |
 | Speech and voice | Demo-grade | OpenAI and ElevenLabs STT adapters exist; cached and ElevenLabs TTS serve multilingual safety briefs and local phrases |
 | WhatsApp booking | Demo-grade | Twilio send/webhook adapters exist, but the recommended demo opens a `wa.me` draft and uses mock auto-confirmation |
 | Demand directory | Demo-grade | In-memory only; it is lost on restart and is not an operator registry |
 | Jalan2 Live reviews | Demo-grade | Live experience page, structured ratings, community reports, booking-linked reviews, source evidence, and five-second refresh work; state is in-memory and there is no account or moderation system |
 | Vendor magic link | Not built | No signed token, expiry, redemption, or vendor route |
 | Stealth ERP | Not built | No operator booking view, accept/decline action, constraints view, or update workflow |
-| Firebase | Not used | Current state is held in process memory despite Firebase being named in the product pitch |
+| Firebase | Not used | Trips use a local JSON demo store while bookings, reviews, and other records still use process memory |
 | Menu flow | Demo-grade | Menu photo ingestion, dish cards, swipe selection, order phrases, and cached fallback work; extraction quality is not benchmarked |
 | Trust and safety | Partial | Exa public-web evidence, explicit disclaimers, safety briefs, and separated review labels exist; official-record matching, moderation, incident handling, and a risk policy do not |
-| Production controls | Not built | No auth, persistence, rate limiting, webhook signature validation, job queue, audit log, observability, or retention controls |
+| Production controls | Not built | No auth, transactional persistence, rate limiting, webhook signature validation, job queue, audit log, observability, or retention controls |
 
 Cached output is visibly labeled `cached` in the app. It must never be presented
 as a live extraction during a demo.
@@ -75,9 +78,57 @@ selected file is not edited or regenerated. The downloaded candidates remain
 in the server's per-source working directory for pipeline evidence.
 
 Covers are copied to `server/data/source-covers/`, keyed by the normalized
-submitted URL, and served through `GET /source-covers/:key`. Video posts use an
-extracted frame and curated fixture covers remain the offline fallback. TikHub
-remains an optional hosted extractor rather than the only route into XHS.
+submitted URL, and served through `GET /source-covers/:key`. Video posts apply
+the same ranking to six evenly spaced keyframes. Photo carousels rank the
+original images. If every usable video frame contains baked-in text, Jalan2
+selects the least obstructed scene without pretending that a clean source
+frame exists. Curated fixture covers remain the offline fallback.
+
+This is not universal TikTok access. TikHub supports the ordinary public video
+and photo-post shapes exercised by the adapter, but private, deleted,
+login-gated, age-gated, region-blocked, live, unsupported, or extractor-blocked
+posts can still fail. Source imagery also needs creator permission, object
+storage, and a retention policy before production use.
+
+## Editable trip planner
+
+Each successful live ingestion now builds a real `TripPlan` from the place
+names found in the post and resolves them through Google Places. The itinerary
+stores Google place IDs, coordinates, addresses, Maps links, and available
+opening-hours data. A tourist can then:
+
+- Search for any destination in Malaysia and add a live Google Places result.
+- Add, remove, or reselect destinations and keep those edits across a server
+  restart through the demo JSON store.
+- Set a trip start time, an optional known-spend budget, and fixed start and end
+  stops.
+- Optimize with Google Routes when possible and fall back visibly to the
+  deterministic offline router when Google cannot calculate the route.
+- See estimated travel plus visit time, known spend, and opening-hours or
+  budget warnings.
+
+Budget optimization is intentionally conservative. It only reasons about
+costs Jalan2 actually knows, removes optional high-cost stops when necessary,
+and never describes missing prices as free. Opening hours from Places are a
+planning signal, not a guarantee that a venue will admit a traveler.
+
+Trip persistence is local JSON under `server/data/trips/`. It is appropriate
+for the demo and tests, not concurrent production traffic. Move it to Firestore
+or another transactional database before a multi-user pilot.
+
+### EasyBook boundary
+
+Jalan2 does not claim a completed EasyBook integration. The server constructs
+an official EasyBook city-pair URL, fetches it without following redirects,
+and only shows the handoff when the returned page identifies both endpoints.
+Generic redirects and unsupported routes are rejected. This gives the tourist
+a truthful transport search handoff, not live schedules, inventory, fares,
+seats, payment, or confirmation.
+
+EasyBook's public affiliate and widget offering is the realistic next
+integration step. A production inventory flow requires a commercial partner
+API or another licensed transport provider. Do not scrape a booking result and
+present it as reserved inventory.
 
 ## Target closed loop
 
@@ -348,7 +399,8 @@ requested booking.
 - `docs/` provider setup, iOS share-extension build, demo runbook
 
 External services are swappable by env var (`server/.env`): extractor,
-speech-to-text, and messaging (Twilio WhatsApp, Telegram, or a mock).
+speech-to-text, places, routing, and messaging (Twilio WhatsApp, Telegram, or a
+mock).
 `PIPELINE_MODE=cached` runs the whole demo offline from cached bookings.
 
 ## Run it
@@ -373,12 +425,21 @@ docker compose -f compose.xhs.yml up -d
 EXTRACTOR=xhs-downloader
 XHS_DOWNLOADER_URL=http://127.0.0.1:5556
 PIPELINE_MODE=live
+PLACES_PROVIDER=auto
+ROUTING_PROVIDER=auto
+GOOGLE_MAPS_API_KEY=your_server_side_key
 ```
 
 The sidecar exposes `POST /xhs/detail` on port 5556. It is GPL-3.0 software;
 review its license obligations before distributing a combined deployment. Keep
 any optional XHS Cookie in the sidecar's private volume, never in Git or client
 configuration.
+
+For a live TikTok post, set `EXTRACTOR=tikhub` and provide
+`TIKHUB_API_KEY`. Keep all provider keys in `server/.env`; the Expo client must
+never receive them. In `auto` mode, Places and Routes use Google when the
+server key is configured and fall back to deterministic local providers when
+it is not.
 
 App (Expo Go on a phone, same Wi-Fi):
 

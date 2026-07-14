@@ -26,6 +26,10 @@ export function buildFusionMessages(
     'Rules:',
     '- Use only the supplied caption, transcript, and vision readout. Never invent.',
     '- Prefer null over a guessed price, phone number, or date.',
+    '- pax is the tourist party size. No tourist choice exists during ingestion,',
+    '  so always set pax to 2. Never use tour capacity or available seats.',
+    '- date_requested is chosen by the tourist after ingestion. Always set it to null;',
+    '  never use a date advertised inside the source post.',
     '- operator_name must be a named person or business from the evidence. If no',
     '  operator is named, use exactly "Unnamed local operator". Never treat a',
     '  platform name such as Facebook, fb, WhatsApp, XHS, or TikTok as an operator.',
@@ -109,20 +113,16 @@ async function requestBooking(
   return parsed;
 }
 
-// The wire schema sent to OpenAI leaves confidence and date_requested loosely
-// typed (strict-mode JSON schema rejects min/max/format keywords), so the
-// model's reply can violate the strict schema's bounds or datetime format.
-// Sanitize those two fields before validation instead of failing the whole
-// booking over a clamp or a reformat.
+// The wire schema leaves numeric constraints loose. Clamp confidence and keep
+// tourist-only choices deterministic before validating model output.
 function sanitizeCandidate(candidate: unknown): unknown {
   if (typeof candidate !== 'object' || candidate === null) return candidate;
   const record = { ...(candidate as Record<string, unknown>) };
   if (typeof record.confidence === 'number') {
     record.confidence = Math.min(1, Math.max(0, record.confidence));
   }
-  if (typeof record.date_requested === 'string') {
-    record.date_requested = toIsoDatetime(record.date_requested);
-  }
+  record.date_requested = null;
+  record.pax = 2;
   // The model sometimes returns 0 or "" as an "unknown" sentinel; the schema
   // accepts both as real values, so coerce them to null to keep the booking
   // honest and avoid rendering "RM0 / pax".
@@ -143,11 +143,6 @@ function sanitizeContact(contact: unknown): unknown {
 function hasPhoneEvidence(value: string): boolean {
   const digits = value.replace(/\D/g, '');
   return !/[a-z]/i.test(value) && digits.length >= 8 && digits.length <= 15;
-}
-
-function toIsoDatetime(value: string): string | null {
-  const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
 }
 
 function formatTranscript(transcript: Transcript): string {

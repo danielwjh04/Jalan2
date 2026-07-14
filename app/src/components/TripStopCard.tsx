@@ -16,6 +16,7 @@ interface Props {
   position: number | null;
   canRemove: boolean;
   onToggle: () => void;
+  onDelete: () => void;
 }
 
 export function TripStopCard({
@@ -23,6 +24,7 @@ export function TripStopCard({
   position,
   canRemove,
   onToggle,
+  onDelete,
 }: Props): React.ReactElement {
   const selected = position !== null;
   const source = stop.sources[0];
@@ -32,6 +34,11 @@ export function TripStopCard({
       "Could not open source",
       "Copy the source link and open it in your browser.",
     );
+  };
+  const openEasybook = async (): Promise<void> => {
+    if (!stop.easybook_url) return;
+    if (await tryOpenExternalUrl(stop.easybook_url, Linking.openURL)) return;
+    Alert.alert("Could not open EasyBook", "Try the route again later.");
   };
   return (
     <View style={[styles.card, !selected && styles.inactive]}>
@@ -51,6 +58,7 @@ export function TripStopCard({
         <View style={styles.content}>
           <Text style={styles.name}>{stop.name}</Text>
           <Text style={styles.meta}>{stop.duration_minutes} min</Text>
+          {stop.address ? <Text style={styles.address}>{stop.address}</Text> : null}
           <Text style={styles.summary}>{stop.summary}</Text>
           <View style={styles.actions}>
             <Pressable onPress={() => void openSource()}>
@@ -65,6 +73,14 @@ export function TripStopCard({
               >
                 {selected ? "Remove" : "Add to trip"}
               </Text>
+            </Pressable>
+            {stop.easybook_url ? (
+              <Pressable onPress={() => void openEasybook()}>
+                <Text style={styles.link}>EasyBook</Text>
+              </Pressable>
+            ) : null}
+            <Pressable onPress={onDelete}>
+              <Text style={styles.delete}>Delete</Text>
             </Pressable>
           </View>
         </View>
@@ -99,13 +115,16 @@ const styles = StyleSheet.create({
   content: { flex: 1 },
   name: { ...type.heading, color: colors.ink },
   meta: { ...type.caption, color: colors.inkSoft, marginTop: 1 },
+  address: { ...type.caption, color: colors.inkSoft, marginTop: spacing(1) },
   summary: { ...type.body, color: colors.inkSoft, marginTop: spacing(2) },
   actions: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: spacing(3),
     marginTop: spacing(3),
   },
   link: { ...type.label, color: colors.tide },
   toggle: { ...type.label, color: colors.tide },
+  delete: { ...type.label, color: colors.danger },
   disabled: { color: colors.inkSoft },
 });

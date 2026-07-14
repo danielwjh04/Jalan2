@@ -3,6 +3,7 @@ import type { Config } from "./config";
 import type { MessagingProvider } from "./adapters/messaging/types";
 import type { Retrieval } from "./adapters/retrieval/types";
 import type { RoutingProvider } from "./adapters/routing/types";
+import type { PlacesProvider } from "./adapters/places/types";
 import type { TextToSpeech } from "./adapters/tts/types";
 import type { PipelineDeps } from "./pipeline/run";
 import { bookRouter } from "./routes/book";
@@ -25,6 +26,7 @@ export interface ServerContext {
   tts: TextToSpeech;
   retrieval: Retrieval;
   routing: RoutingProvider;
+  places: PlacesProvider;
 }
 
 export function createApp(ctx: ServerContext): Express {
@@ -49,7 +51,7 @@ export function createApp(ctx: ServerContext): Express {
   });
   app.use(ingestRouter(ctx.pipeline));
   app.use(itineraryRouter());
-  app.use(tripsRouter(ctx.routing));
+  app.use(tripsRouter(ctx.routing, ctx.places));
   app.use(bookRouter(ctx.messaging, ctx.config));
   app.use(directoryRouter());
   app.use(reviewsRouter());

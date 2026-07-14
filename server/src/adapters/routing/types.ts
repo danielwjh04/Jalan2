@@ -1,6 +1,6 @@
-import type { OptimizedRoute, TripStop } from "@shared/trip";
+import type { OptimizedRoute, TripPreferences, TripStop } from "@shared/trip";
 
 export interface RoutingProvider {
   name: "google" | "offline";
-  optimize(stops: TripStop[], startId: string): Promise<OptimizedRoute>;
+  optimize(stops: TripStop[], preferences: TripPreferences): Promise<OptimizedRoute>;
 }

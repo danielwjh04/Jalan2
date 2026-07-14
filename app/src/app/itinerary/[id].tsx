@@ -1,6 +1,6 @@
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { BookSheet } from '@/components/BookSheet';
 import { BoboCard } from '@/components/BoboCard';
 import { ItineraryCard } from '@/components/ItineraryCard';
@@ -16,6 +16,7 @@ import { cardShadow, colors, fonts, gradients, radius, spacing } from '@/lib/the
 
 export default function ItineraryScreen(): React.ReactElement {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const { itinerary, error, apply } = useItinerary(id);
 
   if (!itinerary) {
@@ -71,6 +72,14 @@ export default function ItineraryScreen(): React.ReactElement {
             servedFrom={itinerary.servedFrom}
             showTitle={!itinerary.coverUrl}
           />
+          {itinerary.tripId ? (
+            <Pressable
+              style={styles.planButton}
+              onPress={() => router.push(`/trip/${itinerary.tripId}?bookingId=${itinerary.id}`)}
+            >
+              <Text style={styles.planButtonText}>Open editable trip planner</Text>
+            </Pressable>
+          ) : null}
           <MapCard point={booking.meeting_point} />
           <TransitButton point={booking.meeting_point} />
           <SafetyBriefCard itineraryId={itinerary.id} />
@@ -120,4 +129,12 @@ const styles = StyleSheet.create({
   messages: { gap: spacing(2), marginTop: spacing(1), paddingHorizontal: spacing(1) },
   message: { color: colors.inkSoft, fontFamily: fonts.regular, fontSize: 12, lineHeight: 17 },
   inbound: { color: colors.confirm, fontFamily: fonts.medium },
+  planButton: {
+    minHeight: 50,
+    borderRadius: radius.control,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.tide,
+  },
+  planButtonText: { color: colors.black, fontFamily: fonts.semibold, fontSize: 14 },
 });

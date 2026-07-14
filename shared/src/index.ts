@@ -18,14 +18,25 @@ export { buildTransitLinks } from "./transit";
 export type { MeetingPoint, TransitLinks } from "./transit";
 export {
   GeoPointSchema,
+  OpeningWindowSchema,
   OptimizedRouteSchema,
+  PlaceCandidateSchema,
+  TripPreferencesSchema,
   TripPlanSchema,
   TripSourceSchema,
   TripStopSchema,
   haversineMeters,
   optimizeStopOrder,
+  DEFAULT_TRIP_PREFERENCES,
 } from "./trip";
-export type { GeoPoint, OptimizedRoute, TripPlan, TripStop } from "./trip";
+export type {
+  GeoPoint,
+  OptimizedRoute,
+  PlaceCandidate,
+  TripPlan,
+  TripPreferences,
+  TripStop,
+} from "./trip";
 export { isConfirmationText } from "./confirm";
 export type {
   BriefLang,

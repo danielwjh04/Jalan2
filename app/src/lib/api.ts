@@ -8,7 +8,7 @@ import type {
   PhraseClipResponse,
   VoiceBriefResponse,
 } from "@shared/api";
-import type { TripPlan } from "@shared/trip";
+import type { PlaceCandidate, TripPlan, TripPreferences } from "@shared/trip";
 import type { BookingRequest, Itinerary } from "@shared/status";
 import type { ExperienceRecord, ReviewSubmission } from "@shared/reviews";
 import { resolveBaseUrl } from "./baseUrl";
@@ -50,8 +50,36 @@ export function getTrip(id: string): Promise<TripPlan> {
   return request(`/trips/${id}`);
 }
 
-export function optimizeTrip(id: string, stopIds: string[]): Promise<TripPlan> {
-  return post(`/trips/${id}/optimize`, { stopIds });
+export function optimizeTrip(
+  id: string,
+  stopIds: string[],
+  preferences: TripPreferences,
+): Promise<TripPlan> {
+  return post(`/trips/${id}/optimize`, { stopIds, preferences });
+}
+
+export function updateTrip(
+  id: string,
+  stopIds: string[],
+  preferences: TripPreferences,
+): Promise<TripPlan> {
+  return request(`/trips/${id}`, {
+    method: "PATCH",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ stopIds, preferences }),
+  });
+}
+
+export function searchTripPlaces(id: string, query: string): Promise<PlaceCandidate[]> {
+  return post(`/trips/${id}/search`, { query });
+}
+
+export function addTripPlace(id: string, place: PlaceCandidate): Promise<TripPlan> {
+  return post(`/trips/${id}/stops`, { place });
+}
+
+export function removeTripPlace(id: string, stopId: string): Promise<TripPlan> {
+  return request(`/trips/${id}/stops/${encodeURIComponent(stopId)}`, { method: "DELETE" });
 }
 
 export function getItinerary(id: string): Promise<Itinerary> {

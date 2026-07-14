@@ -1,5 +1,6 @@
 import type { GeoPoint, OptimizedRoute, TripStop } from "@shared/trip";
 import type { RoutingProvider } from "./types";
+import { orderWithConstraints, scheduleFor } from '../../services/routeConstraints';
 
 const MATRIX_URL =
   "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix";
@@ -159,26 +160,33 @@ async function detailedRoute(
 export function createGoogleRouting(apiKey: string): RoutingProvider {
   return {
     name: "google",
-    async optimize(stops, startId): Promise<OptimizedRoute> {
-      const order = orderByTravelDuration(
-        stops.map((stop) => stop.id),
-        startId,
-        await routeMatrix(stops, apiKey),
-      );
-      const byId = new Map(stops.map((stop) => [stop.id, stop]));
-      const ordered = order
-        .map((id) => byId.get(id))
-        .filter((stop): stop is TripStop => !!stop);
+    async optimize(stops, preferences): Promise<OptimizedRoute> {
+      const matrix = await routeMatrix(stops, apiKey);
+      const travel = matrixTravel(stops, matrix);
+      const ordered = orderWithConstraints(stops, preferences, travel);
       const route = (await detailedRoute(ordered, apiKey)).routes?.[0];
       if (!route?.polyline?.encodedPolyline)
         throw new Error("Google Routes returned no route");
+      const metadata = scheduleFor(ordered, preferences, travel);
       return {
-        ordered_stop_ids: order,
+        ordered_stop_ids: ordered.map((stop) => stop.id),
         distance_meters: route.distanceMeters ?? 0,
-        duration_minutes: Math.ceil(durationSeconds(route.duration) / 60),
+        duration_minutes: Math.max(1,
+          (metadata.schedule.at(-1)?.departure_minute ?? preferences.day_start_minute) -
+            preferences.day_start_minute),
         path: decodePolyline(route.polyline.encodedPolyline),
         provider: "google",
+        ...metadata,
       };
     },
+  };
+}
+
+function matrixTravel(stops: TripStop[], matrix: MatrixElement[]) {
+  const indexes = new Map(stops.map((stop, index) => [stop.id, index]));
+  return (from: TripStop, to: TripStop): number => {
+    const origin = indexes.get(from.id) ?? -1;
+    const destination = indexes.get(to.id) ?? -1;
+    return Math.max(1, Math.ceil(matrixDuration(matrix, origin, destination) / 60));
   };
 }

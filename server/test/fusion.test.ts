@@ -85,16 +85,19 @@ describe('validateFusedBooking', () => {
     expect(!outcome.ok && outcome.problems.join(' ')).toContain('operator_name');
   });
 
-  it('normalizes a plain date into a full ISO datetime instead of failing', () => {
+  it('discards source dates because the tourist has not requested one yet', () => {
     const outcome = validateFusedBooking({ ...validBooking, date_requested: '2026-07-12' });
-    expect(outcome.ok && outcome.booking.date_requested).toBe(
-      new Date('2026-07-12').toISOString(),
-    );
+    expect(outcome.ok && outcome.booking.date_requested).toBeNull();
   });
 
   it('falls back to null when date_requested is not a parseable date', () => {
     const outcome = validateFusedBooking({ ...validBooking, date_requested: 'sometime soon' });
     expect(outcome.ok && outcome.booking.date_requested).toBeNull();
+  });
+
+  it('uses the neutral two-person default instead of advertised capacity', () => {
+    const outcome = validateFusedBooking({ ...validBooking, pax: 30 });
+    expect(outcome.ok && outcome.booking.pax).toBe(2);
   });
 
   it('coerces an un-evidenced zero price to null', () => {

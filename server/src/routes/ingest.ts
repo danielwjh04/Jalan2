@@ -9,7 +9,7 @@ import {
   resolveFixtureSlug,
 } from "../lib/fixtures";
 import { runPipeline, type PipelineDeps } from "../pipeline/run";
-import { createItinerary, setBooking, setStage } from "../store/itineraries";
+import { createItinerary, setBooking, setStage, setTripId } from "../store/itineraries";
 
 interface PreparedTripBooking {
   trip: TripPlan;
@@ -61,6 +61,7 @@ export function createPreparedTripBooking(
   if (!trip || !booking) return null;
   const itinerary = createItinerary(normalizedUrl, coverUrlFor(slug));
   setBooking(itinerary.id, booking, "cache");
+  setTripId(itinerary.id, trip.id);
   setStage(itinerary.id, "READY");
   return { trip, itinerary };
 }
