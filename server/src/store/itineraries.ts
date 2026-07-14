@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { BookingJson } from '@shared/booking';
+import type { ItinerarySummary } from '@shared/api';
 import { canTransition } from '@shared/status';
 import type {
   BookingRequest,
@@ -41,6 +42,24 @@ export function getItinerary(id: string): Itinerary | undefined {
 
 export function allItineraries(): Itinerary[] {
   return [...itineraries.values()];
+}
+
+export function summarizeItineraries(items: Itinerary[]): ItinerarySummary[] {
+  return items.map(toSummary).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+}
+
+export function listItinerarySummaries(): ItinerarySummary[] {
+  return summarizeItineraries(allItineraries());
+}
+
+export type DeleteItineraryResult = "deleted" | "not_found" | "not_failed";
+
+export function deleteFailedItinerary(id: string): DeleteItineraryResult {
+  const itinerary = itineraries.get(id);
+  if (!itinerary) return "not_found";
+  if (itinerary.status !== "FAILED") return "not_failed";
+  itineraries.delete(id);
+  return "deleted";
 }
 
 export function setStage(id: string, stage: PipelineStage): Itinerary {
@@ -120,4 +139,20 @@ function getOrThrow(id: string): Itinerary {
 function touch(itinerary: Itinerary): Itinerary {
   itinerary.updatedAt = new Date().toISOString();
   return itinerary;
+}
+
+function toSummary(itinerary: Itinerary): ItinerarySummary {
+  return {
+    id: itinerary.id,
+    tripId: itinerary.tripId,
+    experienceId: itinerary.experienceId,
+    coverUrl: itinerary.coverUrl,
+    status: itinerary.status,
+    stage: itinerary.stage,
+    activity: itinerary.booking?.activity ?? null,
+    operatorName: itinerary.booking?.operator_name ?? null,
+    meetingPointName: itinerary.booking?.meeting_point.name ?? null,
+    createdAt: itinerary.createdAt,
+    updatedAt: itinerary.updatedAt,
+  };
 }

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Itinerary } from '@shared/status';
 import { getItinerary } from './api';
+import { isExpiredItineraryError } from './bookingPresentation';
 
 const POLL_MS = 1000;
 
@@ -12,9 +13,11 @@ export function useItinerary(id: string): {
   itinerary: Itinerary | null;
   error: string | null;
   apply: (updated: Itinerary) => void;
+  retry: () => void;
 } {
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -28,7 +31,9 @@ export function useItinerary(id: string): {
         if (isTerminal(next)) return;
       } catch (cause) {
         if (!active) return;
-        setError(cause instanceof Error ? cause.message : String(cause));
+        const message = cause instanceof Error ? cause.message : String(cause);
+        setError(message);
+        if (isExpiredItineraryError(message)) return;
       }
       timer = setTimeout(() => void tick(), POLL_MS);
     };
@@ -37,11 +42,17 @@ export function useItinerary(id: string): {
       active = false;
       if (timer) clearTimeout(timer);
     };
-  }, [id]);
+  }, [id, refreshToken]);
 
   const apply = useCallback((updated: Itinerary) => {
     setItinerary(updated);
   }, []);
 
-  return { itinerary, error, apply };
+  const retry = useCallback(() => {
+    setItinerary(null);
+    setError(null);
+    setRefreshToken((value) => value + 1);
+  }, []);
+
+  return { itinerary, error, apply, retry };
 }

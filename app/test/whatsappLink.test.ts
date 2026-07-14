@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { BookingJson } from '@shared/booking';
-import { buildWhatsAppDeepLink } from '../src/lib/whatsappLink';
+import { buildOperatorChatLink, buildWhatsAppDeepLink } from '../src/lib/whatsappLink';
 
 const booking: BookingJson = {
   operator_name: 'The Boathouse Tioman',
@@ -35,5 +35,17 @@ describe('buildWhatsAppDeepLink', () => {
 
   it('returns null when neither number is usable', () => {
     expect(buildWhatsAppDeepLink(booking, { dateISO: '2026-07-07', pax: 2 }, 'abc')).toBeNull();
+  });
+});
+
+describe('buildOperatorChatLink', () => {
+  it('opens the confirmed operator address without drafting a second booking', () => {
+    expect(buildOperatorChatLink('whatsapp:+60 13-820 1122')).toBe(
+      'https://wa.me/60138201122',
+    );
+  });
+
+  it('returns null for an unusable address', () => {
+    expect(buildOperatorChatLink('mock:operator')).toBeNull();
   });
 });

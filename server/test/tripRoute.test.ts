@@ -1,11 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { normalizeVideoUrl } from "@shared/videoUrl";
+import type { PlaceCandidate } from "@shared/trip";
 import type { RoutingProvider } from "../src/adapters/routing/types";
 import {
   createPreparedTripBooking,
   preparedTripForUrl,
 } from "../src/routes/ingest";
-import { optimizePreparedTrip } from "../src/routes/trips";
+import { customStop, optimizePreparedTrip } from "../src/routes/trips";
 import { resetItineraries } from "../src/store/itineraries";
 
 describe("prepared trips", () => {
@@ -69,5 +70,27 @@ describe("prepared trips", () => {
       failing,
     );
     expect(result.route?.provider).toBe("offline");
+  });
+
+  it("uses the trip region as the transit origin for an added stop", async () => {
+    const place: PlaceCandidate = {
+      place_id: "concubine-lane",
+      name: "Concubine Lane",
+      address: "Ipoh, Perak, Malaysia",
+      location: { lat: 4.5975, lng: 101.0764 },
+      google_maps_url: "https://maps.google.com/?cid=1",
+      opening_window: null,
+      suggested_activity: "Walk the heritage lane and try local snacks.",
+      place_photo_available: true,
+      place_photo_attributions: [],
+      image_url: null,
+      image_attributions: [],
+    };
+    const findRoute = vi.fn(async () => "https://www.easybook.com/ipoh-route");
+
+    const stop = await customStop(place, "Ipoh, Perak", findRoute);
+
+    expect(findRoute).toHaveBeenCalledWith("Ipoh", "Concubine Lane");
+    expect(stop.easybook_url).toContain("ipoh-route");
   });
 });

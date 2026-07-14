@@ -94,11 +94,13 @@ export const TripPlanSchema = z
   .object({
     id: z.string().min(1),
     title: z.string().min(1),
+    summary: z.string().min(1).nullable().default(null),
     region: z.string().min(1),
     source_creator: z.string().min(1),
     source_url: z.string().url(),
     cover_url: z.string().nullable(),
     demo: z.boolean(),
+    origin: z.enum(["video", "curated"]).default("video"),
     stops: z.array(TripStopSchema).min(1),
     selected_stop_ids: z.array(z.string().min(1)).min(1),
     preferences: TripPreferencesSchema.optional(),

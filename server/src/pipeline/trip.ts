@@ -27,11 +27,13 @@ export async function createDynamicTrip(
   return {
     id,
     title: booking.activity,
+    summary: 'A flexible route built from the submitted travel post.',
     region: 'Sarawak, Malaysia',
     source_creator: booking.operator_name,
     source_url: sourceUrl,
     cover_url: null,
     demo: false,
+    origin: 'video',
     stops,
     selected_stop_ids: stops.map((stop) => stop.id),
     preferences: {

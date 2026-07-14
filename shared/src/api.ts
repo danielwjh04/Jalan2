@@ -3,9 +3,37 @@ export interface DirectoryEntry {
   operatorName: string;
   activity: string;
   meetingPointName: string;
+  coverUrl: string | null;
   demandCount: number;
   optedIn: boolean;
-  lastDemandAt: string;
+  lastDemandAt: string | null;
+  source: "session" | "fixture";
+}
+
+export interface ItinerarySummary {
+  id: string;
+  tripId: string | null;
+  experienceId: string | null;
+  coverUrl: string | null;
+  status: import("./status").ItineraryStatus;
+  stage: import("./status").PipelineStage;
+  activity: string | null;
+  operatorName: string | null;
+  meetingPointName: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DiscoveryCard {
+  id: string;
+  title: string;
+  summary: string;
+  region: string;
+  curator: string;
+  coverUrl: string | null;
+  coverAttributions: import("./media").ImageAttribution[];
+  stopCount: number;
+  durationMinutes: number;
 }
 
 export interface FixtureRef {

@@ -27,71 +27,52 @@ const LANGS: readonly { key: BriefLang; label: string }[] = [
 interface Props {
   itineraryId?: string;
   tripId?: string;
+  initialLanguage?: BriefLang;
 }
 
 export function SafetyBriefCard({
   itineraryId,
   tripId,
+  initialLanguage = "en",
 }: Props): React.ReactElement {
-  const [lang, setLang] = useState<BriefLang>("en");
-  const [brief, setBrief] = useState<VoiceBriefResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    setBrief(null);
-    setError(null);
-    const load = tripId
-      ? getTripVoiceBrief(tripId, lang)
-      : getVoiceBrief(itineraryId ?? "", lang);
-    load
-      .then((data) => {
-        if (!cancelled) setBrief(data);
-      })
-      .catch((cause: Error) => {
-        if (!cancelled) setError(cause.message);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [itineraryId, lang, tripId]);
-
+  const [lang, setLang] = useState<BriefLang>(initialLanguage);
+  useEffect(() => setLang(initialLanguage), [initialLanguage]);
+  const { brief, error } = useSafetyBrief(itineraryId, tripId, lang);
   const audioUrl = brief?.audioUrl ? serverUrl(brief.audioUrl) : null;
   return (
     <View style={styles.card}>
       <View style={styles.header}>
         <Text style={eyebrow}>Safety brief</Text>
-        <View style={styles.langRow}>
-          {LANGS.map(({ key, label }) => (
-            <Pressable
-              key={key}
-              style={[styles.langChip, lang === key && styles.langChipActive]}
-              onPress={() => setLang(key)}
-            >
-              <Text
-                style={[styles.langText, lang === key && styles.langTextActive]}
-              >
-                {label}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
+        <LanguageSelector value={lang} onChange={setLang} />
       </View>
-      {error && <Text style={styles.error}>{error}</Text>}
-      {!brief && !error && <ActivityIndicator color={colors.sage} />}
-      {brief && (
-        <>
-          <Text style={styles.body}>{brief.text}</Text>
-          <VoiceButton
-            key={audioUrl ?? "none"}
-            audioUrl={audioUrl}
-            label="Play safety brief"
-          />
-          <Text style={styles.caption}>Synthetic voice</Text>
-        </>
-      )}
+      <BriefContent brief={brief} error={error} audioUrl={audioUrl} />
     </View>
   );
+}
+
+function useSafetyBrief(itineraryId: string | undefined, tripId: string | undefined, lang: BriefLang): { brief: VoiceBriefResponse | null; error: string | null } {
+  const [brief, setBrief] = useState<VoiceBriefResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    setBrief(null);
+    setError(null);
+    const request = tripId ? getTripVoiceBrief(tripId, lang) : getVoiceBrief(itineraryId ?? "", lang);
+    request.then((data) => { if (active) setBrief(data); })
+      .catch((cause: Error) => { if (active) setError(cause.message); });
+    return () => { active = false; };
+  }, [itineraryId, lang, tripId]);
+  return { brief, error };
+}
+
+function LanguageSelector({ value, onChange }: { value: BriefLang; onChange: (lang: BriefLang) => void }): React.ReactElement {
+  return <View style={styles.langRow}>{LANGS.map(({ key, label }) => <Pressable key={key} style={[styles.langChip, value === key && styles.langChipActive]} onPress={() => onChange(key)}><Text style={[styles.langText, value === key && styles.langTextActive]}>{label}</Text></Pressable>)}</View>;
+}
+
+function BriefContent({ brief, error, audioUrl }: { brief: VoiceBriefResponse | null; error: string | null; audioUrl: string | null }): React.ReactElement {
+  if (error) return <Text style={styles.error}>{error}</Text>;
+  if (!brief) return <ActivityIndicator color={colors.sage} />;
+  return <><Text style={styles.body}>{brief.text}</Text><VoiceButton key={audioUrl ?? "none"} audioUrl={audioUrl} label="Play safety brief" /><Text style={styles.caption}>Synthetic voice</Text></>;
 }
 
 const styles = StyleSheet.create({

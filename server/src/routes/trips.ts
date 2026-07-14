@@ -15,6 +15,8 @@ import { findEasybookRoute } from '../adapters/transit/easybook';
 import { fitBudget } from '../services/routeConstraints';
 import { getTrip, saveTrip } from '../store/trips';
 
+type TransitRouteFinder = (origin: string, destination: string) => Promise<string | null>;
+
 function selectedStops(trip: TripPlan, ids: string[]): TripStop[] {
   if (ids.length < 2 || new Set(ids).size !== ids.length) {
     throw new Error('Choose at least two unique stops');
@@ -78,7 +80,7 @@ export function tripsRouter(routing: RoutingProvider, places: PlacesProvider): R
       res.status(400).json({ error: trip ? 'Invalid place' : 'Unknown trip' });
       return;
     }
-    const stop = await customStop(candidate.data);
+    const stop = await customStop(candidate.data, trip.region);
     const stops = replaceOrAppend(trip.stops, stop);
     const selected = [...new Set([...trip.selected_stop_ids, stop.id])];
     res.json(saveTrip({ ...trip, stops, selected_stop_ids: selected, route: null }));
@@ -137,7 +139,11 @@ export function tripsRouter(routing: RoutingProvider, places: PlacesProvider): R
   return router;
 }
 
-async function customStop(place: PlaceCandidate): Promise<TripStop> {
+export async function customStop(
+  place: PlaceCandidate,
+  region: string,
+  findRoute: TransitRouteFinder = findEasybookRoute,
+): Promise<TripStop> {
   return {
     id: slug(place.place_id),
     name: place.name,
@@ -154,8 +160,12 @@ async function customStop(place: PlaceCandidate): Promise<TripStop> {
     place_photo_available: place.place_photo_available,
     place_photo_attributions: place.place_photo_attributions,
     image_attributions: place.image_attributions,
-    easybook_url: await findEasybookRoute('Kuching', place.name),
+    easybook_url: await findRoute(transitOrigin(region), place.name),
   };
+}
+
+function transitOrigin(region: string): string {
+  return region.split(',')[0].trim();
 }
 
 function replaceOrAppend(stops: TripStop[], added: TripStop): TripStop[] {

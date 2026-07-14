@@ -1,0 +1,297 @@
+[
+  {
+    "id": "kl-culture-and-night-lights",
+    "title": "KL temples, markets and night lights",
+    "summary": "Start at Batu Caves, browse local craft, eat in Kampung Baru and finish above the glowing Saloma Link.",
+    "region": "Kuala Lumpur",
+    "source_creator": "Jalan2 community picks",
+    "source_url": "https://www.malaysia.travel/",
+    "cover_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Batu%20Caves%2C%20Kuala%20Lumpur%2003.jpg?width=1400",
+    "demo": false,
+    "origin": "curated",
+    "stops": [
+      {
+        "id": "batu-caves",
+        "name": "Batu Caves",
+        "summary": "Climb the colourful temple steps early, explore the main limestone cavern and dress respectfully around active shrines.",
+        "location": { "lat": 3.2379, "lng": 101.684 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Batu%20Caves%2C%20Kuala%20Lumpur%2003.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Slyronit", "source_url": "https://commons.wikimedia.org/wiki/File:Batu_Caves,_Kuala_Lumpur_03.jpg", "license": "CC BY-SA 4.0" }],
+        "estimated_spend_myr": 0,
+        "duration_minutes": 90,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Batu%20Caves%20Malaysia" }]
+      },
+      {
+        "id": "central-market-kl",
+        "name": "Central Market Kuala Lumpur",
+        "summary": "Browse batik, prints and Malaysian craft, then walk the nearby heritage lanes before lunch.",
+        "location": { "lat": 3.1457, "lng": 101.6953 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Central%20Market%2C%20Kuala%20Lumpur.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Wee Hong", "source_url": "https://commons.wikimedia.org/wiki/File:Central_Market,_Kuala_Lumpur.jpg", "license": "CC BY-SA 4.0" }],
+        "estimated_spend_myr": 25,
+        "duration_minutes": 75,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Central%20Market%20Kuala%20Lumpur" }]
+      },
+      {
+        "id": "kampung-baru",
+        "name": "Kampung Baru",
+        "summary": "Build a shared dinner from nasi lemak, grilled fish and kuih while the city skyline rises behind the village streets.",
+        "location": { "lat": 3.1647, "lng": 101.7067 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Kampung%20Baru%20Kuala%20Lumpur%2020230317.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by InterEdit88", "source_url": "https://commons.wikimedia.org/wiki/File:Kampung_Baru_Kuala_Lumpur_20230317.jpg", "license": "CC BY-SA 4.0" }],
+        "estimated_spend_myr": 35,
+        "duration_minutes": 90,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Kampung%20Baru%20Kuala%20Lumpur" }]
+      },
+      {
+        "id": "saloma-link",
+        "name": "Saloma Link",
+        "summary": "Cross after sunset for the illuminated canopy and a clear view toward the Petronas Twin Towers.",
+        "location": { "lat": 3.1618, "lng": 101.7066 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Saloma%20Link%20at%20night%20-%202020-02.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Azizibasri Mograph", "source_url": "https://commons.wikimedia.org/wiki/File:Saloma_Link_at_night_-_2020-02.jpg", "license": "CC BY 3.0" }],
+        "estimated_spend_myr": 0,
+        "duration_minutes": 45,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Saloma%20Link%20Kuala%20Lumpur" }]
+      }
+    ],
+    "selected_stop_ids": ["batu-caves", "central-market-kl", "kampung-baru", "saloma-link"],
+    "route": null
+  },
+  {
+    "id": "george-town-blue-mansion-to-hawkers",
+    "title": "George Town heritage and hawker evening",
+    "summary": "Pair grand clan architecture with street art and finish over wok hei at a lively evening hawker lane.",
+    "region": "George Town, Penang",
+    "source_creator": "Jalan2 community picks",
+    "source_url": "https://www.malaysia.travel/",
+    "cover_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Penang%20Malaysia-%20Cheong-Fatt-Tze-Mansion-01.jpg?width=1400",
+    "demo": false,
+    "origin": "curated",
+    "stops": [
+      {
+        "id": "cheong-fatt-tze",
+        "name": "Cheong Fatt Tze Mansion",
+        "summary": "Join a guided visit to understand the blue mansion's courtyards, feng shui and restored Straits architecture.",
+        "location": { "lat": 5.4213, "lng": 100.334 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Penang%20Malaysia-%20Cheong-Fatt-Tze-Mansion-01.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by CEphoto, Uwe Aranas", "source_url": "https://commons.wikimedia.org/wiki/File:Penang_Malaysia-_Cheong-Fatt-Tze-Mansion-01.jpg", "license": "CC BY-SA 3.0" }],
+        "estimated_spend_myr": 25,
+        "duration_minutes": 75,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Cheong%20Fatt%20Tze%20Mansion" }]
+      },
+      {
+        "id": "armenian-street",
+        "name": "Armenian Street",
+        "summary": "Walk slowly for murals, clan jetties side lanes and small studios tucked into George Town shophouses.",
+        "location": { "lat": 5.4145, "lng": 100.3383 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Lebuh%20Armenian%20in%20central%20George%20Town%2C%20Penang.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Philip Mallis", "source_url": "https://commons.wikimedia.org/wiki/File:Lebuh_Armenian_in_central_George_Town,_Penang.jpg", "license": "CC BY-SA 2.0" }],
+        "estimated_spend_myr": 15,
+        "duration_minutes": 75,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Armenian%20Street%20George%20Town" }]
+      },
+      {
+        "id": "khoo-kongsi",
+        "name": "Khoo Kongsi",
+        "summary": "Study carved beams, tiled roofs and the clan courtyard, then read the small museum displays below the hall.",
+        "location": { "lat": 5.4146, "lng": 100.3364 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Khoo%20Kongsi%20%28I%29.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Supanut Arunoprayote", "source_url": "https://commons.wikimedia.org/wiki/File:Khoo_Kongsi_(I).jpg", "license": "CC BY 4.0" }],
+        "estimated_spend_myr": 15,
+        "duration_minutes": 60,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Khoo%20Kongsi%20Penang" }]
+      },
+      {
+        "id": "new-lane-hawkers",
+        "name": "New Lane Hawker Centre",
+        "summary": "Order char koay teow, satay and a cold drink from separate stalls, then share everything at one table.",
+        "location": { "lat": 5.4146, "lng": 100.3267 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Char%20Koay%20Teow%20in%20Penang.jpg?width=1400",
+        "image_attributions": [{ "label": "Food photo by Owen Choo", "source_url": "https://commons.wikimedia.org/wiki/File:Char_Koay_Teow_in_Penang.jpg", "license": "CC BY-SA 4.0" }],
+        "estimated_spend_myr": 35,
+        "duration_minutes": 90,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=New%20Lane%20Hawker%20Centre%20Penang" }]
+      }
+    ],
+    "selected_stop_ids": ["cheong-fatt-tze", "armenian-street", "khoo-kongsi", "new-lane-hawkers"],
+    "route": null
+  },
+  {
+    "id": "melaka-river-and-heritage",
+    "title": "Melaka river and heritage afternoon",
+    "summary": "Trace the old port from Dutch Square through temple streets, Jonker snacks and an evening river ride.",
+    "region": "Melaka City",
+    "source_creator": "Jalan2 community picks",
+    "source_url": "https://www.malaysia.travel/",
+    "cover_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Melaka%20Malaysia%20Stadthuys-01.jpg?width=1400",
+    "demo": false,
+    "origin": "curated",
+    "stops": [
+      {
+        "id": "stadthuys",
+        "name": "The Stadthuys",
+        "summary": "Begin at Dutch Square, visit the history galleries and look across the red civic buildings before crowds peak.",
+        "location": { "lat": 2.1949, "lng": 102.2496 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Melaka%20Malaysia%20Stadthuys-01.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by CEphoto, Uwe Aranas", "source_url": "https://commons.wikimedia.org/wiki/File:Melaka_Malaysia_Stadthuys-01.jpg", "license": "CC BY-SA 3.0" }],
+        "estimated_spend_myr": 20,
+        "duration_minutes": 75,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=The%20Stadthuys%20Melaka" }]
+      },
+      {
+        "id": "cheng-hoon-teng",
+        "name": "Cheng Hoon Teng Temple",
+        "summary": "Pause at Malaysia's oldest functioning Chinese temple and notice the roof figures, incense hall and carved doors.",
+        "location": { "lat": 2.1978, "lng": 102.2465 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/ChengHoonTeng.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by kingofhiking", "source_url": "https://commons.wikimedia.org/wiki/File:ChengHoonTeng.jpg", "license": "CC BY 2.0" }],
+        "estimated_spend_myr": 0,
+        "duration_minutes": 40,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Cheng%20Hoon%20Teng%20Temple" }]
+      },
+      {
+        "id": "jonker-walk",
+        "name": "Jonker Walk",
+        "summary": "Browse antiques and local snacks, with time for chicken rice balls or cendol when the market stalls open.",
+        "location": { "lat": 2.1964, "lng": 102.247 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Melaka%20Malaysia%20Geographer-Cafe-at-Jonker-Walk-01.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by CEphoto, Uwe Aranas", "source_url": "https://commons.wikimedia.org/wiki/File:Melaka_Malaysia_Geographer-Cafe-at-Jonker-Walk-01.jpg", "license": "CC BY-SA 3.0" }],
+        "estimated_spend_myr": 35,
+        "duration_minutes": 90,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Jonker%20Walk%20Melaka" }]
+      },
+      {
+        "id": "melaka-river-cruise",
+        "name": "Melaka River Cruise",
+        "summary": "Board near the old town before dusk to see riverside murals, bridges and Kampung Morten light up from the water.",
+        "location": { "lat": 2.2022, "lng": 102.248 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Melaka%20River.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Atlasmotor", "source_url": "https://commons.wikimedia.org/wiki/File:Melaka_River.jpg", "license": "CC BY-SA 4.0" }],
+        "estimated_spend_myr": 35,
+        "duration_minutes": 60,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Melaka%20River%20Cruise" }]
+      }
+    ],
+    "selected_stop_ids": ["stadthuys", "cheng-hoon-teng", "jonker-walk", "melaka-river-cruise"],
+    "route": null
+  },
+  {
+    "id": "ipoh-old-town-and-white-coffee",
+    "title": "Ipoh old town and white coffee",
+    "summary": "Walk from Ipoh's grand station into tin mining history, a revived lane and a proper white coffee break.",
+    "region": "Ipoh, Perak",
+    "source_creator": "Jalan2 community picks",
+    "source_url": "https://www.malaysia.travel/",
+    "cover_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Ipoh%20Railway%20Station.jpg?width=1400",
+    "demo": false,
+    "origin": "curated",
+    "stops": [
+      {
+        "id": "ipoh-railway-station",
+        "name": "Ipoh Railway Station",
+        "summary": "Start beneath the station's broad arches, then cross the heritage square for an easy introduction to old Ipoh.",
+        "location": { "lat": 4.5973, "lng": 101.0738 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Ipoh%20Railway%20Station.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Jarod Lee", "source_url": "https://commons.wikimedia.org/wiki/File:Ipoh_Railway_Station.jpg", "license": "CC BY 2.0" }],
+        "estimated_spend_myr": 0,
+        "duration_minutes": 45,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Ipoh%20Railway%20Station" }]
+      },
+      {
+        "id": "han-chin-pet-soo",
+        "name": "Han Chin Pet Soo",
+        "summary": "Book a tour through the former miners' clubhouse to understand tin, migration and the social history of Kinta Valley.",
+        "location": { "lat": 4.5963, "lng": 101.0788 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Han%20Chin%20Pet%20Soo%201.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Slleong", "source_url": "https://commons.wikimedia.org/wiki/File:Han_Chin_Pet_Soo_1.jpg", "license": "CC0 1.0" }],
+        "estimated_spend_myr": 10,
+        "duration_minutes": 75,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Han%20Chin%20Pet%20Soo" }]
+      },
+      {
+        "id": "concubine-lane",
+        "name": "Concubine Lane",
+        "summary": "Explore the narrow lane's restored shophouses, try a small snack and continue into the surrounding mural alleys.",
+        "location": { "lat": 4.5963, "lng": 101.0781 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Concubine%20Lane.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Michael C", "source_url": "https://commons.wikimedia.org/wiki/File:Concubine_Lane.jpg", "license": "CC0 1.0" }],
+        "estimated_spend_myr": 15,
+        "duration_minutes": 60,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Concubine%20Lane%20Ipoh" }]
+      },
+      {
+        "id": "ipoh-white-coffee",
+        "name": "Old town white coffee stop",
+        "summary": "Order a hot white coffee with kaya toast or egg tarts and compare the smooth roast with a regular kopitiam coffee.",
+        "location": { "lat": 4.5944, "lng": 101.0776 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/IpohWhiteCoffee..jpg?width=1400",
+        "image_attributions": [{ "label": "Food photo by Hhaithait", "source_url": "https://commons.wikimedia.org/wiki/File:IpohWhiteCoffee..jpg", "license": "CC BY-SA 3.0" }],
+        "estimated_spend_myr": 18,
+        "duration_minutes": 60,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Ipoh%20old%20town%20white%20coffee" }]
+      }
+    ],
+    "selected_stop_ids": ["ipoh-railway-station", "han-chin-pet-soo", "concubine-lane", "ipoh-white-coffee"],
+    "route": null
+  },
+  {
+    "id": "kota-kinabalu-market-to-sunset",
+    "title": "Kota Kinabalu market to sunset",
+    "summary": "Begin with a local market, learn Sabah's story, catch the Tanjung Aru sunset and return for a seafood supper.",
+    "region": "Kota Kinabalu, Sabah",
+    "source_creator": "Jalan2 community picks",
+    "source_url": "https://www.malaysia.travel/",
+    "cover_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Sunday%20Morning%20Market%20in%20Gaya%20Street%2C%20Kota%20Kinabalu.jpg?width=1400",
+    "demo": false,
+    "origin": "curated",
+    "stops": [
+      {
+        "id": "gaya-street-market",
+        "name": "Gaya Street Market",
+        "summary": "Arrive on Sunday morning for produce, crafts and snacks, or use the same historic street as a relaxed breakfast base.",
+        "location": { "lat": 5.984, "lng": 116.0772 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Sunday%20Morning%20Market%20in%20Gaya%20Street%2C%20Kota%20Kinabalu.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Wadaihangit", "source_url": "https://commons.wikimedia.org/wiki/File:Sunday_Morning_Market_in_Gaya_Street,_Kota_Kinabalu.jpg", "license": "CC BY-SA 4.0" }],
+        "estimated_spend_myr": 25,
+        "duration_minutes": 75,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Gaya%20Street%20Market%20Kota%20Kinabalu" }]
+      },
+      {
+        "id": "sabah-state-museum",
+        "name": "Sabah State Museum",
+        "summary": "Move through galleries on archaeology, textiles and natural history, then explore the heritage village outdoors.",
+        "location": { "lat": 5.9606, "lng": 116.0715 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/KotaKinabalu%20Sabah%20Sabah-State-Museum-01.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by CEphoto, Uwe Aranas", "source_url": "https://commons.wikimedia.org/wiki/File:KotaKinabalu_Sabah_Sabah-State-Museum-01.jpg", "license": "CC BY-SA 3.0" }],
+        "estimated_spend_myr": 15,
+        "duration_minutes": 105,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Sabah%20State%20Museum" }]
+      },
+      {
+        "id": "tanjung-aru-beach",
+        "name": "Tanjung Aru Beach",
+        "summary": "Reach the beach before golden hour, find a clear stretch of sand and stay for the wide sunset over the islands.",
+        "location": { "lat": 5.947, "lng": 116.0456 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Tanjung%20Aru%20Beach%20-%20Sabah.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Hamsah Baharuddin", "source_url": "https://commons.wikimedia.org/wiki/File:Tanjung_Aru_Beach_-_Sabah.jpg", "license": "CC BY-SA 4.0" }],
+        "estimated_spend_myr": 10,
+        "duration_minutes": 90,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Tanjung%20Aru%20Beach" }]
+      },
+      {
+        "id": "filipino-market-kk",
+        "name": "Anjung Kinabalu night market",
+        "summary": "Finish with grilled seafood, vegetables and fresh fruit at the former Filipino Market, now known as Anjung Kinabalu.",
+        "location": { "lat": 5.981, "lng": 116.0711 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/The%20Filipino%20Market%20in%20Kota%20Kinabalu.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Aliceinthealice", "source_url": "https://commons.wikimedia.org/wiki/File:The_Filipino_Market_in_Kota_Kinabalu.jpg", "license": "CC BY 4.0" }],
+        "estimated_spend_myr": 45,
+        "duration_minutes": 90,
+        "sources": [{ "title": "Google Maps", "url": "https://www.google.com/maps/search/?api=1&query=Anjung%20Kinabalu%20night%20market" }]
+      }
+    ],
+    "selected_stop_ids": ["gaya-street-market", "sabah-state-museum", "tanjung-aru-beach", "filipino-market-kk"],
+    "route": null
+  }
+]

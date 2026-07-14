@@ -35,10 +35,6 @@ export default function RootLayout(): React.ReactElement | null {
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="itinerary/[id]" options={{ title: "Your trip" }} />
-        <Stack.Screen name="trip/[id]" options={{ title: "Trip plan" }} />
-        <Stack.Screen name="experience/[id]" options={{ title: "Live experience record" }} />
-        <Stack.Screen name="menu/[id]" options={{ title: "Menu swipe" }} />
       </Stack>
     </GestureHandlerRootView>
   );

@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from '
 import path from 'node:path';
 import { TripPlanSchema, type TripPlan } from '@shared/trip';
 import { loadCachedTrip } from '../lib/fixtures';
+import { loadDiscoveryTrip } from '../lib/discoveries';
 import { tripsDataRoot } from '../lib/paths';
 
 const trips = new Map<string, TripPlan>();
@@ -9,7 +10,7 @@ const trips = new Map<string, TripPlan>();
 export function getTrip(id: string): TripPlan | null {
   const memory = trips.get(id);
   if (memory) return memory;
-  const stored = readStoredTrip(id) ?? loadCachedTrip(id);
+  const stored = readStoredTrip(id) ?? loadDiscoveryTrip(id) ?? loadCachedTrip(id);
   if (stored) trips.set(stored.id, stored);
   return stored;
 }

@@ -36,19 +36,20 @@ and the entire vendor-side experience remain to be built.
 
 | Capability | Status | Reality today |
 |---|---|---|
-| Expo tourist app | Working scaffold | Paste/share entry, source-media covers, Bobo guide cards, itinerary, map, transit links, booking sheet, menu flow, and directory |
+| Expo tourist app | Working scaffold | Four-tab Home, Discover, Trips, and You shell with charcoal glass navigation, Bobo guide cards, image-led trip timelines, map and transit handoffs, booking states, and menu flow |
 | Social media extraction | Working demo | The self-hosted XHS sidecar handles XHS posts; TikHub handles supported TikTok videos and photo carousels, including source media and metadata |
 | Multimodal fusion | Partial | OpenAI frame reading and structured Booking JSON exist; quality has not been benchmarked on a representative dataset |
-| Editable trip planner | Working demo | Extracted places become a persisted trip; tourists can search Google Places, add or delete destinations, fix start and end stops, set a budget and start time, and re-optimize |
+| Editable trip planner | Working demo | Extracted places become an image-led persisted timeline; tourists can search Google Places, add or delete destinations, fix start and end stops, apply saved defaults, and re-optimize |
 | Route constraints | Demo-grade | Google Routes is preferred, with an offline matrix fallback; ordering considers travel time, visit duration, opening windows, fixed endpoints, and known stop costs |
 | EasyBook handoff | Limited | A link appears only when Jalan2 validates an official EasyBook route page for the selected city pair; there is no inventory, fare, seat, payment, or booking API integration |
 | Speech and voice | Demo-grade | OpenAI and ElevenLabs STT adapters exist; cached and ElevenLabs TTS serve multilingual safety briefs and local phrases |
 | WhatsApp booking | Demo-grade | Twilio send/webhook adapters exist, but the recommended demo opens a `wa.me` draft and uses mock auto-confirmation |
-| Demand directory | Demo-grade | In-memory only; it is lost on restart and is not an operator registry |
+| Demand directory | Demo-grade | Prepared fixture operators are shown with zero demand alongside session demand records; opt-in and live demand state are lost on restart and this is not an operator registry |
 | Jalan2 Live reviews | Demo-grade | Live experience page, structured ratings, community reports, booking-linked reviews, source evidence, and five-second refresh work; state is in-memory and there is no account or moderation system |
 | Vendor magic link | Not built | No signed token, expiry, redemption, or vendor route |
 | Stealth ERP | Not built | No operator booking view, accept/decline action, constraints view, or update workflow |
 | Firebase | Not used | Trips use a local JSON demo store while bookings, reviews, and other records still use process memory |
+| Local travel defaults | Working demo | Budget, start time, pace, and safety language are stored on-device and only change a trip after the tourist taps Use my defaults |
 | Menu flow | Demo-grade | Menu photo ingestion, dish cards, swipe selection, order phrases, and cached fallback work; extraction quality is not benchmarked |
 | Trust and safety | Partial | Exa public-web evidence, explicit disclaimers, safety briefs, and separated review labels exist; official-record matching, moderation, incident handling, and a risk policy do not |
 | Production controls | Not built | No auth, transactional persistence, rate limiting, webhook signature validation, job queue, audit log, observability, or retention controls |
@@ -106,6 +107,8 @@ opening-hours data. A tourist can then:
   deterministic offline router when Google cannot calculate the route.
 - See estimated travel plus visit time, known spend, and opening-hours or
   budget warnings.
+- See licensed Google Place photos when a photo reference is available, with
+  provider attribution kept beside the image.
 
 Budget optimization is intentionally conservative. It only reasons about
 costs Jalan2 actually knows, removes optional high-cost stops when necessary,
@@ -115,6 +118,19 @@ planning signal, not a guarantee that a venue will admit a traveler.
 Trip persistence is local JSON under `server/data/trips/`. It is appropriate
 for the demo and tests, not concurrent production traffic. Move it to Firestore
 or another transactional database before a multi-user pilot.
+
+### Four-tab client and session history
+
+The client has four real top-level destinations: Home, Discover, Trips, and
+You. Discover separates prepared Malaysian journeys from local operators.
+Trips combines persisted prepared journeys with safe itinerary summaries from
+`GET /itineraries`. The summary endpoint returns only the itinerary ID, status,
+display title, cover URL, trip ID, timestamps, and failure reason. It does not
+expose operator contact details or message bodies.
+
+Booking drafts and confirmations still live in process memory, so the Trips
+session list clears when the backend restarts. Persisted `TripPlan` JSON and
+on-device travel defaults have separate lifecycles and remain available.
 
 ### EasyBook boundary
 

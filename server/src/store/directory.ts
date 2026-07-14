@@ -18,9 +18,11 @@ export function recordDemand(booking: BookingJson): DirectoryEntry {
     operatorName: booking.operator_name,
     activity: booking.activity,
     meetingPointName: booking.meeting_point.name,
+    coverUrl: null,
     demandCount: 1,
     optedIn: false,
     lastDemandAt: now,
+    source: 'session',
   };
   entries.set(key, entry);
   return entry;
@@ -33,7 +35,9 @@ export function markOptedIn(operatorName: string): void {
 
 export function rankedDirectory(): DirectoryEntry[] {
   return [...entries.values()].sort(
-    (a, b) => b.demandCount - a.demandCount || b.lastDemandAt.localeCompare(a.lastDemandAt),
+    (a, b) =>
+      b.demandCount - a.demandCount ||
+      (b.lastDemandAt ?? '').localeCompare(a.lastDemandAt ?? ''),
   );
 }
 

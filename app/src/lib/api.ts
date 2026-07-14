@@ -1,9 +1,11 @@
 import Constants from "expo-constants";
 import type {
   BriefLang,
+  DiscoveryCard,
   DirectoryEntry,
   FixtureCard,
   IngestResponse,
+  ItinerarySummary,
   MenuResponse,
   PhraseClipResponse,
   VoiceBriefResponse,
@@ -12,6 +14,7 @@ import type { PlaceCandidate, TripPlan, TripPreferences } from "@shared/trip";
 import type { BookingRequest, Itinerary } from "@shared/status";
 import type { ExperienceRecord, ReviewSubmission } from "@shared/reviews";
 import { buildPlacePhotoUrl, resolveBaseUrl } from "./baseUrl";
+import { parseApiResponse } from "./httpResponse";
 
 function baseUrl(): string {
   return resolveBaseUrl({
@@ -23,15 +26,7 @@ function baseUrl(): string {
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${baseUrl()}${path}`, init);
-  const data: unknown = await response.json();
-  if (!response.ok) {
-    const message =
-      typeof data === "object" && data !== null && "error" in data
-        ? String((data as { error: unknown }).error)
-        : `Request failed with status ${response.status}`;
-    throw new Error(message);
-  }
-  return data as T;
+  return parseApiResponse<T>(response);
 }
 
 function post<T>(path: string, body: unknown): Promise<T> {
@@ -90,6 +85,14 @@ export function getItinerary(id: string): Promise<Itinerary> {
   return request(`/itinerary/${id}`);
 }
 
+export function getItineraries(): Promise<ItinerarySummary[]> {
+  return request('/itineraries');
+}
+
+export function deleteItinerary(id: string): Promise<void> {
+  return request(`/itinerary/${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
 export function book(
   id: string,
   requested: BookingRequest,
@@ -114,6 +117,10 @@ export function submitExperienceReview(
 
 export function getFixtures(): Promise<FixtureCard[]> {
   return request("/fixtures");
+}
+
+export function getDiscoveries(): Promise<DiscoveryCard[]> {
+  return request("/discoveries");
 }
 
 export function getVoiceBrief(

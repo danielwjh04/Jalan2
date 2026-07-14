@@ -1,186 +1,140 @@
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { TripPlan, TripStop } from "@shared/trip";
 import type { TripPlannerState } from "@/lib/useTripPlanner";
+import { useUserPreferences } from "@/lib/useUserPreferences";
 import { colors, eyebrow, radius, spacing, type } from "@/lib/theme";
-import { SafetyBriefCard } from "./SafetyBriefCard";
-import { TripMap } from "./TripMap";
-import { TripStopCard } from "./TripStopCard";
-import { TripBookingSection } from "./TripBookingSection";
+import { BoboCard } from "./BoboCard";
 import { DestinationSearch } from "./DestinationSearch";
+import { SafetyBriefCard } from "./SafetyBriefCard";
+import { SurfaceCard } from "./SurfaceCard";
+import { TripBookingSection } from "./TripBookingSection";
+import { TripMap } from "./TripMap";
 import { TripPreferencesCard } from "./TripPreferencesCard";
+import { TripStopCard } from "./TripStopCard";
 
 interface Props extends Omit<TripPlannerState, "trip"> {
   trip: TripPlan;
   bookingId?: string;
 }
 
-function TripSummary({
-  trip,
-  selected,
-  busy,
-  error,
-  optimize,
-}: Props): React.ReactElement {
-  const route = trip.route;
-  return (
-    <>
-      <Text style={eyebrow}>
-        {trip.demo ? "CURATED DEMO TRIP" : "EDITABLE TRIP"}
-      </Text>
-      <Text style={styles.title}>{trip.title}</Text>
-      <Text style={styles.subtitle}>
-        {trip.region} | Featured by {trip.source_creator}
-      </Text>
-      <View style={styles.summaryRow}>
-        <Text style={styles.summary}>{selected.length} stops</Text>
-        <Text style={styles.summary}>
-          {route
-            ? `${(route.distance_meters / 1000).toFixed(1)} km | ${route.duration_minutes} min`
-            : "Ready to optimize"}
-        </Text>
-      </View>
-      {route?.estimated_spend_myr !== undefined ? (
-        <Text style={styles.spend}>
-          {route.estimated_spend_myr > 0
-            ? `Known spend: RM${route.estimated_spend_myr}`
-            : "No stop prices available"}
-        </Text>
-      ) : null}
-      {route?.warnings?.map((warning) => (
-        <Text key={warning} style={styles.warning}>{warning}</Text>
-      ))}
-      <Pressable
-        style={styles.optimize}
-        onPress={() => void optimize()}
-        disabled={busy}
-      >
-        {busy ? (
-          <ActivityIndicator color={colors.kopi} />
-        ) : (
-          <Text style={styles.optimizeText}>Optimize route</Text>
-        )}
-      </Pressable>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-    </>
-  );
-}
-
-function StopList({ trip, selected, toggle, removeDestination }: Props): React.ReactElement {
-  const ordered = selected
-    .map((id) => trip.stops.find((stop) => stop.id === id))
-    .filter((stop): stop is TripStop => !!stop);
-  const available = trip.stops.filter((stop) => !selected.includes(stop.id));
-  return (
-    <>
-      <Text style={styles.section}>Your itinerary</Text>
-      <View style={styles.list}>
-        {ordered.map((stop, index) => (
-          <TripStopCard
-            key={stop.id}
-            stop={stop}
-            position={index}
-            canRemove={selected.length > 2}
-            onToggle={() => void toggle(stop.id)}
-            onDelete={() => void removeDestination(stop.id)}
-          />
-        ))}
-      </View>
-      {available.length ? (
-        <Text style={styles.section}>Available places</Text>
-      ) : null}
-      <View style={styles.list}>
-        {available.map((stop) => (
-          <TripStopCard
-            key={stop.id}
-            stop={stop}
-            position={null}
-            canRemove
-            onToggle={() => void toggle(stop.id)}
-            onDelete={() => void removeDestination(stop.id)}
-          />
-        ))}
-      </View>
-    </>
-  );
-}
-
 export function TripPlanner(props: Props): React.ReactElement {
+  const user = useUserPreferences();
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <TripMap
+      <TripSummary {...props} />
+      <TripPreferencesCard
         stops={props.trip.stops}
-        orderedIds={props.selected}
-        path={props.trip.route?.path ?? []}
+        selected={props.selected}
+        preferences={props.preferences}
+        onChange={props.setPreferences}
+        onApplyDefaults={props.applyDefaults}
       />
-      <View style={styles.body}>
-        <TripSummary {...props} />
-        <View style={styles.preferences}>
-          <TripPreferencesCard
-            stops={props.trip.stops}
-            selected={props.selected}
-            preferences={props.preferences}
-            onChange={props.setPreferences}
-          />
-        </View>
-        {props.bookingId ? (
-          <TripBookingSection bookingId={props.bookingId} />
-        ) : null}
-        <StopList {...props} />
-        <DestinationSearch
-          results={props.searchResults}
-          busy={props.busy}
-          onSearch={props.search}
-          onAdd={props.addDestination}
-        />
-        <View style={styles.safety}>
-          <SafetyBriefCard
-            tripId={props.trip.demo ? props.trip.id : undefined}
-            itineraryId={!props.trip.demo ? props.bookingId : undefined}
-          />
-        </View>
+      {props.bookingId ? <TripBookingSection bookingId={props.bookingId} /> : null}
+      <StopList {...props} />
+      <DestinationSearch
+        results={props.searchResults}
+        busy={props.busy}
+        onSearch={props.search}
+        onAdd={props.addDestination}
+      />
+      <BoboCard compact title="Bobo route note" message={routeNote(props.trip)} />
+      <View style={styles.mapFrame}>
+        <TripMap stops={props.trip.stops} orderedIds={props.selected} path={props.trip.route?.path ?? []} />
       </View>
+      {props.trip.origin === "video" ? (
+        <SafetyBriefCard
+          tripId={props.trip.demo ? props.trip.id : undefined}
+          itineraryId={!props.trip.demo ? props.bookingId : undefined}
+          initialLanguage={user.defaults.safetyLanguage}
+        />
+      ) : null}
     </ScrollView>
   );
 }
 
+function TripSummary(props: Props): React.ReactElement {
+  const route = props.trip.route;
+  return (
+    <SurfaceCard style={styles.summaryCard}>
+      <View style={styles.summaryTop}>
+        <View style={styles.summaryCopy}>
+          <Text style={styles.eyebrow}>{tripEyebrow(props.trip)}</Text>
+          <Text style={styles.title}>{props.trip.title}</Text>
+          <Text style={styles.subtitle}>{props.trip.region} | {props.trip.source_creator}</Text>
+          {props.trip.summary ? <Text style={styles.description}>{props.trip.summary}</Text> : null}
+        </View>
+        <Pressable style={styles.optimize} disabled={props.busy} onPress={() => void props.optimize()}>
+          {props.busy ? <ActivityIndicator color={colors.kopi} /> : <Text style={styles.optimizeText}>Optimize</Text>}
+        </Pressable>
+      </View>
+      <View style={styles.metrics}>
+        <Metric value={`${props.selected.length}`} label="stops" />
+        <Metric value={route ? `${(route.distance_meters / 1000).toFixed(1)} km` : "Not set"} label="distance" />
+        <Metric value={route ? `${route.duration_minutes} min` : "Ready"} label="route" />
+      </View>
+      {route?.estimated_spend_myr !== undefined ? <Text style={styles.spend}>Known spend RM{route.estimated_spend_myr}</Text> : null}
+      {route?.warnings?.map((warning) => <Text key={warning} style={styles.warning}>{warning}</Text>)}
+      {props.error ? <Text style={styles.warning}>{props.error}</Text> : null}
+    </SurfaceCard>
+  );
+}
+
+function Metric({ value, label }: { value: string; label: string }): React.ReactElement {
+  return <View style={styles.metric}><Text style={styles.metricValue}>{value}</Text><Text style={styles.metricLabel}>{label}</Text></View>;
+}
+
+function StopList(props: Props): React.ReactElement {
+  const ordered = props.selected.map((id) => props.trip.stops.find((stop) => stop.id === id)).filter((stop): stop is TripStop => Boolean(stop));
+  const available = props.trip.stops.filter((stop) => !props.selected.includes(stop.id));
+  return (
+    <View>
+      <Text style={styles.section}>Your itinerary</Text>
+      {ordered.map((stop, index) => (
+        <TripStopCard key={stop.id} stop={stop} position={index} isLast={index === ordered.length - 1} canRemove={props.selected.length > 2} onToggle={() => void props.toggle(stop.id)} onDelete={() => void props.removeDestination(stop.id)} />
+      ))}
+      {available.length ? <Text style={styles.section}>Available places</Text> : null}
+      {available.map((stop) => (
+        <TripStopCard key={stop.id} stop={stop} position={null} isLast canRemove onToggle={() => void props.toggle(stop.id)} onDelete={() => void props.removeDestination(stop.id)} />
+      ))}
+    </View>
+  );
+}
+
+function routeNote(trip: TripPlan): string {
+  const warning = trip.route?.warnings?.[0];
+  if (warning) return warning;
+  if (trip.stops.some(({ opening_window: window }) => window !== null && window !== undefined)) {
+    return "Some stops include opening windows. Optimize again after changing your start time.";
+  }
+  if (trip.origin === "curated") {
+    return "This is a ready-made Jalan2 route. Open each stop for its map source, then optimize after changing your selections.";
+  }
+  return `These stops are grounded in ${trip.source_creator}'s source. Open each stop for its original link.`;
+}
+
+function tripEyebrow(trip: TripPlan): string {
+  if (trip.origin === "curated") return "CURATED BY JALAN2";
+  return trip.demo ? "FROM A LOCAL VIDEO" : "EDITABLE TRIP";
+}
+
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.canvas },
-  content: { paddingBottom: spacing(10) },
-  body: { padding: spacing(5) },
-  title: { ...type.display, color: colors.ink, marginTop: spacing(2) },
-  subtitle: { ...type.body, color: colors.inkSoft, marginTop: spacing(1) },
-  summaryRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: spacing(4),
-  },
-  summary: { ...type.label, color: colors.ink },
-  spend: { ...type.label, color: colors.ink, marginTop: spacing(2) },
-  warning: { ...type.caption, color: colors.danger, marginTop: spacing(1) },
-  optimize: {
-    height: 50,
-    borderRadius: radius.control,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.kaya,
-    marginTop: spacing(4),
-  },
-  optimizeText: { ...type.button, color: colors.kopi },
-  error: { ...type.caption, color: colors.danger, marginTop: spacing(2) },
-  section: {
-    ...type.title,
-    color: colors.ink,
-    marginTop: spacing(6),
-    marginBottom: spacing(3),
-  },
-  list: { gap: spacing(3) },
-  preferences: { marginTop: spacing(4) },
-  safety: { marginTop: spacing(6) },
+  content: { padding: spacing(5), paddingBottom: spacing(34), gap: spacing(4) },
+  summaryCard: { gap: spacing(3) },
+  summaryTop: { flexDirection: "row", gap: spacing(3), alignItems: "flex-start" },
+  summaryCopy: { flex: 1, gap: spacing(1) },
+  eyebrow: { ...eyebrow },
+  title: { ...type.display, color: colors.ink, fontSize: 27, lineHeight: 32 },
+  subtitle: { ...type.caption, color: colors.inkSoft },
+  description: { ...type.body, color: colors.inkSoft, marginTop: spacing(1) },
+  optimize: { minHeight: 44, borderRadius: radius.control, backgroundColor: colors.kaya, paddingHorizontal: spacing(3), alignItems: "center", justifyContent: "center" },
+  optimizeText: { ...type.label, color: colors.kopi },
+  metrics: { flexDirection: "row", gap: spacing(2) },
+  metric: { flex: 1, backgroundColor: colors.canvas, borderRadius: radius.control, padding: spacing(2.5) },
+  metricValue: { ...type.label, color: colors.ink },
+  metricLabel: { ...type.caption, color: colors.inkSoft },
+  spend: { ...type.label, color: colors.sageDeep },
+  warning: { ...type.caption, color: colors.danger },
+  section: { ...type.title, color: colors.ink, marginTop: spacing(2), marginBottom: spacing(3) },
+  mapFrame: { borderRadius: radius.card, overflow: "hidden" },
 });

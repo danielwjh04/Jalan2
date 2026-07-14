@@ -42,9 +42,11 @@ export type {
 export { isConfirmationText } from "./confirm";
 export type {
   BriefLang,
+  DiscoveryCard,
   DirectoryEntry,
   FixtureCard,
   FixtureRef,
+  ItinerarySummary,
   MenuResponse,
   PhraseClipResponse,
   VoiceBriefResponse,

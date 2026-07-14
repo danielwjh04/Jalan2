@@ -7,6 +7,7 @@ import type {
   ReviewSummary,
 } from "@shared/reviews";
 import { allItineraries, getItinerary } from "./itineraries";
+import { fixtureExperienceRecord } from "../services/fixtureDirectory";
 
 const reviews = new Map<string, ExperienceReview[]>();
 const reviewedBookings = new Set<string>();
@@ -16,11 +17,16 @@ export function getExperienceRecord(id: string): ExperienceRecord | undefined {
     .filter((itinerary) => itinerary.experienceId === id && itinerary.booking)
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   const latest = matching[0];
-  if (!latest?.booking) return undefined;
-  const confirmed = matching.find((itinerary) => itinerary.status === "CONFIRMED");
+  const fixtureRecord = fixtureExperienceRecord(id);
+  if (!latest?.booking && !fixtureRecord) return undefined;
   const items = [...(reviews.get(id) ?? [])].sort((a, b) =>
     b.createdAt.localeCompare(a.createdAt),
   );
+  if (!latest?.booking && fixtureRecord) {
+    return { ...fixtureRecord, summary: summarize(items), reviews: items };
+  }
+  if (!latest?.booking) return undefined;
+  const confirmed = matching.find((itinerary) => itinerary.status === "CONFIRMED");
   return {
     id,
     operatorName: latest.booking.operator_name,

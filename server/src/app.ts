@@ -9,6 +9,7 @@ import type { TextToSpeech } from "./adapters/tts/types";
 import type { PipelineDeps } from "./pipeline/run";
 import { bookRouter } from "./routes/book";
 import { directoryRouter } from "./routes/directory";
+import { discoveriesRouter } from "./routes/discoveries";
 import { fixturesRouter } from "./routes/fixtures";
 import { ingestRouter } from "./routes/ingest";
 import { itineraryRouter } from "./routes/itinerary";
@@ -58,6 +59,7 @@ export function createApp(ctx: ServerContext): Express {
   app.use(tripsRouter(ctx.routing, ctx.places));
   app.use(bookRouter(ctx.messaging, ctx.config));
   app.use(directoryRouter());
+  app.use(discoveriesRouter());
   app.use(reviewsRouter());
   app.use(sourceCoversRouter());
   app.use(fixturesRouter());

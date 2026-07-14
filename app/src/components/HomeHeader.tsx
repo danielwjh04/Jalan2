@@ -14,7 +14,7 @@ export function HomeHeader({ regions }: { regions: string[] }): React.ReactEleme
         <View style={styles.wordmarkDot} />
       </View>
       <Text style={styles.tagline}>
-        Discovering now · <Text style={styles.taglineLocation}>{location}</Text>
+        Discovering now | <Text style={styles.taglineLocation}>{location}</Text>
       </Text>
     </View>
   );

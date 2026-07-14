@@ -1,101 +1,79 @@
-import {
-  Alert,
-  Linking,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Alert, Linking, Pressable, StyleSheet, Text, View, type AlertButton } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import type { TripStop } from "@shared/trip";
-import { colors, fonts, hairline, radius, spacing, type } from "@/lib/theme";
+import { colors, hairline, radius, spacing, type } from "@/lib/theme";
 import { tryOpenExternalUrl } from "@/lib/externalLink";
 import { PlaceImage } from "./PlaceImage";
+import { TimelineRail } from "./TimelineRail";
 
 interface Props {
   stop: TripStop;
   position: number | null;
+  isLast: boolean;
   canRemove: boolean;
   onToggle: () => void;
   onDelete: () => void;
 }
 
-export function TripStopCard({
-  stop,
-  position,
-  canRemove,
-  onToggle,
-  onDelete,
-}: Props): React.ReactElement {
+export function TripStopCard(props: Props): React.ReactElement {
+  const { stop, position } = props;
   const selected = position !== null;
   return (
-    <View style={[styles.card, !selected && styles.inactive]}>
-      <PlaceImage
-        placeId={stop.place_id}
-        placePhotoAvailable={stop.place_photo_available}
-        fallbackUrl={stop.image_url}
-        placeAttributions={stop.place_photo_attributions}
-        fallbackAttributions={stop.image_attributions}
-        style={styles.image}
-      />
-      <View style={styles.row}>
-        <View style={[styles.marker, selected && styles.markerSelected]}>
-          <Text
-            style={[styles.markerText, selected && styles.markerTextSelected]}
-          >
-            {selected ? position + 1 : "+"}
-          </Text>
-        </View>
-        <View style={styles.content}>
-          <Text style={styles.name}>{stop.name}</Text>
-          <Text style={styles.meta}>{stop.duration_minutes} min</Text>
-          {stop.address ? (
-            <Text style={styles.address} numberOfLines={1}>{stop.address}</Text>
-          ) : null}
+    <View style={styles.timelineRow}>
+      <TimelineRail position={position} isLast={props.isLast} />
+      <View style={[styles.card, !selected && styles.inactive]}>
+        <PlaceImage
+          placeId={stop.place_id}
+          placePhotoAvailable={stop.place_photo_available}
+          fallbackUrl={stop.image_url}
+          placeAttributions={stop.place_photo_attributions}
+          fallbackAttributions={stop.image_attributions}
+          style={styles.image}
+        />
+        <View style={styles.body}>
+          <View style={styles.titleRow}>
+            <View style={styles.titleCopy}>
+              <Text style={styles.name}>{stop.name}</Text>
+              {stop.address ? <Text style={styles.address} numberOfLines={2}>{stop.address}</Text> : null}
+            </View>
+            <Pressable
+              accessibilityLabel="More stop actions"
+              style={styles.more}
+              onPress={() => showStopActions(props)}
+            >
+              <Ionicons name="ellipsis-horizontal" size={20} color={colors.ink} />
+            </Pressable>
+          </View>
+          <View style={styles.chips}>
+            <Text style={styles.chip}>{stop.duration_minutes} min</Text>
+            {stop.estimated_spend_myr !== null ? <Text style={styles.chip}>RM{stop.estimated_spend_myr}</Text> : null}
+            <Text style={styles.chip}>From source</Text>
+          </View>
           <Text style={styles.activityLabel}>What to do</Text>
-          <Text style={styles.summary} numberOfLines={2}>{stop.summary}</Text>
-          <StopActions
-            stop={stop}
-            selected={selected}
-            canRemove={canRemove}
-            onToggle={onToggle}
-            onDelete={onDelete}
-          />
+          <Text style={styles.summary}>{stop.summary}</Text>
         </View>
       </View>
     </View>
   );
 }
 
-function StopActions({
-  stop,
-  selected,
-  canRemove,
-  onToggle,
-  onDelete,
-}: Pick<Props, "stop" | "canRemove" | "onToggle" | "onDelete"> & {
-  selected: boolean;
-}): React.ReactElement {
-  const easybookUrl = stop.easybook_url;
-  return (
-    <View style={styles.actions}>
-      <Pressable onPress={() => void openSource(stop.sources[0].url)}>
-        <Text style={styles.link}>View source</Text>
-      </Pressable>
-      <Pressable disabled={selected && !canRemove} onPress={onToggle}>
-        <Text style={[styles.toggle, selected && !canRemove && styles.disabled]}>
-          {selected ? "Remove" : "Add to trip"}
-        </Text>
-      </Pressable>
-      {easybookUrl ? (
-        <Pressable onPress={() => void openEasybook(easybookUrl)}>
-          <Text style={styles.link}>EasyBook</Text>
-        </Pressable>
-      ) : null}
-      <Pressable onPress={onDelete}>
-        <Text style={styles.delete}>Delete</Text>
-      </Pressable>
-    </View>
+function showStopActions(props: Props): void {
+  const selected = props.position !== null;
+  const buttons: AlertButton[] = [
+    { text: "View source", onPress: () => void openSource(props.stop.sources[0].url) },
+  ];
+  if (!selected || props.canRemove) {
+    buttons.push({ text: selected ? "Remove" : "Add to trip", onPress: props.onToggle });
+  }
+  if (props.stop.easybook_url) {
+    const url = props.stop.easybook_url;
+    buttons.push({ text: "EasyBook", onPress: () => void openEasybook(url) });
+  }
+  buttons.push(
+    { text: "Delete", style: "destructive", onPress: props.onDelete },
+    { text: "Cancel", style: "cancel" },
   );
+  Alert.alert(props.stop.name, "Choose an action", buttons);
 }
 
 async function openSource(url: string): Promise<void> {
@@ -108,45 +86,19 @@ async function openEasybook(url: string): Promise<void> {
   Alert.alert("Could not open EasyBook", "Try the route again later.");
 }
 
-// The photo takes about twice the vertical space of the text block below it,
-// so the image leads and the copy stays a compact caption.
-const IMAGE_HEIGHT = 184;
-
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: radius.card,
-    overflow: "hidden",
-    ...hairline,
-  },
+  timelineRow: { flexDirection: "row", gap: spacing(2), alignItems: "stretch" },
+  card: { flex: 1, backgroundColor: colors.card, borderRadius: radius.card, overflow: "hidden", marginBottom: spacing(3), ...hairline },
   inactive: { opacity: 0.72 },
-  image: { width: "100%", height: IMAGE_HEIGHT },
-  row: { flexDirection: "row", gap: spacing(3), padding: spacing(4) },
-  marker: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.halo,
-  },
-  markerSelected: { backgroundColor: colors.sage },
-  markerText: { ...type.label, color: colors.sageDeep },
-  markerTextSelected: { color: colors.white, fontFamily: fonts.semibold },
-  content: { flex: 1 },
+  image: { width: "100%", height: 184 },
+  body: { padding: spacing(3.5), gap: spacing(2) },
+  titleRow: { flexDirection: "row", alignItems: "flex-start", gap: spacing(2) },
+  titleCopy: { flex: 1, gap: spacing(1) },
   name: { ...type.heading, color: colors.ink },
-  meta: { ...type.caption, color: colors.inkSoft, marginTop: 1 },
-  address: { ...type.caption, color: colors.inkSoft, marginTop: spacing(1) },
-  activityLabel: { ...type.label, color: colors.sageDeep, marginTop: spacing(1.5) },
-  summary: { ...type.caption, color: colors.inkSoft, marginTop: spacing(1.5) },
-  actions: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing(3),
-    marginTop: spacing(2.5),
-  },
-  link: { ...type.label, color: colors.sageDeep },
-  toggle: { ...type.label, color: colors.sageDeep },
-  delete: { ...type.label, color: colors.danger },
-  disabled: { color: colors.inkSoft },
+  address: { ...type.caption, color: colors.inkSoft },
+  more: { width: 38, height: 38, borderRadius: radius.control, backgroundColor: colors.canvas, alignItems: "center", justifyContent: "center" },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: spacing(1.5) },
+  chip: { ...type.caption, color: colors.sageDeep, backgroundColor: colors.halo, borderRadius: radius.pill, paddingHorizontal: spacing(2.5), paddingVertical: spacing(1) },
+  activityLabel: { ...type.label, color: colors.sageDeep },
+  summary: { ...type.body, color: colors.inkSoft },
 });

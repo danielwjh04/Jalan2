@@ -1,5 +1,6 @@
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { ScreenHeader } from "@/components/ScreenHeader";
 import { TripPlanner } from "@/components/TripPlanner";
 import { colors, type } from "@/lib/theme";
 import { useTripPlanner } from "@/lib/useTripPlanner";
@@ -9,10 +10,14 @@ export default function TripScreen(): React.ReactElement {
     id: string;
     bookingId?: string;
   }>();
+  const router = useRouter();
   const planner = useTripPlanner(id);
   if (planner.trip) {
     return (
-      <TripPlanner {...planner} trip={planner.trip} bookingId={bookingId} />
+      <View style={styles.screen}>
+        <ScreenHeader title="Trip plan" onBack={() => router.back()} />
+        <TripPlanner {...planner} trip={planner.trip} bookingId={bookingId} />
+      </View>
     );
   }
   return (
@@ -27,6 +32,7 @@ export default function TripScreen(): React.ReactElement {
 }
 
 const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: colors.canvas },
   loading: { flex: 1, alignItems: "center", justifyContent: "center" },
   error: { ...type.body, color: colors.danger },
 });

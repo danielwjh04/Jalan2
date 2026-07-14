@@ -12,6 +12,11 @@ export function buildWhatsAppDeepLink(
   return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 }
 
+export function buildOperatorChatLink(address: string | null): string | null {
+  const phone = normalizeWhatsAppNumber(address);
+  return phone ? `https://wa.me/${phone}` : null;
+}
+
 function normalizeWhatsAppNumber(value: string | null | undefined): string | null {
   const trimmed = value?.trim();
   if (!trimmed) return null;
