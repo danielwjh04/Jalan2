@@ -1,14 +1,14 @@
 {
   "operator_name": "Wanderline",
-  "activity": "Hidden spots around Kuching day trip",
+  "activity": "Six hidden Kuching escapes",
   "price_myr": null,
   "pax": 2,
-  "meeting_point": { "name": "Kuching Waterfront", "lat": 1.5593, "lng": 110.3439 },
+  "meeting_point": { "name": "Siniawan Old Town", "lat": 1.4461907, "lng": 110.2199959 },
   "contact": { "whatsapp": null, "source": "caption" },
   "date_requested": null,
   "confidence": 0.35,
   "raw_evidence": {
-    "transcript_span": "",
-    "frame_ts": ""
+    "transcript_span": "6 Hidden Places in Kuching",
+    "frame_ts": "Six labelled carousel slides"
   }
 }

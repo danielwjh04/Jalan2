@@ -1,14 +1,14 @@
 {
   "operator_name": "Wanka Travel",
-  "activity": "Kuching city food and sights day out",
+  "activity": "Kuching city food and sights",
   "price_myr": null,
   "pax": 2,
-  "meeting_point": { "name": "Kuching Waterfront", "lat": 1.5593, "lng": 110.3439 },
+  "meeting_point": { "name": "Borneo Cultures Museum", "lat": 1.5554849, "lng": 110.3423788 },
   "contact": { "whatsapp": null, "source": "caption" },
   "date_requested": null,
   "confidence": 0.4,
   "raw_evidence": {
-    "transcript_span": "",
-    "frame_ts": ""
+    "transcript_span": "What To Do in Kuching?",
+    "frame_ts": "Museum, cat statue, waterfront, and Dr.Emas title cards"
   }
 }

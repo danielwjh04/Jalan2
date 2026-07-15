@@ -1,4 +1,4 @@
-import type { PlaceCandidate } from '@shared/trip';
+import { haversineMeters, type PlaceCandidate } from '@shared/trip';
 import { KUCHING_GAZETTEER } from '../../pipeline/gazetteer';
 import type { PlacesProvider } from './types';
 
@@ -11,6 +11,12 @@ export function createOfflinePlaces(): PlacesProvider {
         .filter((place) => words.some((word) => place.name.toLowerCase().includes(word)))
         .slice(0, 5)
         .map(toCandidate);
+    },
+    async nearbyPopular(center, radiusMeters) {
+      return KUCHING_GAZETTEER
+        .map(toCandidate)
+        .filter((place) => haversineMeters(center, place.location) <= radiusMeters)
+        .slice(0, 5);
     },
     async photo() {
       return null;

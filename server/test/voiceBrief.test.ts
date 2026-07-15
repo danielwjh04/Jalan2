@@ -57,6 +57,12 @@ describe("composeBrief", () => {
     );
     expect(composeBrief(booking(), "ms")).toContain("panduan umum");
   });
+
+  it("does not assume every discovery has an operator", () => {
+    const brief = composeBrief(booking({ activity: "Street food walk" }), "en");
+    expect(brief).toContain("official site guidance");
+    expect(brief).toContain("any authorized operator you book");
+  });
 });
 
 describe("briefClip", () => {

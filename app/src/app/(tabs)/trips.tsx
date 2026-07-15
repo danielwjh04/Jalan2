@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Alert, ActivityIndicator, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, ActivityIndicator, Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import type { FixtureCard as FixtureCardData, ItinerarySummary, SavedTripSummary } from "@shared/api";
 import { FixtureCard } from "@/components/FixtureCard";
@@ -41,16 +41,31 @@ export default function TripsScreen(): React.ReactElement {
             <StateCard title="No session trips yet" message="Paste a travel video on Home. Your drafts and confirmations will collect here until the demo server restarts." />
           ) : null}
           {data.fixtures.length > 0 ? (
-            <View style={styles.list}>
-              <View><Text style={styles.eyebrow}>READY TO EXPLORE</Text><Text style={styles.heading}>Demo journeys</Text></View>
-              {data.fixtures.map((fixture) => (
-                <FixtureCard key={fixture.slug} fixture={fixture} disabled={false} onPress={() => router.push(`/trip/${fixture.slug}`)} />
-              ))}
-            </View>
+            <DemoJourneys fixtures={data.fixtures} onOpen={(slug) => router.push(`/trip/${slug}`)} />
           ) : null}
         </>
       )}
     </ScrollView>
+  );
+}
+
+function DemoJourneys({ fixtures, onOpen }: { fixtures: FixtureCardData[]; onOpen: (slug: string) => void }): React.ReactElement {
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width - spacing(10), 1180);
+  const columns = contentWidth >= 960 ? 3 : contentWidth >= 620 ? 2 : 1;
+  const gap = spacing(4);
+  const cardWidth = (contentWidth - gap * (columns - 1)) / columns;
+  return (
+    <View style={styles.list}>
+      <View><Text style={styles.eyebrow}>READY TO EXPLORE</Text><Text style={styles.heading}>Demo journeys</Text></View>
+      <View style={[styles.gallery, { gap }]}>
+        {fixtures.map((fixture) => (
+          <View key={fixture.slug} style={{ width: cardWidth }}>
+            <FixtureCard fixture={fixture} disabled={false} onPress={() => onOpen(fixture.slug)} />
+          </View>
+        ))}
+      </View>
+    </View>
   );
 }
 
@@ -118,8 +133,9 @@ function confirmFailedDeletion(onConfirm: () => void): void {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.canvas },
-  content: { paddingHorizontal: spacing(5), paddingBottom: spacing(32), gap: spacing(5) },
+  content: { alignSelf: "center", width: "100%", maxWidth: 1220, paddingHorizontal: spacing(5), paddingBottom: spacing(32), gap: spacing(5) },
   list: { gap: spacing(4) },
+  gallery: { flexDirection: "row", flexWrap: "wrap" },
   eyebrow: { ...eyebrow },
   heading: { ...type.title, color: colors.ink, marginTop: spacing(1) },
 });

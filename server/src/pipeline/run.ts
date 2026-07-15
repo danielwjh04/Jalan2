@@ -1,4 +1,5 @@
 import type OpenAI from 'openai';
+import path from 'node:path';
 import type { BookingJson } from '@shared/booking';
 import type { Config } from '../config';
 import type { Extractor } from '../adapters/extractor/types';
@@ -12,8 +13,8 @@ import { persistSourceCover, selectSourceCover } from '../lib/sourceCovers';
 import { recordDemand } from '../store/directory';
 import { setBooking, setCoverUrl, setItineraryError, setStage, setTripId } from '../store/itineraries';
 import { saveTrip } from '../store/trips';
-import { extractAudio, extractKeyframes } from './keyframes';
-import { chooseAestheticCover } from './cover';
+import { extractAudio, extractKeyframes, imageToHeroJpeg, type Keyframe } from './keyframes';
+import { chooseAestheticCover, type CoverSelection } from './cover';
 import { fuse } from './fusion';
 import { enrichTrust } from './trust';
 import { createDynamicTrip } from './trip';
@@ -28,7 +29,8 @@ export interface PipelineDeps {
   places: PlacesProvider;
 }
 
-const KEYFRAME_COUNT = 6;
+const COVER_FRAME_COUNT = 12;
+const VISION_FRAME_COUNT = 6;
 
 interface PipelineResult {
   booking: BookingJson;
@@ -110,21 +112,10 @@ async function runLive(
     );
   }
   const workDir = runWorkDir(id);
-  const frames = await extractKeyframes(media.videoPath, workDir, KEYFRAME_COUNT);
-  const coverCandidates = media.coverCandidates.length > 0
-    ? media.coverCandidates
-    : media.coverPath
-      ? []
-      : frames.map((frame) => frame.path);
-  const aestheticCover = await chooseAestheticCover(
-    openai,
-    config.OPENAI_VISION_MODEL,
-    coverCandidates,
-  );
-  const coverUrl = await persistSourceCover(
-    url,
-    aestheticCover ?? selectSourceCover(media, frames),
-  );
+  const count = media.coverCandidates.length > 0 ? VISION_FRAME_COUNT : COVER_FRAME_COUNT;
+  const coverFrames = await extractKeyframes(media.videoPath, workDir, count);
+  const frames = sampleKeyframes(coverFrames, VISION_FRAME_COUNT);
+  const coverUrl = await createHeroCover(openai, config.OPENAI_VISION_MODEL, url, media, coverFrames, workDir);
   if (coverUrl) setCoverUrl(id, coverUrl);
   const audioPath = media.audioPath ?? (await tryExtractAudio(media.videoPath, workDir));
   setStage(id, 'TRANSCRIBING');
@@ -143,6 +134,43 @@ async function runLive(
   saveTrip({ ...trip, cover_url: coverUrl });
   setTripId(id, trip.id);
   return { booking, coverUrl };
+}
+
+function sampleKeyframes(frames: Keyframe[], limit: number): Keyframe[] {
+  if (frames.length <= limit) return frames;
+  return Array.from({ length: limit }, (_, index) => {
+    const source = Math.round((index * (frames.length - 1)) / (limit - 1));
+    return frames[source];
+  });
+}
+
+async function createHeroCover(
+  client: OpenAI,
+  model: string,
+  url: string,
+  media: Awaited<ReturnType<Extractor['extract']>>,
+  frames: Keyframe[],
+  workDir: string,
+): Promise<string | null> {
+  const candidates = media.coverCandidates.length > 0
+    ? media.coverCandidates
+    : media.coverPath ? [] : frames.map((frame) => frame.path);
+  const choice = await chooseAestheticCover(client, model, candidates);
+  const fallback = selectSourceCover(media, frames);
+  const selection = choice ?? (fallback ? centeredCover(fallback) : null);
+  if (!selection) return null;
+  const heroPath = path.join(workDir, 'hero-cover.jpg');
+  try {
+    await imageToHeroJpeg(selection.path, heroPath, selection.focusX, selection.focusY, selection.zoom);
+    return persistSourceCover(url, heroPath);
+  } catch (error) {
+    console.warn(`[cover] hero crop failed: ${(error as Error).message}`);
+    return persistSourceCover(url, selection.path);
+  }
+}
+
+function centeredCover(sourcePath: string): CoverSelection {
+  return { path: sourcePath, focusX: 0.5, focusY: 0.5, zoom: 1 };
 }
 
 async function tryExtractAudio(videoPath: string, workDir: string): Promise<string | null> {

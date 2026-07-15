@@ -46,6 +46,38 @@ describe('parseGooglePlaces', () => {
     });
   });
 
+  it('requests popularity-ranked nearby places with ratings and photos', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      places: [{
+        id: 'popular-1',
+        displayName: { text: 'Kuching Old Courthouse' },
+        formattedAddress: 'Kuching, Sarawak, Malaysia',
+        location: { latitude: 1.56, longitude: 110.344 },
+        rating: 4.7,
+        userRatingCount: 1320,
+        photos: [{ name: 'places/popular-1/photos/photo-1' }],
+      }],
+    }), { status: 200, headers: { 'content-type': 'application/json' } }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const places = await createGooglePlaces('server-secret').nearbyPopular?.(
+      { lat: 1.56, lng: 110.34 },
+      2400,
+    );
+
+    expect(String(fetchMock.mock.calls[0][0])).toContain('places:searchNearby');
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toMatchObject({
+      rankPreference: 'POPULARITY',
+      locationRestriction: { circle: { radius: 2400 } },
+    });
+    expect(places?.[0]).toMatchObject({
+      place_id: 'popular-1',
+      rating: 4.7,
+      user_rating_count: 1320,
+      place_photo_available: true,
+    });
+  });
+
   it('refreshes the photo name before downloading Google media', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(new Response(JSON.stringify({

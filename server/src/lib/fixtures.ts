@@ -59,6 +59,13 @@ export function findCoverPath(slug: string): string | null {
   return existsSync(coverPath) ? coverPath : null;
 }
 
+export function findTripImagePath(slug: string, file: string): string | null {
+  if (!/^[a-z0-9-]+$/.test(slug)) return null;
+  if (!/^[a-z0-9-]+\.jpg$/.test(file)) return null;
+  const imagePath = path.join(fixturesRoot(), slug, "images", file);
+  return existsSync(imagePath) ? imagePath : null;
+}
+
 export function coverUrlFor(slug: string | null): string | null {
   return slug && findCoverPath(slug) ? `/covers/${slug}` : null;
 }

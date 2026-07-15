@@ -9,6 +9,7 @@ import { BoboCard } from "./BoboCard";
 import { DestinationSearch } from "./DestinationSearch";
 import { GradientButton } from "./GradientButton";
 import { SafetyBriefCard } from "./SafetyBriefCard";
+import { SmartSuggestions } from "./SmartSuggestions";
 import { SurfaceCard } from "./SurfaceCard";
 import { TripBookingSection } from "./TripBookingSection";
 import { TripMap } from "./TripMap";
@@ -62,6 +63,7 @@ export function TripPlanner(props: Props): React.ReactElement {
       )}
       {props.bookingId ? <TripBookingSection bookingId={props.bookingId} /> : null}
       {!curated ? <TripReservationSection trip={props.trip} /> : null}
+      {!curated ? <SmartSuggestions suggestions={props.suggestions} loaded={props.suggestionsLoaded} busy={props.busy} onLoad={props.suggest} onAdd={props.addDestination} /> : null}
       <StopList {...props} editable={!curated} />
       {!curated ? (
         <DestinationSearch
@@ -106,7 +108,11 @@ function TripSummary(props: Props): React.ReactElement {
         <Metric value={route ? `${(route.distance_meters / 1000).toFixed(1)} km` : "Not set"} label="distance" />
         <Metric value={route ? `${route.duration_minutes} min` : "Ready"} label="route" />
       </View>
-      {route?.estimated_spend_myr !== undefined ? <Text style={styles.spend}>Known spend RM{route.estimated_spend_myr}</Text> : null}
+      {route?.estimated_spend_myr !== undefined ? (
+        <Text style={styles.spend}>
+          {route.estimated_spend_myr > 0 ? `Known spend RM${route.estimated_spend_myr}` : "No stop prices available"}
+        </Text>
+      ) : null}
       {route?.warnings?.map((warning) => <Text key={warning} style={styles.warning}>{warning}</Text>)}
       {props.error ? <Text style={styles.warning}>{props.error}</Text> : null}
     </SurfaceCard>

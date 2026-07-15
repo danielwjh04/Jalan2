@@ -35,6 +35,9 @@ export const PlaceCandidateSchema = z.object({
   place_photo_attributions: z.array(ImageAttributionSchema).default([]),
   image_url: z.string().url().nullable().default(null),
   image_attributions: z.array(ImageAttributionSchema).default([]),
+  rating: z.number().min(0).max(5).nullable().optional(),
+  user_rating_count: z.number().int().nonnegative().optional(),
+  route_distance_meters: z.number().nonnegative().optional(),
 });
 
 export type PlaceCandidate = z.infer<typeof PlaceCandidateSchema>;
@@ -44,7 +47,7 @@ export const TripStopSchema = z.object({
   name: z.string().min(1),
   summary: z.string().min(1),
   location: GeoPointSchema,
-  image_url: z.string().url().nullable(),
+  image_url: z.union([z.string().url(), z.string().regex(/^\/fixture-images\//)]).nullable(),
   place_photo_available: z.boolean().default(false),
   place_photo_attributions: z.array(ImageAttributionSchema).default([]),
   image_attributions: z.array(ImageAttributionSchema).default([]),

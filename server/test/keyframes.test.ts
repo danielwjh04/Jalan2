@@ -4,8 +4,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { execa } from 'execa';
 import ffmpegPath from 'ffmpeg-static';
+import ffprobe from 'ffprobe-static';
 import { afterEach, describe, expect, it } from 'vitest';
-import { imageToJpeg, imagesToSlideshow, videoDuration } from '../src/pipeline/keyframes';
+import { imageToHeroJpeg, imageToJpeg, imagesToSlideshow, videoDuration } from '../src/pipeline/keyframes';
 
 const tinyJpeg = Buffer.from(
   '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAVEAEBAAAAAAAAAAAAAAAAAAAAAf/aAAwDAQACEAMQAAABlA//xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oACAEBAAEFAqf/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oACAEDAQE/ASP/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oACAECAQE/ASP/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oACAEBAAY/Aqf/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oACAEBAAE/IV//2gAMAwEAAgADAAAAEP/EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQMBAT8QH//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQIBAT8QH//EABQQAQAAAAAAAAAAAAAAAAAAABD/2gAIAQEAAT8QH//Z',
@@ -49,5 +50,21 @@ describe('imageToJpeg', () => {
 
     const jpeg = await readFile(jpegPath);
     expect(jpeg.subarray(0, 2).toString('hex')).toBe('ffd8');
+  });
+
+  it('renders a wide hero crop around the selected focal point', async () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'jalan2-hero-'));
+    tempDirs.push(dir);
+    const inputPath = path.join(dir, 'portrait.jpg');
+    const outputPath = path.join(dir, 'hero.jpg');
+    writeFileSync(inputPath, tinyJpeg);
+
+    await imageToHeroJpeg(inputPath, outputPath, 0.5, 0.65);
+
+    if (!ffmpegPath) throw new Error('ffmpeg-static did not resolve a binary for this platform');
+    const { stdout } = await execa(ffprobe.path, [
+      '-v', 'error', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', outputPath,
+    ]);
+    expect(stdout.trim()).toBe('1280,720');
   });
 });

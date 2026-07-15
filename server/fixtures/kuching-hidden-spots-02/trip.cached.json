@@ -1,82 +1,138 @@
 {
   "id": "kuching-hidden-spots-02",
-  "title": "Wild Kuching day trip",
+  "title": "Six hidden Kuching escapes",
+  "summary": "Wanderline's post is a six-place shortlist, not a realistic one-day route. The default selects Siniawan and the two Bau caves; Bako, the wetlands and Satang Island need separate timing and boat arrangements.",
   "region": "Greater Kuching, Sarawak",
   "source_creator": "Wanderline",
   "source_url": "https://vt.tiktok.com/ZSCt5KWLF/",
   "cover_url": "/covers/kuching-hidden-spots-02",
   "demo": true,
+  "origin": "video",
   "stops": [
     {
-      "id": "semenggoh",
-      "name": "Semenggoh Wildlife Centre",
-      "summary": "Start early for the best chance to observe rehabilitated orangutans in protected forest.",
-      "location": { "lat": 1.4019845, "lng": 110.3144405 },
-      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Orang%20Utan%20%28Semenggoh%20Wildlife%20Centre%2C%20June%202025%29.jpg?width=1400",
+      "id": "siniawan",
+      "name": "Siniawan Old Town Night Market",
+      "summary": "Visit the lantern-lit old-town market shown as the first hidden Kuching recommendation. Check market nights before travelling.",
+      "location": { "lat": 1.4461907, "lng": 110.2199959 },
+      "address": "64, Jalan Siniawan, Siniawan, 94000 Bau, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=12234610243000560501",
+      "image_url": "/fixture-images/kuching-hidden-spots-02/siniawan.jpg",
       "image_attributions": [
-        {
-          "label": "Photo by Apocru",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Orang_Utan_(Semenggoh_Wildlife_Centre,_June_2025).jpg",
-          "license": "CC BY-SA 4.0"
-        }
+        { "label": "Source image by Wanderline", "source_url": "https://vt.tiktok.com/ZSCt5KWLF/", "license": null }
       ],
-      "place_id": "ChIJYS7oo2R1-zERbLMHEKPgYGo",
+      "place_id": "ChIJH-rfeTUN-zERdWtnuzERyqk",
+      "primary_type": "market",
+      "reservation_hint": "walk_in",
       "estimated_spend_myr": null,
       "duration_minutes": 120,
       "sources": [
-        {
-          "title": "Sarawak Forestry",
-          "url": "https://www.sarawaktourism.com/web/stories/story-view/discovering-sarawak-a-journey-begins-with-18-attractive-things-to-do"
-        }
+        { "title": "Wanderline TikTok", "url": "https://vt.tiktok.com/ZSCt5KWLF/" }
+      ]
+    },
+    {
+      "id": "telok-assam",
+      "name": "Telok Assam Beach, Bako National Park",
+      "summary": "Treat this as a separate Bako outing. Reaching the park normally involves a boat transfer and current park arrangements should be checked first.",
+      "location": { "lat": 1.7194, "lng": 110.4402 },
+      "address": "Bako National Park, Sarawak",
+      "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Telok%20Assam%20Beach%20Bako%20National%20Park",
+      "image_url": "/fixture-images/kuching-hidden-spots-02/telok-assam.jpg",
+      "image_attributions": [
+        { "label": "Source image by Wanderline", "source_url": "https://vt.tiktok.com/ZSCt5KWLF/", "license": null }
+      ],
+      "place_id": "ChIJB2jltixT-jERpv3vxRTzu1o",
+      "primary_type": "national_park",
+      "reservation_hint": "bookable",
+      "estimated_spend_myr": null,
+      "duration_minutes": 240,
+      "sources": [
+        { "title": "Wanderline TikTok", "url": "https://vt.tiktok.com/ZSCt5KWLF/" },
+        { "title": "Sarawak Forestry", "url": "https://sarawakforestry.com/parks-and-reserves/bako-national-park/" }
       ]
     },
     {
       "id": "fairy-cave",
-      "name": "Fairy Cave",
-      "summary": "Walk into a dramatic limestone chamber near Bau and allow time for the steep access steps.",
+      "name": "Fairy Caves",
+      "summary": "Walk into the limestone chamber near Bau and allow time for the steep access steps shown in the source.",
       "location": { "lat": 1.3817723, "lng": 110.1171684 },
-      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Fairy%20Cave%2C%20Bau%2C%20Kuching%20Sarawak%2C%20Malaysia%2001.jpg?width=1400",
+      "address": "94000 Bau, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=15257062100536742398",
+      "image_url": "/fixture-images/kuching-hidden-spots-02/fairy-cave.jpg",
       "image_attributions": [
-        {
-          "label": "Photo by Borneo mobilegrapher",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Fairy_Cave,_Bau,_Kuching_Sarawak,_Malaysia_01.jpg",
-          "license": "CC0 1.0"
-        }
+        { "label": "Source image by Wanderline", "source_url": "https://vt.tiktok.com/ZSCt5KWLF/", "license": null }
       ],
       "place_id": "ChIJn38e5pdt-zER_lGRIiX5u9M",
+      "primary_type": "tourist_attraction",
+      "reservation_hint": "walk_in",
+      "opening_window": { "open_minute": 540, "close_minute": 900 },
       "estimated_spend_myr": null,
       "duration_minutes": 90,
       "sources": [
-        {
-          "title": "Google Maps",
-          "url": "https://www.google.com/maps/search/?api=1&query=Fairy%20Cave%20Bau%20Sarawak"
-        }
+        { "title": "Wanderline TikTok", "url": "https://vt.tiktok.com/ZSCt5KWLF/" }
       ]
     },
     {
-      "id": "bako",
-      "name": "Bako National Park",
-      "summary": "Continue to Sarawak's oldest national park for coastal trails, wildlife and sandstone scenery.",
-      "location": { "lat": 1.7066874, "lng": 110.4663249 },
-      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Bako%20National%20Park%2C%20Kuching%2C%20Sarawak%2C%20Malaysia%2002.jpg?width=1400",
+      "id": "wind-cave",
+      "name": "Wind Caves",
+      "summary": "Pair this Bau cave with Fairy Caves and bring suitable footwear for the boardwalk and darker passages.",
+      "location": { "lat": 1.4144497, "lng": 110.1375033 },
+      "address": "94000 Bau, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=14865554517368439627",
+      "image_url": "/fixture-images/kuching-hidden-spots-02/wind-cave.jpg",
       "image_attributions": [
-        {
-          "label": "Photo by Borneo mobilegrapher",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Bako_National_Park,_Kuching,_Sarawak,_Malaysia_02.jpg",
-          "license": "CC BY-SA 4.0"
-        }
+        { "label": "Source image by Wanderline", "source_url": "https://vt.tiktok.com/ZSCt5KWLF/", "license": null }
       ],
-      "place_id": "ChIJB2jltixT-jERpv3vxRTzu1o",
+      "place_id": "ChIJWQgIQ1lt-zERSwPzjBIPTc4",
+      "primary_type": "tourist_attraction",
+      "reservation_hint": "walk_in",
+      "opening_window": { "open_minute": 540, "close_minute": 900 },
+      "estimated_spend_myr": null,
+      "duration_minutes": 90,
+      "sources": [
+        { "title": "Wanderline TikTok", "url": "https://vt.tiktok.com/ZSCt5KWLF/" }
+      ]
+    },
+    {
+      "id": "kuching-wetlands",
+      "name": "Kuching Wetlands National Park",
+      "summary": "Plan this mangrove and wildlife stop as an operator-led river outing rather than another city-centre walk-in stop.",
+      "location": { "lat": 1.6895039, "lng": 110.2519226 },
+      "address": "Petra Jaya, 93050 Kuching, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=17289323383849817456",
+      "image_url": "/fixture-images/kuching-hidden-spots-02/wetlands.jpg",
+      "image_attributions": [
+        { "label": "Source image by Wanderline", "source_url": "https://vt.tiktok.com/ZSCt5KWLF/", "license": null }
+      ],
+      "place_id": "ChIJ-eL9R5oB-zERcBU5zQME8O8",
+      "primary_type": "national_park",
+      "reservation_hint": "bookable",
+      "opening_window": { "open_minute": 480, "close_minute": 1020 },
+      "estimated_spend_myr": null,
+      "duration_minutes": 180,
+      "sources": [
+        { "title": "Wanderline TikTok", "url": "https://vt.tiktok.com/ZSCt5KWLF/" }
+      ]
+    },
+    {
+      "id": "satang-island",
+      "name": "Satang Island",
+      "summary": "Keep this as a separate marine excursion. Access and conservation restrictions require a current, authorized operator check.",
+      "location": { "lat": 1.780333, "lng": 110.165133 },
+      "address": "Talang-Satang National Park, Sarawak",
+      "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Pulau%20Satang%20Besar%20Sarawak",
+      "image_url": "/fixture-images/kuching-hidden-spots-02/satang.jpg",
+      "image_attributions": [
+        { "label": "Source image by Wanderline", "source_url": "https://vt.tiktok.com/ZSCt5KWLF/", "license": null }
+      ],
+      "primary_type": "tourist_attraction",
+      "reservation_hint": "bookable",
       "estimated_spend_myr": null,
       "duration_minutes": 240,
       "sources": [
-        {
-          "title": "Sarawak Forestry",
-          "url": "https://sarawakforestry.com/parks-and-reserves/bako-national-park/"
-        }
+        { "title": "Wanderline TikTok", "url": "https://vt.tiktok.com/ZSCt5KWLF/" }
       ]
     }
   ],
-  "selected_stop_ids": ["semenggoh", "fairy-cave", "bako"],
+  "selected_stop_ids": ["siniawan", "fairy-cave", "wind-cave"],
   "route": null
 }

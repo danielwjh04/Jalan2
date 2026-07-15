@@ -17,7 +17,7 @@ export function FixtureCard({ fixture, disabled, onPress }: Props): React.ReactE
     <Pressable style={styles.card} disabled={disabled} onPress={onPress}>
       <View style={styles.coverWrap}>
         {fixture.coverUrl ? (
-          <Image source={{ uri: serverUrl(fixture.coverUrl) }} style={styles.cover} />
+          <Image resizeMode="cover" source={{ uri: serverUrl(fixture.coverUrl) }} style={styles.cover} />
         ) : (
           <View style={[styles.cover, styles.coverFallback]} />
         )}
@@ -33,12 +33,12 @@ export function FixtureCard({ fixture, disabled, onPress }: Props): React.ReactE
       <View style={styles.body}>
         <View style={styles.metaRow}>
           <Ionicons name="location-outline" size={13} color={colors.inkSoft} />
-          <Text style={styles.meta} numberOfLines={1}>{fixture.meetingPointName ?? 'Malaysia'}</Text>
+          <Text style={styles.meta} numberOfLines={1}>{fixture.region ?? fixture.meetingPointName ?? 'Malaysia'}</Text>
         </View>
-        <Text style={styles.title}>{fixture.activity ?? fixture.slug}</Text>
+        <Text style={styles.title} numberOfLines={2}>{fixture.activity ?? fixture.slug}</Text>
         <View style={styles.footer}>
           <Text style={styles.subtitle} numberOfLines={1}>
-            By {fixture.operatorName ?? 'local creator'}
+            Source: {fixture.operatorName ?? 'local creator'}
           </Text>
           <View style={styles.action}>
             <Ionicons name="arrow-forward" size={18} color={colors.white} />
@@ -49,8 +49,6 @@ export function FixtureCard({ fixture, disabled, onPress }: Props): React.ReactE
   );
 }
 
-const COVER_HEIGHT = 200;
-
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.card,
@@ -60,7 +58,7 @@ const styles = StyleSheet.create({
     ...cardShadow,
   },
   coverWrap: { position: 'relative' },
-  cover: { width: '100%', height: COVER_HEIGHT },
+  cover: { width: '100%', aspectRatio: 16 / 9 },
   coverFallback: { backgroundColor: colors.halo },
   sourcePill: {
     position: 'absolute',
@@ -82,7 +80,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing(1.5),
   },
   priceText: { color: colors.kopi, fontFamily: fonts.semibold, fontSize: 12 },
-  body: { padding: spacing(4), gap: spacing(1.5) },
+  body: { minHeight: 142, padding: spacing(4), gap: spacing(1.5) },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: spacing(1) },
   meta: { ...type.caption, color: colors.inkSoft, flex: 1 },
   title: { ...type.title, color: colors.ink },

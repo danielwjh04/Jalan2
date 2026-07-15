@@ -28,6 +28,7 @@ describe("FixtureExtractor", () => {
   it("resolves XHS share short-links to the real cafe fixture", async () => {
     const urls = [
       "http://xhslink.com/o/1iHEXC0uXgC",
+      "https://xhslink.com/o/1iHEXC0uXgC",
       "http://xhslink.com/o/9JcR3bXBDL4",
     ];
     for (const url of urls) {
@@ -62,17 +63,30 @@ describe("fixture data integrity", () => {
       const trip = loadCachedTrip(slug);
       expect(trip, `trip.cached.json for ${slug}`).not.toBeNull();
       expect(trip?.stops.length).toBeGreaterThanOrEqual(3);
-      expect(trip?.selected_stop_ids).toEqual(
-        trip?.stops.map((stop) => stop.id),
-      );
+      expect(trip?.selected_stop_ids.length).toBeGreaterThanOrEqual(2);
+      const stopIds = new Set(trip?.stops.map((stop) => stop.id));
+      for (const selected of trip?.selected_stop_ids ?? []) {
+        expect(stopIds.has(selected), `${slug}: selected stop ${selected}`).toBe(true);
+      }
       for (const stop of trip?.stops ?? []) {
-        expect(stop.place_id, `${slug}: ${stop.name} place id`).toBeTruthy();
-        expect(stop.image_url, `${slug}: ${stop.name} image`).toContain(
-          'commons.wikimedia.org',
+        expect(stop.google_maps_url, `${slug}: ${stop.name} map link`).toBeTruthy();
+        expect(stop.image_url, `${slug}: ${stop.name} image`).toMatch(
+          /^\/fixture-images\/.+\.jpg$/,
         );
         expect(stop.image_attributions, `${slug}: ${stop.name} credit`).not.toHaveLength(0);
         if (stop.address) expect(stop.summary).not.toBe(stop.address);
       }
+    }
+  });
+
+  it("matches the places visibly named in each source post", () => {
+    const expected: Record<string, string[]> = {
+      "kuching-city-guide-01": ["Borneo Cultures Museum", "Cat Statue Padungan Roundabout", "Kuching Waterfront", "Dr.Emas Kubah Ria"],
+      "kuching-hidden-spots-02": ["Siniawan Old Town Night Market", "Telok Assam Beach, Bako National Park", "Fairy Caves", "Wind Caves", "Kuching Wetlands National Park", "Satang Island"],
+      "kuching-cafes-03": ["The Fern", "CHAS Cafe & Space", "Yia Coffee Company", "HALLS CAFE", "Matcha Day Home", "Moon and Sun Coffee", "skript. coffee", "Sit & Sip Coffee", "Black Bean Coffee & Tea Co.", "Nam Joo"],
+    };
+    for (const [slug, names] of Object.entries(expected)) {
+      expect(loadCachedTrip(slug)?.stops.map((stop) => stop.name)).toEqual(names);
     }
   });
 });

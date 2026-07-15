@@ -76,6 +76,10 @@ export function searchTripPlaces(id: string, query: string): Promise<PlaceCandid
   return post(`/trips/${id}/search`, { query });
 }
 
+export function getTripSuggestions(id: string): Promise<PlaceCandidate[]> {
+  return request(`/trips/${id}/suggestions`);
+}
+
 export function placePhotoUrl(placeId: string): string {
   return buildPlacePhotoUrl(baseUrl(), placeId);
 }

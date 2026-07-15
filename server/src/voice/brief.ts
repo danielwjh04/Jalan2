@@ -41,10 +41,10 @@ const LINES: Record<BriefLang, BriefLines> = {
       trail:
         "Wear proper footwear, carry enough water, and stay on marked trails. Start early to avoid afternoon rain and tell someone your plan.",
       general:
-        "Carry water and sun protection, and keep valuables secure. Respect local customs and follow the advice of your hosts.",
+        "Carry water and sun protection, and keep valuables secure. Respect local customs and posted site guidance.",
     },
     closing:
-      "This is general advisory guidance from Jalan2, not professional safety instruction. Always follow your operator on the day.",
+      "This is general advisory guidance from Jalan2, not professional safety instruction. Follow official site guidance and any authorized operator you book.",
   },
   ms: {
     intro: (activity, meeting) =>
@@ -57,10 +57,10 @@ const LINES: Record<BriefLang, BriefLines> = {
       trail:
         "Pakai kasut yang sesuai, bawa air secukupnya, dan kekal di laluan bertanda. Mulakan awal untuk mengelakkan hujan petang dan beritahu seseorang rancangan anda.",
       general:
-        "Bawa air dan pelindung matahari, dan simpan barang berharga dengan selamat. Hormati adat setempat dan ikut nasihat tuan rumah.",
+        "Bawa air dan pelindung matahari, dan simpan barang berharga dengan selamat. Hormati adat setempat dan panduan rasmi di lokasi.",
     },
     closing:
-      "Ini panduan umum daripada Jalan2, bukan arahan keselamatan profesional. Sentiasa ikut arahan pengusaha anda pada hari tersebut.",
+      "Ini panduan umum daripada Jalan2, bukan arahan keselamatan profesional. Ikut panduan rasmi lokasi dan arahan mana-mana pengusaha sah yang anda tempah.",
   },
   zh: {
     intro: (activity, meeting) =>
@@ -73,10 +73,10 @@ const LINES: Record<BriefLang, BriefLines> = {
       trail:
         "请穿合适的鞋，携带足够饮用水，并留在有标记的步道上。尽量提早出发以避开午后降雨，并把行程告知亲友。",
       general:
-        "请携带饮用水并做好防晒，妥善保管贵重物品。尊重当地习俗，并听从接待人员的建议。",
+        "请携带饮用水并做好防晒，妥善保管贵重物品。尊重当地习俗，并遵守景点的官方指引。",
     },
     closing:
-      "这是Jalan2提供的一般建议，并非专业安全指示。当天请始终听从业者的安排。",
+      "这是Jalan2提供的一般建议，并非专业安全指示。请遵守景点官方指引，以及您所预订的正规业者安排。",
   },
 };
 

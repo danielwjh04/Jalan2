@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import type { TripStop } from "@shared/trip";
+import { serverUrl } from "@/lib/api";
 import { colors, hairline, radius, spacing, type } from "@/lib/theme";
 import { tryOpenExternalUrl } from "@/lib/externalLink";
 import { PlaceImage } from "./PlaceImage";
@@ -40,7 +41,7 @@ export function TripStopCard(props: Props): React.ReactElement {
         <PlaceImage
           placeId={stop.place_id}
           placePhotoAvailable={stop.place_photo_available}
-          fallbackUrl={stop.image_url}
+          fallbackUrl={imageUrl(stop.image_url)}
           placeAttributions={stop.place_photo_attributions}
           fallbackAttributions={stop.image_attributions}
           style={styles.image}
@@ -97,6 +98,10 @@ export function TripStopCard(props: Props): React.ReactElement {
       </View>
     </View>
   );
+}
+
+function imageUrl(value: string | null): string | null {
+  return value?.startsWith("/") ? serverUrl(value) : value;
 }
 
 async function openSource(url: string): Promise<void> {

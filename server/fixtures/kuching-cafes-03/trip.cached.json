@@ -1,82 +1,175 @@
 {
   "id": "kuching-cafes-03",
-  "title": "Carpenter Street cafe walk",
+  "title": "Carpenter Street cafe shortlist",
+  "summary": "Wanka玩咖 shows ten cafes around Carpenter Street. This is a shortlist, not a ten-cafe challenge: the default plan selects three contrasting stops and leaves the other seven ready to swap in.",
   "region": "Kuching, Sarawak",
   "source_creator": "Wanka玩咖",
-  "source_url": "https://www.xiaohongshu.com/discovery/item/69cfdb26000000002102d14b",
+  "source_url": "https://xhslink.com/o/1iHEXC0uXgC",
   "cover_url": "/covers/kuching-cafes-03",
   "demo": true,
+  "origin": "video",
   "stops": [
     {
-      "id": "carpenter-street",
-      "name": "Carpenter Street",
-      "summary": "Begin among heritage shophouses, temples and independent shops in Kuching's old town.",
-      "location": { "lat": 1.5582653, "lng": 110.3459455 },
-      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Chinese-style%20Gate.jpg?width=1400",
-      "image_attributions": [
-        {
-          "label": "Photo by Travelust",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Chinese-style_Gate.jpg",
-          "license": "CC BY 2.0"
-        }
-      ],
-      "place_id": "ChIJq_hyZu6n-zERIpBWNmZgM0A",
-      "estimated_spend_myr": 0,
-      "duration_minutes": 35,
-      "sources": [
-        {
-          "title": "Google Maps",
-          "url": "https://www.google.com/maps/search/?api=1&query=Carpenter%20Street%20Kuching"
-        }
-      ]
+      "id": "the-fern",
+      "name": "The Fern",
+      "summary": "Start with the bright Bishopsgate cafe shown first in the source, with cakes and a plant-filled upstairs corner.",
+      "location": { "lat": 1.5580859, "lng": 110.3467645 },
+      "address": "21g, Jalan Bishopsgate, 93000 Kuching, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=2278370999580027079",
+      "image_url": "/fixture-images/kuching-cafes-03/the-fern.jpg",
+      "image_attributions": [{ "label": "Source frame by Wanka玩咖", "source_url": "https://xhslink.com/o/1iHEXC0uXgC", "license": null }],
+      "place_id": "ChIJy5yfagCn-zERx-iEUFpmnh8",
+      "primary_type": "coffee_shop",
+      "reservation_hint": "walk_in",
+      "estimated_spend_myr": null,
+      "duration_minutes": 45,
+      "sources": [{ "title": "Wanka玩咖 Xiaohongshu", "url": "https://xhslink.com/o/1iHEXC0uXgC" }]
+    },
+    {
+      "id": "chas",
+      "name": "CHAS Cafe & Space",
+      "summary": "A small Bishopsgate cafe with exposed brick, warm light and the relaxed interior shown in the post.",
+      "location": { "lat": 1.5581207, "lng": 110.3468953 },
+      "address": "No. 17, Lot 28, Jalan Bishopsgate, Section 27, 93000 Kuching, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=10003228410729695323",
+      "image_url": "/fixture-images/kuching-cafes-03/chas.jpg",
+      "image_attributions": [{ "label": "Source frame by Wanka玩咖", "source_url": "https://xhslink.com/o/1iHEXC0uXgC", "license": null }],
+      "place_id": "ChIJWzSyjX-n-zERW4ijfD2b0oo",
+      "primary_type": "cafe",
+      "reservation_hint": "walk_in",
+      "estimated_spend_myr": null,
+      "duration_minutes": 45,
+      "sources": [{ "title": "Wanka玩咖 Xiaohongshu", "url": "https://xhslink.com/o/1iHEXC0uXgC" }]
+    },
+    {
+      "id": "yia-coffee",
+      "name": "Yia Coffee Company",
+      "summary": "Pause at the leafy Ewe Hai Street coffee shop shown in the source. The sign reads Yia, not Via.",
+      "location": { "lat": 1.5578716, "lng": 110.3474353 },
+      "address": "75, Jalan Ewe Hai, 93000 Kuching, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=10418746971362409964",
+      "image_url": "/fixture-images/kuching-cafes-03/yia.jpg",
+      "image_attributions": [{ "label": "Source frame by Wanka玩咖", "source_url": "https://xhslink.com/o/1iHEXC0uXgC", "license": null }],
+      "place_id": "ChIJowTd3TWn-zER7L27aCvTlpA",
+      "primary_type": "cafe",
+      "reservation_hint": "walk_in",
+      "estimated_spend_myr": null,
+      "duration_minutes": 45,
+      "sources": [{ "title": "Wanka玩咖 Xiaohongshu", "url": "https://xhslink.com/o/1iHEXC0uXgC" }]
+    },
+    {
+      "id": "halls",
+      "name": "HALLS CAFE",
+      "summary": "A playful China Street cafe with the green interior and photo-friendly details featured in the post.",
+      "location": { "lat": 1.5583408, "lng": 110.3460583 },
+      "address": "34, China Street, 93000 Kuching, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=1777566365646880716",
+      "image_url": "/fixture-images/kuching-cafes-03/halls.jpg",
+      "image_attributions": [{ "label": "Source frame by Wanka玩咖", "source_url": "https://xhslink.com/o/1iHEXC0uXgC", "license": null }],
+      "place_id": "ChIJJ_O7VQCn-zERzH8QDTEvqxg",
+      "primary_type": "cafe",
+      "reservation_hint": "walk_in",
+      "estimated_spend_myr": null,
+      "duration_minutes": 45,
+      "sources": [{ "title": "Wanka玩咖 Xiaohongshu", "url": "https://xhslink.com/o/1iHEXC0uXgC" }]
+    },
+    {
+      "id": "matcha-day",
+      "name": "Matcha Day Home",
+      "summary": "Choose this compact cafe for the matcha drinks, desserts and cosy chair setup shown on the trip cover.",
+      "location": { "lat": 1.5579508, "lng": 110.3472101 },
+      "address": "63, Jalan Ewe Hai, 93000 Kuching, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=4264415936056030830",
+      "image_url": "/fixture-images/kuching-cafes-03/matcha-day.jpg",
+      "image_attributions": [{ "label": "Source frame by Wanka玩咖", "source_url": "https://xhslink.com/o/1iHEXC0uXgC", "license": null }],
+      "place_id": "ChIJO-3wWQan-zERbnYiM7M_Ljs",
+      "primary_type": "cafe",
+      "reservation_hint": "walk_in",
+      "estimated_spend_myr": null,
+      "duration_minutes": 45,
+      "sources": [{ "title": "Wanka玩咖 Xiaohongshu", "url": "https://xhslink.com/o/1iHEXC0uXgC" }]
+    },
+    {
+      "id": "moon-sun",
+      "name": "Moon and Sun Coffee",
+      "summary": "A brighter Wayang Street stop for coffee, cakes and a longer sit-down break.",
+      "location": { "lat": 1.5576326, "lng": 110.3480565 },
+      "address": "11, Wayang Street, 93000 Kuching, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=14554471284049810275",
+      "image_url": "/fixture-images/kuching-cafes-03/moon-sun.jpg",
+      "image_attributions": [{ "label": "Source frame by Wanka玩咖", "source_url": "https://xhslink.com/o/1iHEXC0uXgC", "license": null }],
+      "place_id": "ChIJk4iE20yn-zERY5NpG4Xe-8k",
+      "primary_type": "cafe",
+      "reservation_hint": "walk_in",
+      "estimated_spend_myr": null,
+      "duration_minutes": 45,
+      "sources": [{ "title": "Wanka玩咖 Xiaohongshu", "url": "https://xhslink.com/o/1iHEXC0uXgC" }]
+    },
+    {
+      "id": "skript",
+      "name": "skript. coffee",
+      "summary": "A colourful Upper China Street coffee stop, shown with its lantern-lined facade and baked goods.",
+      "location": { "lat": 1.5577855, "lng": 110.3454955 },
+      "address": "57, Upper China Street, 93000 Kuching, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=14406515211831983492",
+      "image_url": "/fixture-images/kuching-cafes-03/skript.jpg",
+      "image_attributions": [{ "label": "Source frame by Wanka玩咖", "source_url": "https://xhslink.com/o/1iHEXC0uXgC", "license": null }],
+      "place_id": "ChIJCYFcDWin-zERhL2BlEE57sc",
+      "primary_type": "coffee_shop",
+      "reservation_hint": "walk_in",
+      "estimated_spend_myr": null,
+      "duration_minutes": 45,
+      "sources": [{ "title": "Wanka玩咖 Xiaohongshu", "url": "https://xhslink.com/o/1iHEXC0uXgC" }]
+    },
+    {
+      "id": "sit-sip",
+      "name": "Sit & Sip Coffee",
+      "summary": "A two-storey China Street cafe with a calmer upstairs seating area for a slower break.",
+      "location": { "lat": 1.5588403, "lng": 110.3463498 },
+      "address": "8, China Street, 93200 Kuching, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=14983936681768512740",
+      "image_url": "/fixture-images/kuching-cafes-03/sit-sip.jpg",
+      "image_attributions": [{ "label": "Source frame by Wanka玩咖", "source_url": "https://xhslink.com/o/1iHEXC0uXgC", "license": null }],
+      "place_id": "ChIJ5wKm1Run-zER5OzBFQaj8c8",
+      "primary_type": "coffee_shop",
+      "reservation_hint": "walk_in",
+      "estimated_spend_myr": null,
+      "duration_minutes": 45,
+      "sources": [{ "title": "Wanka玩咖 Xiaohongshu", "url": "https://xhslink.com/o/1iHEXC0uXgC" }]
     },
     {
       "id": "black-bean",
-      "name": "Black Bean Coffee",
-      "summary": "Pause for locally roasted Sarawak coffee in a compact old-town cafe.",
+      "name": "Black Bean Coffee & Tea Co.",
+      "summary": "Try an aromatic roast at the Carpenter Street institution shown near the end of the video.",
       "location": { "lat": 1.557732, "lng": 110.3477083 },
-      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Coffee%20cup%20and%20coffee%20bean.jpg?width=1400",
-      "image_attributions": [
-        {
-          "label": "Coffee photo by mcfoodie",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Coffee_cup_and_coffee_bean.jpg",
-          "license": "CC0 1.0"
-        }
-      ],
+      "address": "87, Jalan Ewe Hai, 93000 Kuching, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=17961785085001148977",
+      "image_url": "/fixture-images/kuching-cafes-03/black-bean.jpg",
+      "image_attributions": [{ "label": "Source frame by Wanka玩咖", "source_url": "https://xhslink.com/o/1iHEXC0uXgC", "license": null }],
       "place_id": "ChIJ4TKkHOyn-zERMSpng14URfk",
+      "primary_type": "cafe",
+      "reservation_hint": "walk_in",
       "estimated_spend_myr": null,
       "duration_minutes": 45,
-      "sources": [
-        {
-          "title": "Google Maps",
-          "url": "https://www.google.com/maps/search/?api=1&query=Black%20Bean%20Coffee%20Kuching"
-        }
-      ]
+      "sources": [{ "title": "Wanka玩咖 Xiaohongshu", "url": "https://xhslink.com/o/1iHEXC0uXgC" }]
     },
     {
-      "id": "old-court-house",
-      "name": "The Old Court House",
-      "summary": "End at a restored civic landmark with courtyard dining near the waterfront.",
-      "location": { "lat": 1.5596034, "lng": 110.3447998 },
-      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/KuchingOldCourtHouse.JPG?width=1400",
-      "image_attributions": [
-        {
-          "label": "Photo by Mattun0211",
-          "source_url": "https://commons.wikimedia.org/wiki/File:KuchingOldCourtHouse.JPG",
-          "license": "CC0 1.0"
-        }
-      ],
-      "place_id": "ChIJN9e-Q-6n-zER2clKbwn6q2g",
+      "id": "nam-joo",
+      "name": "Nam Joo",
+      "summary": "Finish with the Gambier Street cafe shown last in the list. The source facade reads Nam Joo, not Yianjoo.",
+      "location": { "lat": 1.5603258, "lng": 110.3437318 },
+      "address": "21, Jalan Gambier, 93000 Kuching, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=16298738993677268441",
+      "image_url": "/fixture-images/kuching-cafes-03/nam-joo.jpg",
+      "image_attributions": [{ "label": "Source frame by Wanka玩咖", "source_url": "https://xhslink.com/o/1iHEXC0uXgC", "license": null }],
+      "place_id": "ChIJ0Wb0LXOn-zER2fXwpMLAMOI",
+      "primary_type": "cafe",
+      "reservation_hint": "walk_in",
       "estimated_spend_myr": null,
-      "duration_minutes": 60,
-      "sources": [
-        {
-          "title": "Google Maps",
-          "url": "https://www.google.com/maps/search/?api=1&query=The%20Old%20Court%20House%20Kuching"
-        }
-      ]
+      "duration_minutes": 45,
+      "sources": [{ "title": "Wanka玩咖 Xiaohongshu", "url": "https://xhslink.com/o/1iHEXC0uXgC" }]
     }
   ],
-  "selected_stop_ids": ["carpenter-street", "black-bean", "old-court-house"],
+  "selected_stop_ids": ["the-fern", "matcha-day", "black-bean"],
   "route": null
 }

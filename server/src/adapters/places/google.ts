@@ -1,10 +1,11 @@
 import { z } from 'zod';
 import type { ImageAttribution } from '@shared/media';
-import type { PlaceCandidate } from '@shared/trip';
+import type { GeoPoint, PlaceCandidate } from '@shared/trip';
 import { fetchGooglePlacePhoto } from './googlePhoto';
 import type { PlacesProvider } from './types';
 
 const SEARCH_URL = 'https://places.googleapis.com/v1/places:searchText';
+const NEARBY_URL = 'https://places.googleapis.com/v1/places:searchNearby';
 const FIELD_MASK = [
   'places.id',
   'places.displayName',
@@ -15,6 +16,8 @@ const FIELD_MASK = [
   'places.primaryTypeDisplayName',
   'places.photos',
   'places.regularOpeningHours.periods',
+  'places.rating',
+  'places.userRatingCount',
 ].join(',');
 
 const TimeSchema = z.object({ hour: z.number(), minute: z.number().optional() });
@@ -42,6 +45,8 @@ const PlaceSchema = z.object({
   regularOpeningHours: z.object({
     periods: z.array(PeriodSchema),
   }).optional(),
+  rating: z.number().optional(),
+  userRatingCount: z.number().int().nonnegative().optional(),
 });
 const ResponseSchema = z.object({ places: z.array(PlaceSchema).optional() });
 
@@ -65,6 +70,11 @@ export function createGooglePlaces(apiKey: string): PlacesProvider {
         signal: AbortSignal.timeout(10_000),
       });
       if (!response.ok) throw new Error(`Google Places failed (${response.status})`);
+      return parseGooglePlaces(await response.json());
+    },
+    async nearbyPopular(center, radiusMeters) {
+      const response = await fetch(NEARBY_URL, nearbyRequest(apiKey, center, radiusMeters));
+      if (!response.ok) throw new Error(`Google Places Nearby failed (${response.status})`);
       return parseGooglePlaces(await response.json());
     },
     photo(placeId) {
@@ -96,6 +106,33 @@ function toCandidate(place: z.infer<typeof PlaceSchema>): PlaceCandidate {
     place_photo_attributions: attributionsFor(photo, mapsUrl),
     image_url: null,
     image_attributions: [],
+    rating: place.rating ?? null,
+    user_rating_count: place.userRatingCount,
+  };
+}
+
+function nearbyRequest(apiKey: string, center: GeoPoint, radiusMeters: number): RequestInit {
+  return {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'X-Goog-Api-Key': apiKey,
+      'X-Goog-FieldMask': FIELD_MASK,
+    },
+    body: JSON.stringify({
+      includedTypes: ['tourist_attraction', 'museum', 'park', 'cafe'],
+      maxResultCount: 15,
+      rankPreference: 'POPULARITY',
+      locationRestriction: {
+        circle: {
+          center: { latitude: center.lat, longitude: center.lng },
+          radius: Math.min(Math.max(radiusMeters, 500), 50_000),
+        },
+      },
+      languageCode: 'en',
+      regionCode: 'MY',
+    }),
+    signal: AbortSignal.timeout(10_000),
   };
 }
 

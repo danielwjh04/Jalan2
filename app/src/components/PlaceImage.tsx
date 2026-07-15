@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Image, type ImageStyle, type StyleProp, View } from 'react-native';
+import { Image, type ImageStyle, type StyleProp, StyleSheet, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import type { ImageAttribution as Attribution } from '@shared/media';
 import { colors } from '@/lib/theme';
 import { placePhotoUrl } from '@/lib/api';
@@ -39,7 +40,13 @@ export function PlaceImage({
           style={style}
           onError={() => setSource(source === 'place' && fallbackUrl ? 'fallback' : 'none')}
         />
-      ) : <View style={[style, { backgroundColor: colors.halo }]} />}
+      ) : (
+        <View accessibilityLabel="No place photo available" style={[style, styles.placeholder]}>
+          <View style={styles.placeholderIcon}>
+            <Ionicons name="location-outline" size={26} color={colors.sageDeep} />
+          </View>
+        </View>
+      )}
       <ImageAttribution items={source === 'none' ? [] : credits} />
     </View>
   );
@@ -49,3 +56,19 @@ function sourceFor(primary: string | null, fallback?: string | null): Source {
   if (primary) return 'place';
   return fallback ? 'fallback' : 'none';
 }
+
+const styles = StyleSheet.create({
+  placeholder: {
+    alignItems: 'center',
+    backgroundColor: colors.halo,
+    justifyContent: 'center',
+  },
+  placeholderIcon: {
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: 999,
+    height: 48,
+    justifyContent: 'center',
+    width: 48,
+  },
+});

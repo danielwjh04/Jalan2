@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   DEFAULT_TRIP_PREFERENCES,
+  haversineMeters,
   PlaceCandidateSchema,
   TripPreferencesSchema,
   type PlaceCandidate,
@@ -13,6 +14,7 @@ import type { RoutingProvider } from '../adapters/routing/types';
 import { createOfflineRouting } from '../adapters/routing/offline';
 import { findEasybookRoute } from '../adapters/transit/easybook';
 import { fitBudget } from '../services/routeConstraints';
+import { recommendAlongRoute } from '../services/routeSuggestions';
 import { getTrip, listSavedTrips, saveTrip } from '../store/trips';
 
 type TransitRouteFinder = (origin: string, destination: string) => Promise<string | null>;
@@ -56,6 +58,18 @@ export async function optimizePreparedTrip(
 export function tripsRouter(routing: RoutingProvider, places: PlacesProvider): Router {
   const router = Router();
   router.get('/trips', (_req, res) => res.json(listSavedTrips()));
+  router.get('/trips/:id/suggestions', async (req, res) => {
+    const trip = getTrip(req.params.id);
+    if (!trip) {
+      res.status(404).json({ error: `Unknown trip ${req.params.id}` });
+      return;
+    }
+    try {
+      res.json(await recommendAlongRoute(trip, places));
+    } catch (error) {
+      res.status(502).json({ error: errorMessage(error) });
+    }
+  });
   router.get('/trips/:id', (req, res) => {
     const trip = getTrip(req.params.id);
     if (!trip) res.status(404).json({ error: `Unknown trip ${req.params.id}` });
@@ -84,7 +98,7 @@ export function tripsRouter(routing: RoutingProvider, places: PlacesProvider): R
     if (!editable(trip, res)) return;
     const stop = await customStop(candidate.data, trip.region);
     const stops = replaceOrAppend(trip.stops, stop);
-    const selected = [...new Set([...trip.selected_stop_ids, stop.id])];
+    const selected = insertSelectedStop(trip, candidate.data.location, stop.id);
     res.json(saveTrip({ ...trip, stops, selected_stop_ids: selected, route: null }));
   });
   router.delete('/trips/:id/stops/:stopId', (req, res) => {
@@ -180,6 +194,27 @@ function transitOrigin(region: string): string {
 
 function replaceOrAppend(stops: TripStop[], added: TripStop): TripStop[] {
   return [...stops.filter((stop) => stop.id !== added.id), added];
+}
+
+function insertSelectedStop(trip: TripPlan, location: TripStop['location'], stopId: string): string[] {
+  const selected = trip.selected_stop_ids.filter((id) => id !== stopId);
+  if (selected.length < 2) return [...selected, stopId];
+  const byId = new Map(trip.stops.map((stop) => [stop.id, stop]));
+  let bestIndex = selected.length;
+  let smallestDetour = Infinity;
+  for (let index = 1; index < selected.length; index += 1) {
+    const start = byId.get(selected[index - 1]);
+    const end = byId.get(selected[index]);
+    if (!start || !end) continue;
+    const detour = haversineMeters(start.location, location)
+      + haversineMeters(location, end.location)
+      - haversineMeters(start.location, end.location);
+    if (detour < smallestDetour) {
+      smallestDetour = detour;
+      bestIndex = index;
+    }
+  }
+  return [...selected.slice(0, bestIndex), stopId, ...selected.slice(bestIndex)];
 }
 
 function removeStop(trip: TripPlan, stops: TripStop[], removed: string): TripPlan {

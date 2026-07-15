@@ -1,82 +1,98 @@
 {
   "id": "kuching-city-guide-01",
   "title": "Kuching city food and sights",
+  "summary": "Wanka Travel recommends Sarawak laksa and kolo mee without naming a shop, then shows the Borneo Cultures Museum, the cat statue, Kuching Waterfront and a sponsored Dr.Emas visit. Add a specific food venue before travelling.",
   "region": "Kuching, Sarawak",
   "source_creator": "Wanka Travel",
   "source_url": "https://vt.tiktok.com/ZSCt5cY1k/",
   "cover_url": "/covers/kuching-city-guide-01",
   "demo": true,
+  "origin": "video",
   "stops": [
-    {
-      "id": "waterfront",
-      "name": "Kuching Waterfront",
-      "summary": "Begin beside the Sarawak River with an easy walk through the historic city centre.",
-      "location": { "lat": 1.5604695, "lng": 110.3457446 },
-      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Kuching%20waterfront%20%2817773645672%29.jpg?width=1400",
-      "image_attributions": [
-        {
-          "label": "Photo by Marufish",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Kuching_waterfront_(17773645672).jpg",
-          "license": "CC BY-SA 2.0"
-        }
-      ],
-      "place_id": "ChIJ8ZPJfLSn-zERcm674Uq78Z8",
-      "estimated_spend_myr": 0,
-      "duration_minutes": 45,
-      "sources": [
-        {
-          "title": "Google Maps",
-          "url": "https://www.google.com/maps/search/?api=1&query=Kuching%20Waterfront"
-        }
-      ]
-    },
     {
       "id": "borneo-museum",
       "name": "Borneo Cultures Museum",
-      "summary": "Explore Sarawak history, material culture and contemporary Borneo in a landmark museum.",
+      "summary": "Explore the museum described in the post as Malaysia's largest, with time for Sarawak history and culture.",
       "location": { "lat": 1.5554849, "lng": 110.3423788 },
-      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/View%20of%20Borneo%20Cultures%20Museum%20and%20Sarawak%20State%20Museum%20from%20Tugu%20Pahlawan.jpg?width=1400",
+      "address": "Jalan Tun Abang Haji Openg, 93400 Kuching, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=8767006205871787343",
+      "image_url": "/fixture-images/kuching-city-guide-01/borneo-museum.jpg",
       "image_attributions": [
-        {
-          "label": "Photo by Cerevisae",
-          "source_url": "https://commons.wikimedia.org/wiki/File:View_of_Borneo_Cultures_Museum_and_Sarawak_State_Museum_from_Tugu_Pahlawan.jpg",
-          "license": "CC BY-SA 4.0"
-        }
+        { "label": "Source frame by Wanka Travel", "source_url": "https://vt.tiktok.com/ZSCt5cY1k/", "license": null }
       ],
       "place_id": "ChIJJQQqoDGn-zERTw2i1LGpqnk",
+      "primary_type": "museum",
+      "reservation_hint": "walk_in",
+      "opening_window": { "open_minute": 570, "close_minute": 990 },
       "estimated_spend_myr": null,
       "duration_minutes": 90,
       "sources": [
-        {
-          "title": "Borneo Cultures Museum",
-          "url": "https://museum.sarawak.gov.my/web/subpage/webpage_view/169"
-        }
+        { "title": "Wanka Travel TikTok", "url": "https://vt.tiktok.com/ZSCt5cY1k/" },
+        { "title": "Borneo Cultures Museum", "url": "https://museum.sarawak.gov.my/web/subpage/webpage_view/169" }
       ]
     },
     {
-      "id": "topspot",
-      "name": "Topspot Food Court",
-      "summary": "Finish with a relaxed local seafood dinner above the city centre.",
-      "location": { "lat": 1.5565097, "lng": 110.3524369 },
-      "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Malaysian%20prawn%20noodles.jpg?width=1400",
+      "id": "cat-statue",
+      "name": "Cat Statue Padungan Roundabout",
+      "summary": "Stop for the iconic Kuching cat-statue photo shown in the source video.",
+      "location": { "lat": 1.553517, "lng": 110.358712 },
+      "address": "82, Jalan Padungan, 93100 Kuching, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=3010333270178400584",
+      "image_url": "/fixture-images/kuching-city-guide-01/cat-statue.jpg",
       "image_attributions": [
-        {
-          "label": "Food photo by Misaochan",
-          "source_url": "https://commons.wikimedia.org/wiki/File:Malaysian_prawn_noodles.jpg",
-          "license": "CC BY-SA 4.0"
-        }
+        { "label": "Source frame by Wanka Travel", "source_url": "https://vt.tiktok.com/ZSCt5cY1k/", "license": null }
       ],
-      "place_id": "ChIJV5R-Tuqn-zERDwFypnywUIs",
+      "place_id": "ChIJx7e_m8Cn-zERSAmG6Cjaxik",
+      "primary_type": "tourist_attraction",
+      "reservation_hint": "walk_in",
       "estimated_spend_myr": null,
-      "duration_minutes": 75,
+      "duration_minutes": 20,
       "sources": [
-        {
-          "title": "Google Maps",
-          "url": "https://www.google.com/maps/search/?api=1&query=Topspot%20Food%20Court%20Kuching"
-        }
+        { "title": "Wanka Travel TikTok", "url": "https://vt.tiktok.com/ZSCt5cY1k/" }
+      ]
+    },
+    {
+      "id": "waterfront",
+      "name": "Kuching Waterfront",
+      "summary": "Take the relaxed riverside walk recommended in the post and enjoy the river breeze.",
+      "location": { "lat": 1.5604695, "lng": 110.3457446 },
+      "address": "7, Jalan Tunku Abdul Rahman, 93100 Kuching, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=11525198851706941042",
+      "image_url": "/fixture-images/kuching-city-guide-01/waterfront.jpg",
+      "image_attributions": [
+        { "label": "Source frame by Wanka Travel", "source_url": "https://vt.tiktok.com/ZSCt5cY1k/", "license": null }
+      ],
+      "place_id": "ChIJ8ZPJfLSn-zERcm674Uq78Z8",
+      "primary_type": "tourist_attraction",
+      "reservation_hint": "walk_in",
+      "estimated_spend_myr": null,
+      "duration_minutes": 45,
+      "sources": [
+        { "title": "Wanka Travel TikTok", "url": "https://vt.tiktok.com/ZSCt5cY1k/" }
+      ]
+    },
+    {
+      "id": "dr-emas",
+      "name": "Dr.Emas Kubah Ria",
+      "summary": "Optional sponsored stop from the second half of the video. The post highlights gold jewellery, transparent pricing and an X-ray testing service.",
+      "location": { "lat": 1.5581467, "lng": 110.3200919 },
+      "address": "Lot 3016-1, 2 1/2 Mile, Jalan Matang, Section 65, 93050 Kuching, Sarawak",
+      "google_maps_url": "https://maps.google.com/?cid=12461881169835348234",
+      "image_url": "/fixture-images/kuching-city-guide-01/dr-emas.jpg",
+      "image_attributions": [
+        { "label": "Source frame by Wanka Travel", "source_url": "https://vt.tiktok.com/ZSCt5cY1k/", "license": null }
+      ],
+      "place_id": "ChIJnwxBv1MF-zERClEq6eV-8aw",
+      "primary_type": "jewelry_store",
+      "reservation_hint": "walk_in",
+      "opening_window": { "open_minute": 510, "close_minute": 1050 },
+      "estimated_spend_myr": null,
+      "duration_minutes": 45,
+      "sources": [
+        { "title": "Wanka Travel TikTok", "url": "https://vt.tiktok.com/ZSCt5cY1k/" }
       ]
     }
   ],
-  "selected_stop_ids": ["waterfront", "borneo-museum", "topspot"],
+  "selected_stop_ids": ["borneo-museum", "cat-statue", "waterfront", "dr-emas"],
   "route": null
 }

@@ -8,6 +8,7 @@ import {
 import {
   addTripPlace,
   getTrip,
+  getTripSuggestions,
   optimizeTrip,
   removeTripPlace,
   searchTripPlaces,
@@ -20,11 +21,14 @@ export interface TripPlannerState {
   selected: string[];
   preferences: TripPreferences;
   searchResults: PlaceCandidate[];
+  suggestions: PlaceCandidate[];
+  suggestionsLoaded: boolean;
   busy: boolean;
   error: string | null;
   optimize: () => Promise<void>;
   toggle: (stopId: string) => Promise<void>;
   search: (query: string) => Promise<void>;
+  suggest: () => Promise<void>;
   addDestination: (place: PlaceCandidate) => Promise<void>;
   removeDestination: (stopId: string) => Promise<void>;
   applyDefaults: (defaults: TravelDefaults) => Promise<void>;
@@ -36,6 +40,8 @@ export function useTripPlanner(id: string | undefined): TripPlannerState {
   const [selected, setSelected] = useState<string[]>([]);
   const [preferences, setPreferences] = useState(DEFAULT_TRIP_PREFERENCES);
   const [searchResults, setSearchResults] = useState<PlaceCandidate[]>([]);
+  const [suggestions, setSuggestions] = useState<PlaceCandidate[]>([]);
+  const [suggestionsLoaded, setSuggestionsLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
@@ -51,13 +57,15 @@ export function useTripPlanner(id: string | undefined): TripPlannerState {
   function fail(reason: unknown): void {
     setError(reason instanceof Error ? reason.message : "Trip request failed");
   }
-  const context = { trip, selected, preferences, busy, setTrip, setSelected, setSearchResults, setBusy, setError, fail };
+  const context = { trip, selected, preferences, busy, setTrip, setSelected, setSearchResults, setSuggestions, setSuggestionsLoaded, setBusy, setError, fail };
   const run = createRunner(setBusy, setError, applyTrip, fail);
   return {
     trip,
     selected,
     preferences,
     searchResults,
+    suggestions,
+    suggestionsLoaded,
     busy,
     error,
     ...createRouteActions(context, run),
@@ -77,6 +85,8 @@ interface ActionContext {
   setTrip: Setter<TripPlan | null>;
   setSelected: Setter<string[]>;
   setSearchResults: Setter<PlaceCandidate[]>;
+  setSuggestions: Setter<PlaceCandidate[]>;
+  setSuggestionsLoaded: Setter<boolean>;
   setBusy: Setter<boolean>;
   setError: Setter<string | null>;
   fail: (reason: unknown) => void;
@@ -126,7 +136,7 @@ function createRouteActions(context: ActionContext, run: TripRunner): Pick<TripP
   return { optimize, toggle, applyDefaults };
 }
 
-function createPlaceActions(context: ActionContext, run: TripRunner): Pick<TripPlannerState, "search" | "addDestination" | "removeDestination"> {
+function createPlaceActions(context: ActionContext, run: TripRunner): Pick<TripPlannerState, "search" | "suggest" | "addDestination" | "removeDestination"> {
   const search = async (query: string): Promise<void> => {
     const trip = context.trip;
     if (!trip || context.busy || query.trim().length < 2) return;
@@ -140,16 +150,33 @@ function createPlaceActions(context: ActionContext, run: TripRunner): Pick<TripP
       context.setBusy(false);
     }
   };
+  const suggest = async (): Promise<void> => {
+    const trip = context.trip;
+    if (!trip || context.busy) return;
+    context.setBusy(true);
+    context.setError(null);
+    try {
+      context.setSuggestions(await getTripSuggestions(trip.id));
+      context.setSuggestionsLoaded(true);
+    } catch (reason) {
+      context.fail(reason);
+    } finally {
+      context.setBusy(false);
+    }
+  };
   const addDestination = async (place: PlaceCandidate): Promise<void> => {
     const trip = context.trip;
     if (!trip || context.busy) return;
     const added = await run(() => addTripPlace(trip.id, place));
     if (added) context.setSearchResults([]);
+    if (added) {
+      context.setSuggestions((items) => items.filter((item) => item.place_id !== place.place_id));
+    }
   };
   const removeDestination = async (stopId: string): Promise<void> => {
     const trip = context.trip;
     if (!trip || context.busy || trip.stops.length <= 1) return;
     await run(() => removeTripPlace(trip.id, stopId));
   };
-  return { search, addDestination, removeDestination };
+  return { search, suggest, addDestination, removeDestination };
 }

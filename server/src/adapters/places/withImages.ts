@@ -9,11 +9,21 @@ export function withLicensedPlaceImages(
   return {
     name: places.name,
     photo: (placeId) => places.photo(placeId),
+    nearbyPopular: places.nearbyPopular
+      ? async (center, radiusMeters) => attachAll(
+        await places.nearbyPopular?.(center, radiusMeters) ?? [],
+        images,
+      )
+      : undefined,
     async search(query, region) {
       const candidates = await places.search(query, region);
-      return Promise.all(candidates.map((candidate) => attachFallback(candidate, images)));
+      return attachAll(candidates, images);
     },
   };
+}
+
+function attachAll(candidates: PlaceCandidate[], images: PlaceImageProvider): Promise<PlaceCandidate[]> {
+  return Promise.all(candidates.map((candidate) => attachFallback(candidate, images)));
 }
 
 async function attachFallback(

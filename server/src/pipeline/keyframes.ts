@@ -64,6 +64,22 @@ export async function imageToJpeg(inputPath: string, outPath: string): Promise<v
   await execa(ffmpegBin(), ['-y', '-i', inputPath, '-frames:v', '1', '-q:v', '2', outPath]);
 }
 
+export async function imageToHeroJpeg(
+  inputPath: string,
+  outPath: string,
+  focusX: number,
+  focusY: number,
+  zoom = 1,
+): Promise<void> {
+  mkdirSync(path.dirname(outPath), { recursive: true });
+  const scaledWidth = Math.round(1280 * zoom);
+  const scaledHeight = Math.round(720 * zoom);
+  const x = `min(max(iw*${focusX}-ow/2,0),iw-ow)`;
+  const y = `min(max(ih*${focusY}-oh/2,0),ih-oh)`;
+  const filter = `scale=${scaledWidth}:${scaledHeight}:force_original_aspect_ratio=increase,crop=1280:720:x='${x}':y='${y}'`;
+  await execa(ffmpegBin(), ['-y', '-i', inputPath, '-frames:v', '1', '-vf', filter, '-q:v', '2', outPath]);
+}
+
 export async function imagesToSlideshow(imagePaths: string[], outPath: string): Promise<void> {
   if (imagePaths.length === 0) throw new Error('No images provided for slideshow');
   const imageDir = path.dirname(imagePaths[0]);
