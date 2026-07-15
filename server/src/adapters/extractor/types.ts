@@ -8,6 +8,6 @@ export interface ExtractedMedia {
 }
 
 export interface Extractor {
-  readonly name: 'fixture' | 'tikhub' | 'xhs-downloader';
+  readonly name: 'fixture' | 'tikhub' | 'xhs-downloader' | 'auto';
   extract(normalizedUrl: string): Promise<ExtractedMedia>;
 }

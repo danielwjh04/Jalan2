@@ -7,6 +7,7 @@ import { useUserPreferences } from "@/lib/useUserPreferences";
 import { colors, radius, spacing, type } from "@/lib/theme";
 import { BookSheet } from "./BookSheet";
 import { BookingDetailsCard } from "./BookingDetailsCard";
+import { DiscoveredOperatorCard } from "./DiscoveredOperatorCard";
 import { BookingHero } from "./BookingHero";
 import { BookingMessages } from "./BookingMessages";
 import { BookingProgress } from "./BookingProgress";
@@ -39,6 +40,9 @@ export function BookingPanel(props: Props): React.ReactElement {
       <BookingHero view={view} booking={booking} />
       <BookingProgress view={view} />
       <BookingDetailsCard itinerary={props.itinerary} />
+      {props.itinerary.discoveredOperator ? (
+        <DiscoveredOperatorCard discovered={props.itinerary.discoveredOperator} />
+      ) : null}
       <BookingStateBody {...props} view={view} />
       {props.itinerary.experienceId ? (
         <ExperienceLink experienceId={props.itinerary.experienceId} bookingId={props.itinerary.id} />

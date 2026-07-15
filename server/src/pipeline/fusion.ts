@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import { BookingJsonSchema, BookingJsonWireSchema, type BookingJson } from '@shared/booking';
 import type { Transcript } from '../adapters/stt/types';
-import { KUCHING_GAZETTEER } from './gazetteer';
+import { inMalaysiaBounds } from './region';
 import type { VisionReadout } from './vision';
 
 export interface FusionEvidence {
@@ -15,12 +15,9 @@ export type ValidationOutcome =
   | { ok: true; booking: BookingJson }
   | { ok: false; problems: string[] };
 
-const MALAYSIA_BOUNDS = { latMin: 0.8, latMax: 7.5, lngMin: 99.6, lngMax: 119.3 };
-
 export function buildFusionMessages(
   evidence: FusionEvidence,
 ): OpenAI.Chat.Completions.ChatCompletionMessageParam[] {
-  const gazetteer = KUCHING_GAZETTEER.map((p) => `- ${p.name}: ${p.lat}, ${p.lng}`).join('\n');
   const system = [
     'You fuse evidence from a Malaysian adventure-tourism video into one booking record.',
     'Rules:',
@@ -38,9 +35,10 @@ export function buildFusionMessages(
     '- contact.source names the evidence stream where the number was actually found.',
     '- raw_evidence.transcript_span is a verbatim transcript quote; frame_ts is the',
     '  timestamp of the most useful frame.',
-    '- Take meeting_point coordinates from this gazetteer when the named place matches;',
-    '  otherwise use coordinates only if explicitly evidenced:',
-    gazetteer,
+    '- meeting_point is the named start or gathering place from the evidence. Set',
+    '  lat and lng to the widely known coordinates of that named place in Malaysia;',
+    '  city-level accuracy is enough because coordinates are re-verified against a',
+    '  places database after fusion.',
     'Confidence rubric: 0.9 or higher when key fields are corroborated by two or more',
     'evidence streams; around 0.6 when single-source; below 0.4 when the operator or',
     'activity is unclear.',
@@ -65,12 +63,7 @@ export function validateFusedBooking(candidate: unknown): ValidationOutcome {
     return { ok: false, problems };
   }
   const { lat, lng } = parsed.data.meeting_point;
-  const inBounds =
-    lat >= MALAYSIA_BOUNDS.latMin &&
-    lat <= MALAYSIA_BOUNDS.latMax &&
-    lng >= MALAYSIA_BOUNDS.lngMin &&
-    lng <= MALAYSIA_BOUNDS.lngMax;
-  if (!inBounds) {
+  if (!inMalaysiaBounds(parsed.data.meeting_point)) {
     return { ok: false, problems: [`meeting_point is outside Malaysia bounds: ${lat}, ${lng}`] };
   }
   return { ok: true, booking: parsed.data };

@@ -33,6 +33,18 @@ export interface BookingRequest {
   pax: number;
 }
 
+// Operator found through web retrieval when the video itself evidences no
+// contact. Surfaced to the tourist with its source; never used for automated
+// server-side outreach.
+export interface DiscoveredOperator {
+  name: string;
+  url: string;
+  snippet: string | null;
+  whatsapp: string | null;
+  facebook: string | null;
+  instagram: string | null;
+}
+
 export interface Itinerary {
   id: string;
   tripId: string | null;
@@ -45,6 +57,7 @@ export interface Itinerary {
   servedFrom: 'live' | 'cache' | null;
   requested: BookingRequest | null;
   operatorAddress: string | null;
+  discoveredOperator: DiscoveredOperator | null;
   messages: ItineraryMessage[];
   error: string | null;
   createdAt: string;

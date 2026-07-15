@@ -441,16 +441,18 @@ copy .env.example .env
 npm run dev
 ```
 
-For live XHS extraction, start the self-hosted sidecar and select it in
-`server/.env`:
+For live extraction of both platforms at once, set `EXTRACTOR=auto`: XHS
+links go to the self-hosted sidecar and TikTok links go to TikHub. Start the
+sidecar and configure `server/.env`:
 
 ```
 docker compose -f compose.xhs.yml up -d
 ```
 
 ```env
-EXTRACTOR=xhs-downloader
+EXTRACTOR=auto
 XHS_DOWNLOADER_URL=http://127.0.0.1:5556
+TIKHUB_TOKEN=your_tikhub_token
 PIPELINE_MODE=live
 PLACES_PROVIDER=auto
 ROUTING_PROVIDER=auto
@@ -460,13 +462,15 @@ GOOGLE_MAPS_API_KEY=your_server_side_key
 The sidecar exposes `POST /xhs/detail` on port 5556. It is GPL-3.0 software;
 review its license obligations before distributing a combined deployment. Keep
 any optional XHS Cookie in the sidecar's private volume, never in Git or client
-configuration.
+configuration. `EXTRACTOR=xhs-downloader` or `EXTRACTOR=tikhub` still select a
+single provider; the fixture URLs always serve their cached bundles either way.
 
-For a live TikTok post, set `EXTRACTOR=tikhub` and provide
-`TIKHUB_API_KEY`. Keep all provider keys in `server/.env`; the Expo client must
-never receive them. In `auto` mode, Places and Routes use Google when the
-server key is configured and fall back to deterministic local providers when
-it is not.
+For a live TikTok post, provide `TIKHUB_TOKEN`. The TikTok fallback path also
+uses the optional `yt-dlp` binary when TikHub cannot parse a post; install it
+with `winget install yt-dlp.yt-dlp`. Keep all provider keys in `server/.env`;
+the Expo client must never receive them. In `auto` mode, Places and Routes use
+Google when the server key is configured and fall back to deterministic local
+providers when it is not.
 
 App (Expo Go on a phone, same Wi-Fi):
 

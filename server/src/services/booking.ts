@@ -7,6 +7,7 @@ import type {
   MessagingProvider,
 } from "../adapters/messaging/types";
 import { MOCK_OPERATOR_ADDRESS } from "../adapters/messaging/mock";
+import type { Retrieval } from "../adapters/retrieval/types";
 import { NotConfiguredError } from "../lib/errors";
 import { normalizeTwilioWhatsAppAddress } from "../adapters/messaging/twilio";
 import { markOptedIn, recordDemand } from "../store/directory";
@@ -14,12 +15,16 @@ import {
   allItineraries,
   appendMessage,
   getItinerary,
+  setDiscoveredOperator,
   setRequested,
   transition,
 } from "../store/itineraries";
+import { discoverOperator, needsOperatorDiscovery } from "./operatorDiscovery";
 
 // Outbound messages only ever go to the env-configured demo phone, never to
-// numbers extracted from videos. Consensual opt-in, no cold contact.
+// numbers extracted from videos or the web. Consensual opt-in, no cold
+// contact: discovered operators are surfaced to the tourist with their source
+// so any outreach is a deliberate human tap in their own WhatsApp.
 export function operatorAddressFor(config: Config): string {
   switch (config.MESSAGING_PROVIDER) {
     case "twilio": {
@@ -48,12 +53,13 @@ export function operatorAddressFor(config: Config): string {
 export function composeOperatorMessage(
   booking: BookingJson,
   requested: BookingRequest,
+  operatorName: string = booking.operator_name,
 ): string {
   const date = new Date(requested.dateISO).toDateString();
   const price =
     booking.price_myr === null ? "" : ` (~RM${booking.price_myr}/pax)`;
   return [
-    `Hi ${booking.operator_name}! A tourist found your ${booking.activity}${price} on Jalan2 and wants to book:`,
+    `Hi ${operatorName}! A tourist found your ${booking.activity}${price} on Jalan2 and wants to book:`,
     `- Date: ${date}`,
     `- Pax: ${requested.pax}`,
     `- Meet: ${booking.meeting_point.name}`,
@@ -63,6 +69,7 @@ export function composeOperatorMessage(
 
 export async function bookItinerary(
   messaging: MessagingProvider,
+  retrieval: Retrieval,
   config: Config,
   id: string,
   requested: BookingRequest,
@@ -78,8 +85,16 @@ export async function bookItinerary(
       `Itinerary ${id} is not bookable (status=${itinerary.status}, stage=${itinerary.stage})`,
     );
   }
+  const discovered = needsOperatorDiscovery(itinerary.booking)
+    ? await discoverOperator(retrieval, itinerary.booking)
+    : null;
+  if (discovered) setDiscoveredOperator(id, discovered);
   const to = operatorAddressFor(config);
-  const body = composeOperatorMessage(itinerary.booking, requested);
+  const body = composeOperatorMessage(
+    itinerary.booking,
+    requested,
+    discovered?.name ?? itinerary.booking.operator_name,
+  );
   await messaging.sendBookingRequest(to, body);
   setRequested(id, requested, to);
   appendMessage(id, {

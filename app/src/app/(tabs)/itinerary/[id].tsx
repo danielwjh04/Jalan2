@@ -8,12 +8,14 @@ import { TransitButton } from "@/components/TransitButton";
 import { bookingViewFor } from "@/lib/bookingPresentation";
 import { HOME_ROUTE } from "@/lib/navigation";
 import { useItinerary } from "@/lib/useItinerary";
+import { useMeetingPointStop } from "@/lib/useMeetingPointStop";
 import { colors, spacing } from "@/lib/theme";
 
 export default function ItineraryScreen(): React.ReactElement {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const state = useItinerary(id);
+  const meetingStop = useMeetingPointStop(state.itinerary);
   if (!state.itinerary) {
     const view = bookingViewFor(null, state.error);
     return (
@@ -47,7 +49,7 @@ export default function ItineraryScreen(): React.ReactElement {
         />
         {itinerary.booking ? (
           <>
-            <MapCard point={itinerary.booking.meeting_point} />
+            <MapCard point={itinerary.booking.meeting_point} stop={meetingStop} />
             <TransitButton point={itinerary.booking.meeting_point} />
           </>
         ) : null}

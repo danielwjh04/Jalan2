@@ -194,3 +194,7 @@ export function getMenu(id: string): Promise<MenuResponse> {
 export function serverUrl(path: string): string {
   return `${baseUrl()}${path}`;
 }
+
+export function mediaUrl(value: string | null): string | null {
+  return value?.startsWith("/") ? serverUrl(value) : value;
+}

@@ -1,8 +1,19 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createGooglePlaces, parseGooglePlaces } from '../src/adapters/places/google';
+import { createGooglePlaces, parseGooglePlaces, searchTextQuery } from '../src/adapters/places/google';
 
 afterEach(() => {
   vi.unstubAllGlobals();
+});
+
+describe('searchTextQuery', () => {
+  it('appends the region to bias the query', () => {
+    expect(searchTextQuery('Chinatown', 'Penang, Malaysia')).toBe('Chinatown, Penang, Malaysia');
+  });
+
+  it('keeps the query unchanged when it already names the region', () => {
+    expect(searchTextQuery('popular attractions in Penang, Malaysia', 'Penang, Malaysia'))
+      .toBe('popular attractions in Penang, Malaysia');
+  });
 });
 
 describe('parseGooglePlaces', () => {

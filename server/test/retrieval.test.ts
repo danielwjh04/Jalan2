@@ -20,6 +20,7 @@ describe('parseExaResponse', () => {
         url: 'https://example.com/kolo-mee',
         snippet: 'Kuching noodle classic',
         imageUrl: 'https://example.com/kolo.jpg',
+        text: 'Kuching noodle classic',
       },
     ]);
   });
@@ -31,6 +32,7 @@ describe('parseExaResponse', () => {
       url: 'https://example.com/x',
       snippet: null,
       imageUrl: null,
+      text: null,
     });
   });
 

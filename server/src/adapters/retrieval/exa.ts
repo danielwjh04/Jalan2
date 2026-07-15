@@ -12,28 +12,31 @@ const ExaResultSchema = z.object({
 
 const ExaResponseSchema = z.object({ results: z.array(ExaResultSchema) });
 
+const SNIPPET_CHARACTERS = 300;
+
 // Exa's payload is validated here so any API shape drift surfaces as one
 // failing function instead of silently empty search results.
 export function parseExaResponse(json: unknown): RetrievalResult[] {
   return ExaResponseSchema.parse(json).results.map((result) => ({
     title: result.title ?? result.url,
     url: result.url,
-    snippet: result.text ? result.text.slice(0, 300) : null,
+    snippet: result.text ? result.text.slice(0, SNIPPET_CHARACTERS) : null,
     imageUrl: result.image ?? null,
+    text: result.text ?? null,
   }));
 }
 
 export function createExaRetrieval(apiKey: string): Retrieval {
   return {
     name: 'exa',
-    async search(query, limit) {
+    async search(query, limit, textCharacters = SNIPPET_CHARACTERS) {
       const response = await fetch(SEARCH_URL, {
         method: 'POST',
         headers: { 'x-api-key': apiKey, 'content-type': 'application/json' },
         body: JSON.stringify({
           query,
           numResults: limit,
-          contents: { text: { maxCharacters: 300 } },
+          contents: { text: { maxCharacters: textCharacters } },
         }),
       });
       if (!response.ok) {

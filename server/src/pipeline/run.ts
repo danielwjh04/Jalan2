@@ -17,7 +17,7 @@ import { extractAudio, extractKeyframes, imageToHeroJpeg, type Keyframe } from '
 import { chooseAestheticCover, type CoverSelection } from './cover';
 import { fuse } from './fusion';
 import { enrichTrust } from './trust';
-import { createDynamicTrip } from './trip';
+import { anchorMeetingPoint, createDynamicTrip } from './trip';
 import { readFrames } from './vision';
 
 export interface PipelineDeps {
@@ -125,11 +125,12 @@ async function runLive(
   setStage(id, 'READING_FRAMES');
   const vision = await readFrames(openai, config.OPENAI_VISION_MODEL, frames);
   setStage(id, 'FUSING');
-  const booking = await fuse(openai, config.OPENAI_FUSION_MODEL, {
+  const fused = await fuse(openai, config.OPENAI_FUSION_MODEL, {
     caption: media.caption,
     transcript,
     vision,
   });
+  const booking = await anchorMeetingPoint(fused, deps.places);
   const trip = await createDynamicTrip(id, url, booking, vision, deps.places);
   saveTrip({ ...trip, cover_url: coverUrl });
   setTripId(id, trip.id);

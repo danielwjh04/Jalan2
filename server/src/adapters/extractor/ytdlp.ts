@@ -22,7 +22,7 @@ export async function downloadTikTokWithYtDlp(url: string, outDir: string): Prom
   mkdirSync(outDir, { recursive: true });
   const info = await readInfo(url);
   const videoPath = path.join(outDir, 'video.mp4');
-  await execa('yt-dlp', ['--no-warnings', '-f', 'mp4', '-o', videoPath, url]);
+  await runYtDlp(['--no-warnings', '-f', 'mp4', '-o', videoPath, url]);
   return {
     fixtureSlug: null,
     videoPath,
@@ -34,13 +34,26 @@ export async function downloadTikTokWithYtDlp(url: string, outDir: string): Prom
 }
 
 async function readInfo(url: string): Promise<unknown> {
-  const { stdout } = await execa('yt-dlp', [
+  const { stdout } = await runYtDlp([
     '--no-warnings',
     '--dump-single-json',
     '--skip-download',
     url,
   ]);
   return JSON.parse(stdout) as unknown;
+}
+
+async function runYtDlp(args: string[]): Promise<{ stdout: string }> {
+  try {
+    return await execa('yt-dlp', args);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      throw new Error(
+        'yt-dlp binary not found; the TikTok fallback needs it. Install with: winget install yt-dlp.yt-dlp',
+      );
+    }
+    throw error;
+  }
 }
 
 function cleanText(value: string | null | undefined): string | null {

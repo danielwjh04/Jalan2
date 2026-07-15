@@ -33,6 +33,30 @@ describe('buildWhatsAppDeepLink', () => {
     expect(decodeURIComponent(link?.split('text=')[1] ?? '')).toContain('- Pax: 3');
   });
 
+  it('prefers a discovered operator number over the demo fallback', () => {
+    const link = buildWhatsAppDeepLink(
+      booking,
+      { dateISO: '2026-07-07', pax: 2 },
+      '+65 9123 4567',
+      '+60123456789',
+    );
+    expect(link?.startsWith('https://wa.me/60123456789?text=')).toBe(true);
+  });
+
+  it('still prefers an evidenced video contact over a discovered number', () => {
+    const withContact = {
+      ...booking,
+      contact: { whatsapp: '+60 13-820 1122', source: 'caption' },
+    } satisfies BookingJson;
+    const link = buildWhatsAppDeepLink(
+      withContact,
+      { dateISO: '2026-07-07', pax: 2 },
+      undefined,
+      '+60123456789',
+    );
+    expect(link?.startsWith('https://wa.me/60138201122?text=')).toBe(true);
+  });
+
   it('returns null when neither number is usable', () => {
     expect(buildWhatsAppDeepLink(booking, { dateISO: '2026-07-07', pax: 2 }, 'abc')).toBeNull();
   });

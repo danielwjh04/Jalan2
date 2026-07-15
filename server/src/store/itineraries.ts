@@ -4,6 +4,7 @@ import type { ItinerarySummary } from '@shared/api';
 import { canTransition } from '@shared/status';
 import type {
   BookingRequest,
+  DiscoveredOperator,
   Itinerary,
   ItineraryMessage,
   ItineraryStatus,
@@ -27,6 +28,7 @@ export function createItinerary(sourceUrl: string, coverUrl: string | null = nul
     servedFrom: null,
     requested: null,
     operatorAddress: null,
+    discoveredOperator: null,
     messages: [],
     error: null,
     createdAt: now,
@@ -100,6 +102,15 @@ export function setRequested(
   const itinerary = getOrThrow(id);
   itinerary.requested = requested;
   itinerary.operatorAddress = operatorAddress;
+  return touch(itinerary);
+}
+
+export function setDiscoveredOperator(
+  id: string,
+  discovered: DiscoveredOperator,
+): Itinerary {
+  const itinerary = getOrThrow(id);
+  itinerary.discoveredOperator = discovered;
   return touch(itinerary);
 }
 

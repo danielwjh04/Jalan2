@@ -37,6 +37,10 @@ describe("loadConfig", () => {
     expect(config.OPENAI_API_KEY).toBe("sk-test");
   });
 
+  it("accepts the auto extractor", () => {
+    expect(loadConfig({ EXTRACTOR: "auto" }).EXTRACTOR).toBe("auto");
+  });
+
   it("rejects an invalid enum choice", () => {
     expect(() =>
       loadConfig({ MESSAGING_PROVIDER: "carrier-pigeon" }),

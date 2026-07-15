@@ -13,7 +13,7 @@ const optionalKey = () =>
 const EnvSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3001),
   PIPELINE_MODE: z.enum(["live", "cached", "auto"]).default("auto"),
-  EXTRACTOR: z.enum(["fixture", "tikhub", "xhs-downloader"]).default("fixture"),
+  EXTRACTOR: z.enum(["fixture", "tikhub", "xhs-downloader", "auto"]).default("fixture"),
   XHS_DOWNLOADER_URL: z.string().url().default("http://127.0.0.1:5556"),
   STT_PROVIDER: z.enum(["openai", "elevenlabs"]).default("openai"),
   MESSAGING_PROVIDER: z.enum(["mock", "twilio", "telegram"]).default("mock"),

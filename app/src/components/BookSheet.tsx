@@ -46,19 +46,15 @@ export function BookSheet({
     setError(null);
     try {
       const requested = { dateISO, pax };
+      const updated = await book(itineraryId, requested);
+      onBooked(updated);
       const link = buildWhatsAppDeepLink(
         booking,
         requested,
         process.env.EXPO_PUBLIC_DEMO_WHATSAPP_NUMBER,
+        updated.discoveredOperator?.whatsapp ?? null,
       );
-      if (!link) {
-        throw new Error(
-          "Set EXPO_PUBLIC_DEMO_WHATSAPP_NUMBER to open WhatsApp.",
-        );
-      }
-      const updated = await book(itineraryId, requested);
-      onBooked(updated);
-      if (!(await tryOpenExternalUrl(link, Linking.openURL))) {
+      if (link && !(await tryOpenExternalUrl(link, Linking.openURL))) {
         setError(
           "Booking request recorded, but WhatsApp could not open on this device.",
         );

@@ -5,8 +5,11 @@ export function buildWhatsAppDeepLink(
   booking: BookingJson,
   requested: BookingRequest,
   demoNumber: string | undefined,
+  discoveredWhatsapp: string | null = null,
 ): string | null {
-  const phone = normalizeWhatsAppNumber(booking.contact.whatsapp) ?? normalizeWhatsAppNumber(demoNumber);
+  const phone = normalizeWhatsAppNumber(booking.contact.whatsapp)
+    ?? normalizeWhatsAppNumber(discoveredWhatsapp)
+    ?? normalizeWhatsAppNumber(demoNumber);
   if (!phone) return null;
   const message = composeWhatsAppBookingDraft(booking, requested);
   return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;

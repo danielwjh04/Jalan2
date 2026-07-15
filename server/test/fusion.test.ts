@@ -44,10 +44,10 @@ describe('buildFusionMessages', () => {
     expect(text).toContain('RM250 ALL GEAR INCLUDED');
   });
 
-  it('anchors the system prompt with the gazetteer', () => {
+  it('states the meeting point coordinate rule in the system prompt', () => {
     const [system] = buildFusionMessages(evidence);
     const text = String(system.content);
-    expect(text).toContain('Bako National Park jetty: 1.7169, 110.4462');
+    expect(text).toContain('places database after fusion');
     expect(text).toContain('Never invent');
   });
 

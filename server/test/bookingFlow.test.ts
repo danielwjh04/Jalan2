@@ -1,10 +1,11 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { BookingJson } from "@shared/booking";
 import { loadConfig } from "../src/config";
 import {
   createMockProvider,
   MOCK_OPERATOR_ADDRESS,
 } from "../src/adapters/messaging/mock";
+import type { Retrieval } from "../src/adapters/retrieval/types";
 import {
   bookItinerary,
   handleInbound,
@@ -21,6 +22,7 @@ import {
 
 const config = loadConfig({});
 const messaging = createMockProvider(0, () => {});
+const retrieval: Retrieval = { name: "fixture", search: async () => [] };
 
 const booking: BookingJson = {
   operator_name: "Kuching Dive Adventures",
@@ -48,6 +50,11 @@ function readyItinerary(): string {
 beforeEach(() => {
   resetItineraries();
   resetDirectory();
+  vi.stubGlobal("fetch", vi.fn(async () => new Response("not found", { status: 404 })));
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
 });
 
 describe("bookItinerary", () => {
@@ -61,7 +68,7 @@ describe("bookItinerary", () => {
 
   it("sends the composed message and moves DRAFT to PENDING_CONFIRM", async () => {
     const id = readyItinerary();
-    const result = await bookItinerary(messaging, config, id, {
+    const result = await bookItinerary(messaging, retrieval, config, id, {
       dateISO: "2026-07-12",
       pax: 2,
     });
@@ -71,11 +78,38 @@ describe("bookItinerary", () => {
     expect(result.messages[0].direction).toBe("outbound");
     expect(result.messages[0].text).toContain("Bako reef dive");
     expect(result.messages[0].text).toContain("Pax: 2");
+    expect(result.discoveredOperator).toBeNull();
+  });
+
+  it("discovers an operator online when the video evidences no contact", async () => {
+    const itinerary = createItinerary("https://tiktok.com/@nocontact/video/9");
+    setBooking(itinerary.id, {
+      ...booking,
+      operator_name: "Unnamed local operator",
+      contact: { whatsapp: null, source: "caption" },
+    }, "cache");
+    setStage(itinerary.id, "READY");
+    const found: Retrieval = {
+      name: "fixture",
+      search: async () => [{
+        title: "Sri Bintang Hill Hiking Tours | Book KL guides",
+        url: "https://example.my/sri-bintang-tours",
+        snippet: "Guided sunrise hikes. WhatsApp 012-345 6789 to book.",
+        imageUrl: null,
+      }],
+    };
+    const result = await bookItinerary(messaging, found, config, itinerary.id, {
+      dateISO: "2026-07-16",
+      pax: 2,
+    });
+    expect(result.discoveredOperator?.name).toBe("Sri Bintang Hill Hiking Tours");
+    expect(result.discoveredOperator?.whatsapp).toBe("+60123456789");
+    expect(result.messages[0].text).toContain("Hi Sri Bintang Hill Hiking Tours!");
   });
 
   it("records demand in the directory", async () => {
     const id = readyItinerary();
-    await bookItinerary(messaging, config, id, {
+    await bookItinerary(messaging, retrieval, config, id, {
       dateISO: "2026-07-12",
       pax: 2,
     });
@@ -89,7 +123,7 @@ describe("bookItinerary", () => {
       "https://tiktok.com/@kuchingdive/video/2",
     );
     await expect(
-      bookItinerary(messaging, config, itinerary.id, {
+      bookItinerary(messaging, retrieval, config, itinerary.id, {
         dateISO: "2026-07-12",
         pax: 2,
       }),
@@ -98,12 +132,12 @@ describe("bookItinerary", () => {
 
   it("rejects double booking", async () => {
     const id = readyItinerary();
-    await bookItinerary(messaging, config, id, {
+    await bookItinerary(messaging, retrieval, config, id, {
       dateISO: "2026-07-12",
       pax: 2,
     });
     await expect(
-      bookItinerary(messaging, config, id, { dateISO: "2026-07-13", pax: 3 }),
+      bookItinerary(messaging, retrieval, config, id, { dateISO: "2026-07-13", pax: 3 }),
     ).rejects.toThrow(/not bookable/);
   });
 });
@@ -111,7 +145,7 @@ describe("bookItinerary", () => {
 describe("handleInbound", () => {
   it("confirms the pending itinerary on YES and opts the operator in", async () => {
     const id = readyItinerary();
-    await bookItinerary(messaging, config, id, {
+    await bookItinerary(messaging, retrieval, config, id, {
       dateISO: "2026-07-12",
       pax: 2,
     });
@@ -126,7 +160,7 @@ describe("handleInbound", () => {
 
   it("keeps the itinerary pending on a non-confirmation reply", async () => {
     const id = readyItinerary();
-    await bookItinerary(messaging, config, id, {
+    await bookItinerary(messaging, retrieval, config, id, {
       dateISO: "2026-07-12",
       pax: 2,
     });
@@ -147,7 +181,7 @@ describe("handleInbound", () => {
 
   it("ignores a reply from an address no booking was sent to", async () => {
     const id = readyItinerary();
-    await bookItinerary(messaging, config, id, {
+    await bookItinerary(messaging, retrieval, config, id, {
       dateISO: "2026-07-12",
       pax: 2,
     });
@@ -160,7 +194,7 @@ describe("handleInbound", () => {
 
   it("still confirms from the matching operator address", async () => {
     const id = readyItinerary();
-    await bookItinerary(messaging, config, id, {
+    await bookItinerary(messaging, retrieval, config, id, {
       dateISO: "2026-07-12",
       pax: 2,
     });

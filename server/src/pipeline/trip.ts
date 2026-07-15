@@ -6,9 +6,31 @@ import {
   type TripStop,
 } from '@shared/trip';
 import type { PlacesProvider } from '../adapters/places/types';
+import { inMalaysiaBounds, regionFromCoordinates } from './region';
 import type { VisionReadout } from './vision';
 
 const GENERIC_PLACE_NAMES = new Set(['malaysia', 'sarawak', 'borneo']);
+
+// Fused coordinates are a model-provided seed; re-anchor them to the places
+// database so the map pin and region label rest on verified data.
+export async function anchorMeetingPoint(
+  booking: BookingJson,
+  places: PlacesProvider,
+): Promise<BookingJson> {
+  const anchored = await places
+    .search(booking.meeting_point.name, 'Malaysia')
+    .then((items) => items[0] ?? null)
+    .catch(() => null);
+  if (!anchored || !inMalaysiaBounds(anchored.location)) return booking;
+  return {
+    ...booking,
+    meeting_point: {
+      name: booking.meeting_point.name,
+      lat: anchored.location.lat,
+      lng: anchored.location.lng,
+    },
+  };
+}
 
 export async function createDynamicTrip(
   id: string,
@@ -17,18 +39,19 @@ export async function createDynamicTrip(
   vision: VisionReadout,
   places: PlacesProvider,
 ): Promise<TripPlan> {
+  const region = regionFromCoordinates(booking.meeting_point);
   const names = evidencePlaceNames(booking, vision).slice(0, 8);
   const resolved = await Promise.all(
-    names.map((name) => places.search(name, 'Sarawak').then((items) => items[0]).catch(() => null)),
+    names.map((name) => places.search(name, region).then((items) => items[0]).catch(() => null)),
   );
   const stops = applyBookingPrice(uniqueStops(
-    resolved.map((place, index) => toStop(place ?? fallbackPlace(names[index], booking), sourceUrl)),
+    resolved.map((place, index) => toStop(place ?? fallbackPlace(names[index], booking, region), sourceUrl)),
   ), booking);
   return {
     id,
     title: booking.activity,
     summary: 'A flexible route built from the submitted travel post.',
-    region: 'Sarawak, Malaysia',
+    region,
     source_creator: booking.operator_name,
     source_url: sourceUrl,
     cover_url: null,
@@ -59,11 +82,11 @@ function evidencePlaceNames(booking: BookingJson, vision: VisionReadout): string
   });
 }
 
-function fallbackPlace(name: string, booking: BookingJson): PlaceCandidate {
+function fallbackPlace(name: string, booking: BookingJson, region: string): PlaceCandidate {
   return {
     place_id: `source-${slug(name)}`,
     name,
-    address: `${name}, Sarawak, Malaysia`,
+    address: `${name}, ${region}`,
     location: booking.meeting_point,
     google_maps_url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`,
     opening_window: null,

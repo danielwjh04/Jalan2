@@ -59,7 +59,7 @@ export function createApp(ctx: ServerContext): Express {
   app.use(placePhotosRouter(ctx.places));
   app.use(tripsRouter(ctx.routing, ctx.places));
   app.use(tripReservationsRouter(ctx.messaging, ctx.config));
-  app.use(bookRouter(ctx.messaging, ctx.config));
+  app.use(bookRouter(ctx.messaging, ctx.retrieval, ctx.config));
   app.use(directoryRouter());
   app.use(discoveriesRouter());
   app.use(reviewsRouter());

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import type { Config } from '../config';
 import type { MessagingProvider } from '../adapters/messaging/types';
+import type { Retrieval } from '../adapters/retrieval/types';
 import { bookItinerary } from '../services/booking';
 
 const BookBodySchema = z.object({
@@ -10,7 +11,11 @@ const BookBodySchema = z.object({
   pax: z.number().int().positive(),
 });
 
-export function bookRouter(messaging: MessagingProvider, config: Config): Router {
+export function bookRouter(
+  messaging: MessagingProvider,
+  retrieval: Retrieval,
+  config: Config,
+): Router {
   const router = Router();
   router.post('/book', async (req, res) => {
     const parsed = BookBodySchema.safeParse(req.body);
@@ -20,7 +25,7 @@ export function bookRouter(messaging: MessagingProvider, config: Config): Router
     }
     try {
       const { id, dateISO, pax } = parsed.data;
-      res.json(await bookItinerary(messaging, config, id, { dateISO, pax }));
+      res.json(await bookItinerary(messaging, retrieval, config, id, { dateISO, pax }));
     } catch (error) {
       res.status(409).json({ error: error instanceof Error ? error.message : String(error) });
     }

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { normalizeVideoUrl } from '@shared/videoUrl';
+import { NotConfiguredError } from '../../lib/errors';
 import { materializeMedia } from './downloadedMedia';
 import type { HybridMedia } from './tikhubMedia';
 import type { Extractor } from './types';
@@ -46,12 +47,20 @@ export function parseXhsDownloaderMedia(payload: unknown): HybridMedia {
 }
 
 async function fetchXhsPost(baseUrl: string, postUrl: string): Promise<HybridMedia> {
-  const response = await fetch(`${baseUrl.replace(/\/$/, '')}/xhs/detail`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ url: postUrl, download: false }),
-    signal: AbortSignal.timeout(45_000),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${baseUrl.replace(/\/$/, '')}/xhs/detail`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ url: postUrl, download: false }),
+      signal: AbortSignal.timeout(45_000),
+    });
+  } catch {
+    throw new NotConfiguredError(
+      'XHS-Downloader sidecar',
+      'Start it with: docker compose -f compose.xhs.yml up -d',
+    );
+  }
   if (!response.ok) {
     const detail = await response.text();
     throw new Error(`XHS-Downloader failed (${response.status}): ${detail.slice(0, 200)}`);

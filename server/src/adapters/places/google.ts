@@ -53,7 +53,7 @@ const ResponseSchema = z.object({ places: z.array(PlaceSchema).optional() });
 export function createGooglePlaces(apiKey: string): PlacesProvider {
   return {
     name: 'google',
-    async search(query) {
+    async search(query, region) {
       const response = await fetch(SEARCH_URL, {
         method: 'POST',
         headers: {
@@ -62,7 +62,7 @@ export function createGooglePlaces(apiKey: string): PlacesProvider {
           'X-Goog-FieldMask': FIELD_MASK,
         },
         body: JSON.stringify({
-          textQuery: `${query}, Malaysia`,
+          textQuery: searchTextQuery(query, region),
           pageSize: 5,
           languageCode: 'en',
           regionCode: 'MY',
@@ -81,6 +81,12 @@ export function createGooglePlaces(apiKey: string): PlacesProvider {
       return fetchGooglePlacePhoto(apiKey, placeId);
     },
   };
+}
+
+// Region is a display-style label such as "Penang, Malaysia"; skip appending
+// it when the query already names the region to avoid doubled suffixes.
+export function searchTextQuery(query: string, region: string): string {
+  return query.toLowerCase().includes(region.toLowerCase()) ? query : `${query}, ${region}`;
 }
 
 export function parseGooglePlaces(payload: unknown): PlaceCandidate[] {

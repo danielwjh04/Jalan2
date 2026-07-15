@@ -25,6 +25,7 @@ function itinerary(status: Itinerary["status"]): Itinerary {
     servedFrom: "cache",
     requested: status === "DRAFT" ? null : { dateISO: "2026-07-16", pax: 2 },
     operatorAddress: null,
+    discoveredOperator: null,
     messages: [],
     error: status === "FAILED" ? "Operator declined" : null,
     createdAt: "2026-07-14T00:00:00.000Z",

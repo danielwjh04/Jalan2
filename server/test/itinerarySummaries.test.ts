@@ -25,6 +25,7 @@ function itinerary(id: string, updatedAt: string): Itinerary {
     servedFrom: "cache",
     requested: { dateISO: "2026-07-16", pax: 2 },
     operatorAddress: "whatsapp:+60123456789",
+    discoveredOperator: null,
     messages: [{ direction: "outbound", text: "private message", at: updatedAt }],
     error: null,
     createdAt: "2026-07-14T00:00:00.000Z",
