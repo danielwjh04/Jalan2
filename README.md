@@ -102,20 +102,3 @@ npm test
 ```
 
 Starting the app automatically synchronizes changes from `shared/` into the app copy.
-
-## Current limitations
-
-- The directory, itineraries, and reviews are held in memory and reset with the server. Saved trips use local JSON files.
-- EasyBook, KTMB, Grab, flight, and lodging actions are search or deep-link hand-offs, not live inventory or booking integrations.
-- Cantonese ordering audio requires a Google Cloud TTS key because the configured ElevenLabs voice path does not provide verified Cantonese output.
-- The operator web-presence signal is a heuristic, not a license, identity, or safety certification.
-- Accounts and community-review moderation are not implemented yet.
-
-## Roadmap
-
-Planned work focuses on:
-
-- Persistent storage for operators, bookings, reviews, and trip guides
-- Deeper transport-booking partnerships beyond external hand-offs
-- Accounts and moderation for community contributions
-- Broader language and regional coverage for menu and video extraction
