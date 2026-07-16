@@ -34,8 +34,13 @@ export function parseWikimediaDishPhoto(payload: unknown): DishPhoto | null {
 export function createWikimediaFoodImages(): FoodImageProvider {
   return {
     name: 'wikimedia',
-    async findDishPhoto(name) {
-      return fetchWikimediaPhoto(`"${name}" Malaysian food filetype:bitmap`);
+    async findDishPhoto(query) {
+      const terms = [query.searchQuery, query.englishName, romanName(query.localName)];
+      for (const term of [...new Set(terms.filter(Boolean))]) {
+        const photo = await fetchWikimediaPhoto(`${term} Malaysian food filetype:bitmap`);
+        if (photo) return photo;
+      }
+      return null;
     },
   };
 }
@@ -92,4 +97,8 @@ function cleanText(value: string): string {
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .trim();
+}
+
+function romanName(value: string): string {
+  return value.split('/').at(-1)?.trim() ?? value;
 }

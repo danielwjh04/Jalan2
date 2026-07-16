@@ -15,6 +15,7 @@ interface HomeScreenState {
   fixtures: FixtureCard[];
   submit: (raw: string) => void;
   chooseMenuSource: () => void;
+  startMenuDemo: () => void;
 }
 
 export function useHomeScreen(): HomeScreenState {
@@ -52,10 +53,11 @@ export function useHomeScreen(): HomeScreenState {
   };
   const chooseMenuSource = (): void => {
     Alert.alert("Scan a kopitiam menu", "Where is the menu photo?", [
+      { text: "Try demo photo", onPress: () => startMenuScan("demo") },
       { text: "Take photo", onPress: () => startMenuScan("camera") },
       { text: "Pick from library", onPress: () => startMenuScan("library") },
       { text: "Cancel", style: "cancel" },
     ]);
   };
-  return { prefill, busy, discoveries, fixtures, submit, chooseMenuSource };
+  return { prefill, busy, discoveries, fixtures, submit, chooseMenuSource, startMenuDemo: () => startMenuScan("demo") };
 }

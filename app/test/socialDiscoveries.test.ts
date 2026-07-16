@@ -14,7 +14,7 @@ describe("social discoveries", () => {
     const home = read("app/(tabs)/index.tsx");
     const discover = read("app/(tabs)/discover.tsx");
 
-    expect(home).toContain("discoveries.slice(0, 2)");
+    expect(home).toContain("filter(({ featured }) => !featured).slice(0, 2)");
     expect(discover).toContain("getDiscoveries");
     expect(discover).toContain("DiscoveryCard");
     expect(discover).not.toContain("getFixtures");

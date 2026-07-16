@@ -9,11 +9,9 @@ export function withLicensedPlaceImages(
   return {
     name: places.name,
     photo: (placeId) => places.photo(placeId),
+    withImages: (candidates) => attachAll(candidates, images),
     nearbyPopular: places.nearbyPopular
-      ? async (center, radiusMeters) => attachAll(
-        await places.nearbyPopular?.(center, radiusMeters) ?? [],
-        images,
-      )
+      ? async (center, radiusMeters) => places.nearbyPopular?.(center, radiusMeters) ?? []
       : undefined,
     async search(query, region) {
       const candidates = await places.search(query, region);
@@ -30,7 +28,11 @@ async function attachFallback(
   candidate: PlaceCandidate,
   images: PlaceImageProvider,
 ): Promise<PlaceCandidate> {
-  if (candidate.place_photo_available || candidate.image_url) return candidate;
+  // Keep a licensed fallback even when Google advertises a photo. The proxied
+  // Google media request can still fail because of quota, billing or a stale
+  // photo reference; the client can then switch sources instead of showing a
+  // blank tile.
+  if (candidate.image_url) return candidate;
   try {
     const photo = await images.findPlacePhoto(candidate.name, candidate.address);
     return photo ? {

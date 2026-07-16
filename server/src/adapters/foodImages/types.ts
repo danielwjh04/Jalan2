@@ -5,9 +5,15 @@ export interface DishPhoto {
   imageAttributions: ImageAttribution[];
 }
 
+export interface DishImageQuery {
+  localName: string;
+  englishName: string;
+  searchQuery: string;
+}
+
 export interface FoodImageProvider {
-  readonly name: 'wikimedia';
-  findDishPhoto(name: string): Promise<DishPhoto | null>;
+  readonly name: 'wikimedia' | 'openverse' | 'unsplash' | 'licensed-chain';
+  findDishPhoto(query: DishImageQuery): Promise<DishPhoto | null>;
 }
 
 export interface PlaceImageProvider {

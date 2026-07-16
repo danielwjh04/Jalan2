@@ -14,3 +14,8 @@ export function resolveBaseUrl({ apiUrl, apiBaseUrl, hostUri }: BaseUrlInput): s
 export function buildPlacePhotoUrl(apiBaseUrl: string, placeId: string): string {
   return `${apiBaseUrl}/places/${encodeURIComponent(placeId)}/photo`;
 }
+
+export function buildTripMapUrl(apiBaseUrl: string, tripId: string, stopIds: string[]): string {
+  const ids = stopIds.map(encodeURIComponent).join(',');
+  return `${apiBaseUrl}/trips/${encodeURIComponent(tripId)}/map${ids ? `?ids=${ids}` : ''}`;
+}

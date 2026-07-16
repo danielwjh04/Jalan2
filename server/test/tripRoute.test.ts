@@ -6,7 +6,7 @@ import {
   createPreparedTripBooking,
   preparedTripForUrl,
 } from "../src/routes/ingest";
-import { customStop, optimizePreparedTrip } from "../src/routes/trips";
+import { customStop, optimizePreparedTrip, withIntercityHandoff } from "../src/routes/trips";
 import { resetItineraries } from "../src/store/itineraries";
 
 describe("prepared trips", () => {
@@ -20,7 +20,7 @@ describe("prepared trips", () => {
     expect(normalized).not.toBeNull();
     const trip = preparedTripForUrl(normalized?.url ?? "");
     expect(trip?.id).toBe("kuching-city-guide-01");
-    expect(trip?.stops).toHaveLength(4);
+    expect(trip?.stops).toHaveLength(3);
   });
 
   it("creates a ready booking itinerary for the prepared trip", () => {
@@ -72,7 +72,7 @@ describe("prepared trips", () => {
     expect(result.route?.provider).toBe("offline");
   });
 
-  it("uses the trip region as the transit origin for an added stop", async () => {
+  it("does not mistake an attraction for an intercity EasyBook route", () => {
     const place: PlaceCandidate = {
       place_id: "concubine-lane",
       name: "Concubine Lane",
@@ -86,11 +86,33 @@ describe("prepared trips", () => {
       image_url: null,
       image_attributions: [],
     };
-    const findRoute = vi.fn(async () => "https://www.easybook.com/ipoh-route");
+    expect(customStop(place).easybook_url).toBeUndefined();
+  });
 
-    const stop = await customStop(place, "Ipoh, Perak", findRoute);
+  it("uses Google route distance before validating an intercity EasyBook handoff", async () => {
+    const trip = cityTrip();
+    if (!trip) throw new Error("Missing test trip");
+    const place: PlaceCandidate = {
+      place_id: "ipoh-city",
+      name: "Ipoh",
+      address: "Ipoh, Perak, Malaysia",
+      location: { lat: 4.5975, lng: 101.0764 },
+      google_maps_url: "https://maps.google.com/?q=Ipoh",
+      opening_window: null,
+      suggested_activity: "Explore Ipoh.",
+      primary_type: "locality",
+      place_photo_available: false,
+      place_photo_attributions: [],
+      image_url: null,
+      image_attributions: [],
+    };
+    const routing: RoutingProvider = { name: "google", optimize: vi.fn(async () => ({ ordered_stop_ids: ["from", "to"], distance_meters: 450_000, duration_minutes: 360, path: [trip.stops[0].location, place.location], provider: "google" as const })) };
+    const findRoute = vi.fn(async () => "https://www.easybook.com/kuching-ipoh");
 
-    expect(findRoute).toHaveBeenCalledWith("Ipoh", "Concubine Lane");
-    expect(stop.easybook_url).toContain("ipoh-route");
+    const stop = await withIntercityHandoff(customStop(place), place, trip, routing, findRoute);
+
+    expect(routing.optimize).toHaveBeenCalledOnce();
+    expect(findRoute).toHaveBeenCalledWith("Kuching", "Ipoh");
+    expect(stop.transport_provider).toBe("easybook");
   });
 });

@@ -65,13 +65,17 @@ export async function createDynamicTrip(
       start_stop_id: stops[0]?.id ?? null,
     },
     route: null,
+    planning: null,
   };
 }
 
 function evidencePlaceNames(booking: BookingJson, vision: VisionReadout): string[] {
   const names = [
     booking.meeting_point.name,
-    ...vision.frames.flatMap((frame) => frame.place_candidates),
+    ...vision.frames.flatMap((frame) => frame.place_candidates.map((name) => contextualPlaceName(
+      name,
+      frame.on_screen_text,
+    ))),
   ];
   const seen = new Set<string>();
   return names.filter((name) => {
@@ -80,6 +84,13 @@ function evidencePlaceNames(booking: BookingJson, vision: VisionReadout): string
     seen.add(key);
     return true;
   });
+}
+
+function contextualPlaceName(name: string, visibleText: string): string {
+  if (/(?:ice\s*cream|冰淇淋|雪糕)/iu.test(visibleText) && !/(?:ice\s*cream|冰淇淋|雪糕)/iu.test(name)) {
+    return `${name} Ice Cream`;
+  }
+  return name;
 }
 
 function fallbackPlace(name: string, booking: BookingJson, region: string): PlaceCandidate {

@@ -1,7 +1,7 @@
 {
   "id": "kuching-city-guide-01",
   "title": "Kuching city food and sights",
-  "summary": "Wanka Travel recommends Sarawak laksa and kolo mee without naming a shop, then shows the Borneo Cultures Museum, the cat statue, Kuching Waterfront and a sponsored Dr.Emas visit. Add a specific food venue before travelling.",
+  "summary": "Wanka Travel recommends Sarawak laksa and kolo mee without naming a shop, then shows the Borneo Cultures Museum, the cat statue and Kuching Waterfront. Add a specific food venue before travelling.",
   "region": "Kuching, Sarawak",
   "source_creator": "Wanka Travel",
   "source_url": "https://vt.tiktok.com/ZSCt5cY1k/",
@@ -70,29 +70,8 @@
       "sources": [
         { "title": "Wanka Travel TikTok", "url": "https://vt.tiktok.com/ZSCt5cY1k/" }
       ]
-    },
-    {
-      "id": "dr-emas",
-      "name": "Dr.Emas Kubah Ria",
-      "summary": "Optional sponsored stop from the second half of the video. The post highlights gold jewellery, transparent pricing and an X-ray testing service.",
-      "location": { "lat": 1.5581467, "lng": 110.3200919 },
-      "address": "Lot 3016-1, 2 1/2 Mile, Jalan Matang, Section 65, 93050 Kuching, Sarawak",
-      "google_maps_url": "https://maps.google.com/?cid=12461881169835348234",
-      "image_url": "/fixture-images/kuching-city-guide-01/dr-emas.jpg",
-      "image_attributions": [
-        { "label": "Source frame by Wanka Travel", "source_url": "https://vt.tiktok.com/ZSCt5cY1k/", "license": null }
-      ],
-      "place_id": "ChIJnwxBv1MF-zERClEq6eV-8aw",
-      "primary_type": "jewelry_store",
-      "reservation_hint": "walk_in",
-      "opening_window": { "open_minute": 510, "close_minute": 1050 },
-      "estimated_spend_myr": null,
-      "duration_minutes": 45,
-      "sources": [
-        { "title": "Wanka Travel TikTok", "url": "https://vt.tiktok.com/ZSCt5cY1k/" }
-      ]
     }
   ],
-  "selected_stop_ids": ["borneo-museum", "cat-statue", "waterfront", "dr-emas"],
+  "selected_stop_ids": ["borneo-museum", "cat-statue", "waterfront"],
   "route": null
 }

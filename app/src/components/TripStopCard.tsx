@@ -5,6 +5,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -14,6 +15,7 @@ import { colors, hairline, radius, spacing, type } from "@/lib/theme";
 import { tryOpenExternalUrl } from "@/lib/externalLink";
 import { PlaceImage } from "./PlaceImage";
 import { StopActionMenu } from "./StopActionMenu";
+import { StopTravelActions } from "./StopTravelActions";
 import { TimelineRail } from "./TimelineRail";
 
 interface Props {
@@ -29,6 +31,7 @@ interface Props {
 export function TripStopCard(props: Props): React.ReactElement {
   const { stop, position } = props;
   const selected = position !== null;
+  const wide = useWindowDimensions().width >= 760;
   const [actionsOpen, setActionsOpen] = useState(false);
   const runAction = (action: () => void): void => {
     setActionsOpen(false);
@@ -37,14 +40,14 @@ export function TripStopCard(props: Props): React.ReactElement {
   return (
     <View style={styles.timelineRow}>
       <TimelineRail position={position} isLast={props.isLast} />
-      <View style={[styles.card, !selected && styles.inactive]}>
+      <View style={[styles.card, wide && styles.wideCard, !selected && styles.inactive]}>
         <PlaceImage
           placeId={stop.place_id}
           placePhotoAvailable={stop.place_photo_available}
           fallbackUrl={mediaUrl(stop.image_url)}
           placeAttributions={stop.place_photo_attributions}
           fallbackAttributions={stop.image_attributions}
-          style={styles.image}
+          style={[styles.image, wide && styles.wideImage]}
         />
         <View style={styles.body}>
           <View style={styles.titleRow}>
@@ -94,6 +97,7 @@ export function TripStopCard(props: Props): React.ReactElement {
           </View>
           <Text style={styles.activityLabel}>What to do</Text>
           <Text style={styles.summary}>{stop.summary}</Text>
+          <StopTravelActions stop={stop} />
         </View>
       </View>
     </View>
@@ -124,8 +128,10 @@ const styles = StyleSheet.create({
     ...hairline,
   },
   inactive: { opacity: 0.72 },
+  wideCard: { flexDirection: "row" },
   image: { width: "100%", height: 184 },
-  body: { padding: spacing(3.5), gap: spacing(2) },
+  wideImage: { width: 300, height: 240 },
+  body: { flex: 1, padding: spacing(3.5), gap: spacing(2) },
   titleRow: { flexDirection: "row", alignItems: "flex-start", gap: spacing(2) },
   titleCopy: { flex: 1, gap: spacing(1) },
   name: { ...type.heading, color: colors.ink },

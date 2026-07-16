@@ -33,7 +33,7 @@ export default function TripsScreen(): React.ReactElement {
           <Section title="Needs attention" items={groups.failed} onOpen={(id) => router.push(`/itinerary/${id}`)} onDelete={requestDelete} />
           {data.savedTrips.length > 0 ? (
             <View style={styles.list}>
-              <View><Text style={styles.eyebrow}>YOUR PLANS</Text><Text style={styles.heading}>Saved discoveries</Text></View>
+              <View><Text style={styles.eyebrow}>YOUR PLANS</Text><Text style={styles.heading}>Saved discoveries and agent-built trips</Text></View>
               {data.savedTrips.map((trip) => <SavedTripCard key={trip.id} trip={trip} onPress={() => router.push(`/trip/${trip.id}`)} />)}
             </View>
           ) : null}

@@ -50,12 +50,34 @@ and the entire vendor-side experience remain to be built.
 | Stealth ERP | Not built | No operator booking view, accept/decline action, constraints view, or update workflow |
 | Firebase | Not used | Trips use a local JSON demo store while bookings, reviews, and other records still use process memory |
 | Local travel defaults | Working demo | Budget, start time, pace, and safety language are stored on-device and only change a trip after the tourist taps Use my defaults |
-| Menu flow | Demo-grade | Menu photo ingestion, dish cards, swipe selection, order phrases, and cached fallback work; extraction quality is not benchmarked |
+| Menu flow | Demo-grade | Camera/library ingestion segments wide menu boards into enlarged column panels, asks OpenAI for every visible row, marks uncertain readings, and retrieves attributed illustrative food photos through Openverse plus Wikimedia fallbacks; broader benchmarking is still required |
 | Trust and safety | Partial | Exa public-web evidence, explicit disclaimers, safety briefs, and separated review labels exist; official-record matching, moderation, incident handling, and a risk policy do not |
 | Production controls | Not built | No auth, transactional persistence, rate limiting, webhook signature validation, job queue, audit log, observability, or retention controls |
 
 Cached output is visibly labeled `cached` in the app. It must never be presented
 as a live extraction during a demo.
+
+## Recommended live demo routes
+
+Home now leads with three source-backed routes that each prove a different part
+of the product. They open the real trip planner, not a separate presentation
+screen:
+
+1. **KL to Tioman:** hand off TBS to Mersing and Mersing to Tekek transport to
+   EasyBook, then use Jalan2 to connect a reef dive, a guided waterfall hike,
+   and a Bunut Beach ATV operator. EasyBook remains an external booking handoff.
+2. **Kuching's Jurassic World:** turn Bengoh social discovery into a community
+   guide meetup, reservoir longboat, Kampung Sting homestay, waterfall trek,
+   and Fairy Cave finale. This is the clearest informal-operator story.
+3. **KL to Gopeng:** hand off the intercity leg to EasyBook, then close the
+   missing local transfer and operator layer for Gua Tempurung, Kampar River
+   rafting, and an old-town meal.
+
+The landing cards state the transport boundary and the planner shows a short
+three-step product proof. On larger screens the cards form a three-column grid
+and itinerary stops use a horizontal image layout; tablets use two columns and
+phones collapse to one. Bobo has a dedicated larger landing treatment and
+stacks above the greeting on narrow phones.
 
 ## Bobo, the Jalan2 guide
 
@@ -125,6 +147,103 @@ Trip persistence is local JSON under `server/data/trips/`. It is appropriate
 for the demo and tests, not concurrent production traffic. Move it to Firestore
 or another transactional database before a multi-user pilot.
 
+### A-to-Z planning agents
+
+Home now includes an end-to-end planner for origin, destination, duration,
+party size, start date, budget, interests and pace. It uses one typed orchestrator with seven
+bounded agents instead of asking one model to invent a route:
+
+1. Place grounding resolves Malaysian Google Place IDs and coordinates.
+2. Mobility builds first-class legs and separates EasyBook, operator pickup,
+   Grab fallback, flights, Google routing and offline estimates.
+3. Experience discovery ranks a varied set of requested interests and local
+   food without treating every search result as a must-do stop.
+4. The deterministic scheduler splits visits and transfers into realistic days.
+5. Stay planning creates an Agoda external-search action when an overnight is
+   required.
+6. Booking planning separates directions, external searches and operator
+   requests.
+7. The end-to-end critic scores continuity, daily load, overnight placement and
+   provider gaps. It uses structured OpenAI evaluation when configured and a
+   deterministic validator otherwise. It is explicitly forbidden from
+   inventing routes, fares, hours, availability, safety claims or operators.
+
+`POST /smart-plan` returns and persists a normal `TripPlan` with additional
+`planning` metadata: physical stops, connected legs, day plans, agent reports,
+provider evidence, critic checks and handoffs. Transport is not passed to the
+Google DRIVE matrix as a fake attraction. The KL to Gopeng path explicitly
+grounds Terminal Amanjaya, validates the KL to Ipoh EasyBook search, and creates
+a separate operator-pickup request with Grab as an availability fallback.
+
+New live XHS and TikTok plans with at least two grounded recommendations now go
+through the same local planning and critic path. The source post supplies the
+candidate places, Google Places grounds them, routing orders them, the scheduler
+splits them into days, and each stop exposes directions, a Grab handoff and the
+specific questions to ask locally. A single-place post remains a grounded stop
+rather than fabricating a route. The planner preserves the submitted post as
+evidence and reports any name that could not be matched to a place record.
+The vision reader uses high-detail frames and explicitly handles mixed Chinese,
+Malay and English captions, including Latin venue names embedded in Chinese
+sentences. Its structured per-frame evidence is saved with the run so missed or
+incorrect place extraction can be audited.
+An explicit multilingual context rule carries visible food categories such as
+`冰淇淋`, `雪糕` or `ice cream` into venue grounding, preventing an ambiguous
+name such as Sunny Hill from resolving to the nearby school instead of the
+ice-cream shop.
+
+The current planner does not claim live fares, seats, hotel rooms, Grab rides or
+operator availability. Google Routes failures are visibly downgraded to offline
+estimates. Opening hours are still represented by a simplified first window and
+need date-aware weekly periods before production. Future versions should add
+locked bookings, per-day dates, actual incremental detour routing and a repair
+loop that proposes faster, cheaper and more relaxed alternatives.
+
+The interaction model borrows the useful planning mechanics documented by
+Wanderlog: itinerary and map in one view, day-level route ordering, explicit
+start/end points, integrated suggestions and reservation handoffs. Jalan2 adds
+the part a generic planner does not solve: preserving the XHS/TikTok evidence,
+surfacing informal local operators and making uncertain last-mile transfers
+visible. The critic follows an evaluator-optimizer shape, but the demo does not
+add LangChain or LangGraph as a dependency. The current graph is fixed and typed,
+so a small structured evaluator plus deterministic rules is easier to audit and
+less likely to hide a fabricated path.
+
+### Swipeable food guide
+
+Home exposes a direct `Test the 22-dish menu demo` path alongside camera and
+library ingestion. The repeatable demo uses the committed `星级茶餐室` board. Its deterministic
+fixture represents all 22 visible food rows, including Chinese and handwritten
+Malay names. Wide photos are split into three enlarged vertical panels before
+vision extraction so small middle and right-hand columns are not lost. The
+reader removes duplicate translations and retains lower-confidence readings
+with a visible warning instead of silently dropping them.
+
+Each swipe card includes the printed price, a typical taste and texture guide,
+an advisory heat level, likely allergens, and a short local ordering phrase.
+Dish photos use the AI-produced canonical food name to query Openverse first,
+restricted to commercially reusable CC licences, then Wikimedia Commons.
+Every accepted image keeps source and licence attribution. A missing licensed
+match becomes a designed placeholder rather than a guessed or unlicensed web
+image.
+
+Do not build a new dependency on Google Custom Search for dish photos. Google
+has closed that API to new customers and scheduled its discontinuation for
+January 2027. Google Places photos remain appropriate for a specific venue,
+not for identifying a dish. An optional Unsplash fallback is wired in through
+`UNSPLASH_ACCESS_KEY` for polished generic coverage after exact licensed search
+misses. It uses the required hotlinked image URL and visible attribution, but
+its broad food search is often less exact than Openverse or Commons for
+Malaysian dishes.
+
+Tourists can drag left or right or use accessible skip and save buttons. Saved
+dishes appear in the ordering shortlist; skipped dishes do not. The scanned
+board remains visible above the cards so the result stays tied to its source.
+Taste, heat, and allergens are explicitly presented as typical-recipe guidance,
+not a claim about the stall's exact preparation. Production should benchmark
+menu extraction across layouts and languages, retain uploaded photos in
+managed storage with deletion controls, cache image lookups, and let the diner
+correct uncertain readings before relying on them.
+
 ### Four-tab client and session history
 
 The client has four real top-level destinations: Home, Discover, Trips, and
@@ -152,10 +271,66 @@ Generic redirects and unsupported routes are rejected. This gives the tourist
 a truthful transport search handoff, not live schedules, inventory, fares,
 seats, payment, or confirmation.
 
+In the itinerary UI, EasyBook is rendered as a transport transition from the
+previous place to the next destination, not as an attraction or an operator
+that Jalan2 can reserve. The card shows the route, estimated journey time,
+transport mode, the next Jalan2 stop, and a prominent external EasyBook action.
+External EasyBook legs are excluded from Jalan2's WhatsApp reservation workflow.
+
+Transport selection is not delegated to an AI guess. AI extracts the source
+places, Google Places grounds their coordinates, and Google Routes provides
+distance for a city-level destination. Jalan2 only checks EasyBook for an
+intercity leg above 80 km, then shows the handoff only when the official route
+page contains both endpoints. Attraction names are never treated as bus cities.
+
+The KL to Gopeng demo adds a separate Ipoh Amanjaya to Gopeng transfer. The
+recommended path is operator pickup because the activity provider controls the
+meeting time and equipment transfer. Grab is a fallback link whose coverage and
+fare must still be checked in the Grab app. Jalan2 does not claim a Grab booking
+API integration.
+
 EasyBook's public affiliate and widget offering is the realistic next
 integration step. A production inventory flow requires a commercial partner
 API or another licensed transport provider. Do not scrape a booking result and
 present it as reserved inventory.
+
+### Route feasibility, stops on the way and hotels
+
+The map now appears directly below the trip summary. Native builds use the map
+SDK. Web requests a numbered Google Maps Static preview through Jalan2's server,
+so the Google key is never included in the Expo web bundle. If Maps Static is
+not enabled, quota is exhausted or Google returns an error, the same panel
+switches to interactive OpenStreetMap tiles instead of becoming blank. The
+Directions action always opens the full Google Maps route. Long-haul demos default to the
+destination area so a Kuala Lumpur origin does not compress all island or rural
+stops into one unreadable cluster; the traveler can still switch to the whole
+trip. The on-the-way card is also available on
+curated demos. It samples short routes once and longer routes at the start,
+midpoint and end, asks Google Places for popular nearby places, then rejects
+candidates more than 5 km from the route before ranking rating, popularity,
+variety and detour.
+
+Day feasibility is deterministic. It totals the known activity and transport
+durations, or uses the optimized Google route schedule when available, and
+labels time that is still missing. Routes over nine hours recommend an
+overnight. When the plan has a start date, the Agoda handoff carries destination,
+check-in, check-out, travelers and room count. It remains an external search,
+not live room inventory or a booking integration. Production Agoda rates and
+booking require approved partner credentials and certification.
+
+Every physical stop now has two immediate mobility actions. Directions opens a
+universal Google Maps URL to the grounded Place ID and coordinates. Grab copies
+the exact destination address and opens Grab's official booking screen. Grab
+does not publish a supported destination-prefill deep link, so Jalan2 does not
+invent one or claim the ride is booked. The stop also displays a localized
+question prompt covering what to order or what to confirm with the guide.
+
+Place search now retains a licensed Wikimedia fallback even when Google reports
+that a Place photo exists. If the proxied Google image later fails because of a
+quota, billing or stale-reference error, the client switches to that fallback
+instead of rendering a blank tile. Route suggestions are ranked before image
+enrichment, limiting Commons lookups to the five cards actually shown and
+avoiding a burst of requests for discarded candidates.
 
 ## Target closed loop
 
@@ -459,6 +634,11 @@ ROUTING_PROVIDER=auto
 GOOGLE_MAPS_API_KEY=your_server_side_key
 ```
 
+Enable Places API (New), Routes API and Maps Static API for that server key.
+The live map endpoint intentionally returns a failure and lets the web client
+use its OpenStreetMap fallback when Maps Static is not enabled. Restrict the key
+to the server and those APIs; do not copy it into an `EXPO_PUBLIC_` variable.
+
 The sidecar exposes `POST /xhs/detail` on port 5556. It is GPL-3.0 software;
 review its license obligations before distributing a combined deployment. Keep
 any optional XHS Cookie in the sidecar's private volume, never in Git or client
@@ -471,6 +651,23 @@ with `winget install yt-dlp.yt-dlp`. Keep all provider keys in `server/.env`;
 the Expo client must never receive them. In `auto` mode, Places and Routes use
 Google when the server key is configured and fall back to deterministic local
 providers when it is not.
+
+Live smoke commands are explicit because they call paid or quota-limited
+providers:
+
+```bash
+npm --prefix server run smoke:extractors  # supplied TikTok + XHS source media
+npm --prefix server run smoke:providers   # Google Routes + Exa
+npm --prefix server run smoke:live        # Places, suggestions, menu vision + images
+npm --prefix server run smoke:pipeline    # complete TikTok-to-trip pipeline
+```
+
+Set `JALAN2_SMOKE_SOURCE` to run the full pipeline against another public post.
+The scripts report provider, live/cache status, counts, timing, and safe boolean
+outcomes without printing API keys, contact details, or raw evidence. They never
+send WhatsApp messages. Google Routes can require billing even when the same
+project key works with Google Places; the app falls back to the offline router
+and should not label that result as live Google routing.
 
 App (Expo Go on a phone, same Wi-Fi):
 

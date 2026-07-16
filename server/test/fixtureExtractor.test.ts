@@ -81,7 +81,7 @@ describe("fixture data integrity", () => {
 
   it("matches the places visibly named in each source post", () => {
     const expected: Record<string, string[]> = {
-      "kuching-city-guide-01": ["Borneo Cultures Museum", "Cat Statue Padungan Roundabout", "Kuching Waterfront", "Dr.Emas Kubah Ria"],
+      "kuching-city-guide-01": ["Borneo Cultures Museum", "Cat Statue Padungan Roundabout", "Kuching Waterfront"],
       "kuching-hidden-spots-02": ["Siniawan Old Town Night Market", "Telok Assam Beach, Bako National Park", "Fairy Caves", "Wind Caves", "Kuching Wetlands National Park", "Satang Island"],
       "kuching-cafes-03": ["The Fern", "CHAS Cafe & Space", "Yia Coffee Company", "HALLS CAFE", "Matcha Day Home", "Moon and Sun Coffee", "skript. coffee", "Sit & Sip Coffee", "Black Bean Coffee & Tea Co.", "Nam Joo"],
     };

@@ -19,8 +19,11 @@ import { reviewsRouter } from "./routes/reviews";
 import { sourceCoversRouter } from "./routes/sourceCovers";
 import { tripsRouter } from "./routes/trips";
 import { tripReservationsRouter } from "./routes/tripReservations";
+import { tripMapsRouter } from "./routes/tripMaps";
 import { voiceRouter } from "./routes/voice";
 import { webhooksRouter } from "./routes/webhooks";
+import { smartPlannerRouter } from "./routes/smartPlanner";
+import { createOpenAIPlanCritic } from "./planner/planCritic";
 import { localWebCors } from "./lib/cors";
 
 export interface ServerContext {
@@ -57,7 +60,12 @@ export function createApp(ctx: ServerContext): Express {
   app.use(ingestRouter(ctx.pipeline));
   app.use(itineraryRouter());
   app.use(placePhotosRouter(ctx.places));
+  app.use(tripMapsRouter(ctx.config));
   app.use(tripsRouter(ctx.routing, ctx.places));
+  const critic = ctx.pipeline.openai
+    ? createOpenAIPlanCritic(ctx.pipeline.openai, ctx.config.OPENAI_FUSION_MODEL)
+    : undefined;
+  app.use(smartPlannerRouter(ctx.routing, ctx.places, critic));
   app.use(tripReservationsRouter(ctx.messaging, ctx.config));
   app.use(bookRouter(ctx.messaging, ctx.retrieval, ctx.config));
   app.use(directoryRouter());

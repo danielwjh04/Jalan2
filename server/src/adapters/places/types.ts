@@ -9,5 +9,6 @@ export interface PlacesProvider {
   readonly name: 'google' | 'offline';
   search(query: string, region: string): Promise<PlaceCandidate[]>;
   nearbyPopular?(center: GeoPoint, radiusMeters: number): Promise<PlaceCandidate[]>;
+  withImages?(candidates: PlaceCandidate[]): Promise<PlaceCandidate[]>;
   photo(placeId: string): Promise<PlacePhoto | null>;
 }

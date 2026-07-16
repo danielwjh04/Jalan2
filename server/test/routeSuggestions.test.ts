@@ -33,17 +33,22 @@ describe('recommendAlongRoute', () => {
       candidate('quiet-midpoint', 1.556, 110.351, 3.7, 12),
       candidate('far-away', 1.63, 110.50, 5, 9000),
       candidate('ChIJJQQqoDGn-zERTw2i1LGpqnk', 1.555, 110.342, 4.9, 5000),
+      { ...candidate('duplicate-by-name', 1.556, 110.350, 5, 9000), name: 'Borneo Cultures Museum' },
     ]);
+    const withImages = vi.fn(async (candidates: PlaceCandidate[]) => candidates);
     const places: PlacesProvider = {
       name: 'google',
       search: async () => [],
       nearbyPopular,
+      withImages,
       photo: async () => null,
     };
 
     const suggestions = await recommendAlongRoute(trip, places);
 
-    expect(nearbyPopular).toHaveBeenCalledOnce();
+    expect(nearbyPopular).toHaveBeenCalled();
+    expect(withImages).toHaveBeenCalledOnce();
+    expect(withImages.mock.calls[0][0]).toHaveLength(2);
     expect(suggestions.map((place) => place.place_id)).toEqual([
       'popular-midpoint',
       'quiet-midpoint',

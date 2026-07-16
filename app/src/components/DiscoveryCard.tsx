@@ -18,6 +18,7 @@ import {
   type,
 } from "@/lib/theme";
 import { ImageAttribution } from "./ImageAttribution";
+import { mediaUrl } from "@/lib/api";
 
 interface Props {
   discovery: DiscoveryCardData;
@@ -34,12 +35,13 @@ export function DiscoveryCard({
   savedTripId,
   planning = false,
 }: Props): React.ReactElement {
+  const cover = mediaUrl(discovery.coverUrl);
   return (
     <View style={styles.card}>
       <Pressable onPress={onPress}>
         <View style={styles.coverWrap}>
-          {discovery.coverUrl ? (
-            <Image source={{ uri: discovery.coverUrl }} style={styles.cover} />
+          {cover ? (
+            <Image source={{ uri: cover }} style={styles.cover} />
           ) : (
             <View style={[styles.cover, styles.coverFallback]} />
           )}

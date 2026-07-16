@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import type { MenuResponse } from "@shared/api";
 import { BoboCard } from "@/components/BoboCard";
@@ -44,12 +44,22 @@ function MenuContent({ data }: { data: MenuResponse }): React.ReactElement {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.headerRow}>
-        <View><Text style={styles.eyebrow}>KOPITIAM MODE</Text><Text style={styles.title}>{data.menu.stall_name ?? "Menu scan"}</Text></View>
+        <View style={styles.headerCopy}><Text style={styles.eyebrow}>KOPITIAM MODE</Text><Text style={styles.title}>{data.menu.stall_name ?? "Menu scan"}</Text><Text style={styles.subtitle}>Swipe through the board and save what sounds delicious.</Text></View>
         {data.servedFrom === "cache" ? <Text style={styles.demoTag}>Demo menu</Text> : null}
       </View>
+      {data.sourceImageUrl ? <SourcePhoto url={serverUrl(data.sourceImageUrl)} count={data.menu.dishes.length} /> : null}
       {!done ? <SwipeDeck dishes={data.menu.dishes} onLike={(index) => setLiked((items) => [...items, index])} onFinish={() => setDone(true)} /> : null}
       {done || liked.length > 0 ? <Shortlist data={data} liked={liked} /> : null}
     </ScrollView>
+  );
+}
+
+function SourcePhoto({ url, count }: { url: string; count: number }): React.ReactElement {
+  return (
+    <View style={styles.sourceCard}>
+      <View style={styles.sourceCopy}><Text style={styles.sourceLabel}>SCANNED MENU</Text><Text style={styles.sourceHint}>{count} visible dishes found. Swipe through the full board.</Text></View>
+      <Image resizeMode="contain" source={{ uri: url }} style={styles.sourceImage} />
+    </View>
   );
 }
 
@@ -79,9 +89,16 @@ const styles = StyleSheet.create({
   container: { paddingHorizontal: spacing(5), gap: spacing(4), paddingBottom: spacing(34) },
   center: { flex: 1, justifyContent: "center", padding: spacing(5) },
   headerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing(3) },
+  headerCopy: { flex: 1 },
   eyebrow: { ...eyebrow },
   title: { ...type.title, color: colors.ink, marginTop: spacing(1) },
+  subtitle: { ...type.caption, color: colors.inkSoft, marginTop: spacing(1) },
   demoTag: { ...type.caption, color: colors.pending, backgroundColor: colors.pendingSoft, borderRadius: radius.pill, paddingVertical: spacing(1), paddingHorizontal: spacing(2.5), overflow: "hidden" },
+  sourceCard: { backgroundColor: colors.kayaTint, borderRadius: radius.card, overflow: "hidden" },
+  sourceCopy: { paddingHorizontal: spacing(4), paddingTop: spacing(3), gap: spacing(1) },
+  sourceLabel: { ...eyebrow, color: colors.kopi },
+  sourceHint: { ...type.caption, color: colors.kopi },
+  sourceImage: { width: "100%", height: 170 },
   shortlist: { gap: spacing(3) },
   empty: { ...type.caption, color: colors.inkSoft },
   item: { gap: spacing(2) },

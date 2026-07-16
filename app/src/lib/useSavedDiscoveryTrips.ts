@@ -44,7 +44,9 @@ export function useSavedDiscoveryTrips(): SavedDiscoveryState {
     }
   }, [savedTrips]);
   const savedByDiscovery = useMemo(
-    () => new Map(savedTrips.map((trip) => [trip.sourceDiscoveryId, trip.id])),
+    () => new Map(savedTrips
+      .filter((trip) => trip.sourceDiscoveryId)
+      .map((trip) => [trip.sourceDiscoveryId as string, trip.id])),
     [savedTrips],
   );
   return { savedTrips, savedByDiscovery, busyId, error, load, plan };

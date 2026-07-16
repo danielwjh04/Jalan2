@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import type { SavedTripSummary } from '@shared/api';
 import { TripPlanSchema, type TripPlan } from '@shared/trip';
@@ -23,8 +23,8 @@ export function getTrip(id: string): TripPlan | null {
 export function saveTrip(trip: TripPlan): TripPlan {
   const parsed = TripPlanSchema.parse(trip);
   trips.set(parsed.id, parsed);
-  if (parsed.origin === 'saved_discovery') touchSavedSummary(parsed);
-  else persist(parsed);
+  if (parsed.origin === 'saved_discovery' || parsed.origin === 'smart_plan') touchSavedSummary(parsed);
+  if (parsed.origin !== 'saved_discovery') persist(parsed);
   return parsed;
 }
 
@@ -44,9 +44,27 @@ export function copyDiscoveryTrip(id: string, clientRequestId: string): TripPlan
 }
 
 export function listSavedTrips(): SavedTripSummary[] {
+  hydrateStoredSmartPlans();
   return [...savedSummaries.values()]
     .sort((a, b) => b.order - a.order)
     .map(({ order: _order, ...summary }) => summary);
+}
+
+function hydrateStoredSmartPlans(): void {
+  if (process.env.NODE_ENV === 'test') return;
+  const root = tripsDataRoot();
+  if (!existsSync(root)) return;
+  for (const filename of readdirSync(root).filter((name) => name.endsWith('.json'))) {
+    try {
+      const parsed = TripPlanSchema.safeParse(JSON.parse(readFileSync(path.join(root, filename), 'utf8')));
+      if (parsed.success && parsed.data.origin === 'smart_plan' && !savedSummaries.has(parsed.data.id)) {
+        trips.set(parsed.data.id, parsed.data);
+        touchSavedSummary(parsed.data);
+      }
+    } catch {
+      continue;
+    }
+  }
 }
 
 export function resetTrips(): void {
@@ -63,11 +81,11 @@ function getRequiredTrip(id: string): TripPlan {
 }
 
 function touchSavedSummary(trip: TripPlan): void {
-  if (!trip.source_discovery_id) throw new Error('Saved trip is missing its discovery source');
   savedOrder += 1;
   savedSummaries.set(trip.id, {
     id: trip.id,
     sourceDiscoveryId: trip.source_discovery_id,
+    origin: trip.origin === 'smart_plan' ? 'smart_plan' : 'saved_discovery',
     title: trip.title,
     region: trip.region,
     coverUrl: trip.cover_url,

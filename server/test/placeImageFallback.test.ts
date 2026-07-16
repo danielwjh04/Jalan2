@@ -44,21 +44,23 @@ describe('withLicensedPlaceImages', () => {
     expect(results[0].image_attributions[0]?.license).toBe('CC BY-SA 4.0');
   });
 
-  it('does not request a fallback when Google has a photo', async () => {
+  it('keeps a licensed backup when Google advertises a photo', async () => {
     const places: PlacesProvider = {
       name: 'google',
       search: async () => [{ ...candidate, place_photo_available: true }],
       photo: async () => null,
     };
-    const findPlacePhoto = vi.fn(async () => null);
+    const findPlacePhoto = vi.fn(async () => photo);
 
-    await withLicensedPlaceImages(places, { name: 'wikimedia', findPlacePhoto })
+    const results = await withLicensedPlaceImages(places, { name: 'wikimedia', findPlacePhoto })
       .search('KSL City Mall', 'Malaysia');
 
-    expect(findPlacePhoto).not.toHaveBeenCalled();
+    expect(findPlacePhoto).toHaveBeenCalledOnce();
+    expect(results[0].place_photo_available).toBe(true);
+    expect(results[0].image_url).toBe(photo.imageUrl);
   });
 
-  it('preserves and enriches popularity-ranked nearby results', async () => {
+  it('defers nearby image work until the caller has ranked the results', async () => {
     const nearbyPopular = vi.fn(async () => [candidate]);
     const places: PlacesProvider = {
       name: 'google',
@@ -74,6 +76,11 @@ describe('withLicensedPlaceImages', () => {
     );
 
     expect(nearbyPopular).toHaveBeenCalledOnce();
-    expect(results?.[0].image_url).toBe(photo.imageUrl);
+    expect(results?.[0].image_url).toBeNull();
+    expect(images.findPlacePhoto).not.toHaveBeenCalled();
+
+    const enriched = await withLicensedPlaceImages(places, images).withImages?.(results ?? []);
+    expect(enriched?.[0].image_url).toBe(photo.imageUrl);
+    expect(images.findPlacePhoto).toHaveBeenCalledOnce();
   });
 });

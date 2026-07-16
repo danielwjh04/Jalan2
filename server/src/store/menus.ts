@@ -6,7 +6,13 @@ export interface StoredMenu {
   menu: MenuJson;
   servedFrom: 'live' | 'cache';
   dishAudio: (string | null)[];
+  sourceImage: MenuSourceImage | null;
   createdAt: string;
+}
+
+export interface MenuSourceImage {
+  bytes: Buffer;
+  mimeType: 'image/jpeg' | 'image/png';
 }
 
 const menus = new Map<string, StoredMenu>();
@@ -15,12 +21,14 @@ export function createMenu(
   menu: MenuJson,
   servedFrom: 'live' | 'cache',
   dishAudio: (string | null)[],
+  sourceImage: MenuSourceImage | null = null,
 ): StoredMenu {
   const stored: StoredMenu = {
     id: randomUUID(),
     menu,
     servedFrom,
     dishAudio,
+    sourceImage,
     createdAt: new Date().toISOString(),
   };
   menus.set(stored.id, stored);

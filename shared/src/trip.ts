@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ImageAttributionSchema } from "./media";
+import { SmartPlanningMetadataSchema } from "./planner";
 
 export const GeoPointSchema = z.object({
   lat: z.number().min(-90).max(90),
@@ -42,6 +43,15 @@ export const PlaceCandidateSchema = z.object({
 
 export type PlaceCandidate = z.infer<typeof PlaceCandidateSchema>;
 
+export const TransportProviderSchema = z.enum([
+  "easybook",
+  "grab",
+  "operator",
+  "flight",
+  "google_maps",
+]);
+export type TransportProvider = z.infer<typeof TransportProviderSchema>;
+
 export const TripStopSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -61,9 +71,18 @@ export const TripStopSchema = z.object({
   primary_type: z.string().min(1).nullable().optional(),
   reservation_hint: ReservationHintSchema.nullable().optional(),
   easybook_url: z.string().url().nullable().optional(),
+  transport_provider: TransportProviderSchema.nullable().optional(),
+  transport_from: z.string().min(1).nullable().optional(),
+  transport_to: z.string().min(1).nullable().optional(),
+  transport_mode: z.string().min(1).nullable().optional(),
+  transport_url: z.string().url().nullable().optional(),
 });
 
 export type TripStop = z.infer<typeof TripStopSchema>;
+
+export function isTransportStop(stop: TripStop): boolean {
+  return Boolean(stop.transport_provider || stop.easybook_url);
+}
 
 export const TripPreferencesSchema = z.object({
   budget_myr: z.number().nonnegative().nullable(),
@@ -110,12 +129,13 @@ export const TripPlanSchema = z
     source_url: z.string().url(),
     cover_url: z.string().nullable(),
     demo: z.boolean(),
-    origin: z.enum(["video", "curated", "saved_discovery"]).default("video"),
+    origin: z.enum(["video", "curated", "saved_discovery", "smart_plan"]).default("video"),
     source_discovery_id: z.string().min(1).nullable().default(null),
     stops: z.array(TripStopSchema).min(1),
     selected_stop_ids: z.array(z.string().min(1)).min(1),
     preferences: TripPreferencesSchema.optional(),
     route: OptimizedRouteSchema.nullable(),
+    planning: SmartPlanningMetadataSchema.nullable().default(null),
   })
   .superRefine((trip, context) => {
     if (trip.origin === "saved_discovery" && !trip.source_discovery_id) {
@@ -161,6 +181,24 @@ export const TripPlanSchema = z
           code: "custom",
           path: ["preferences"],
           message: `Unknown preference stop ${id}`,
+        });
+      }
+    }
+    for (const leg of trip.planning?.legs ?? []) {
+      if (!stopIds.has(leg.from_stop_id) || !stopIds.has(leg.to_stop_id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["planning", "legs"],
+          message: `Planning leg ${leg.id} must connect two trip stops`,
+        });
+      }
+    }
+    for (const day of trip.planning?.days ?? []) {
+      if (day.stop_ids.some((id) => !stopIds.has(id))) {
+        context.addIssue({
+          code: "custom",
+          path: ["planning", "days"],
+          message: `Day ${day.day} contains an unknown stop`,
         });
       }
     }

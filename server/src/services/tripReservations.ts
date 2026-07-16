@@ -8,7 +8,7 @@ import {
   type TripReservationBatch,
   type TripStopReservation,
 } from "@shared/reservation";
-import type { TripPlan, TripStop } from "@shared/trip";
+import { isTransportStop, type TripPlan, type TripStop } from "@shared/trip";
 import type {
   MessagingProvider,
   InboundMessage,
@@ -132,7 +132,8 @@ function selectedStops(trip: TripPlan): TripStop[] {
   const byId = new Map(trip.stops.map((stop) => [stop.id, stop]));
   return trip.selected_stop_ids
     .map((id) => byId.get(id))
-    .filter((stop): stop is TripStop => Boolean(stop));
+    .filter((stop): stop is TripStop => Boolean(stop))
+    .filter((stop) => !isTransportStop(stop));
 }
 
 function approvedAddress(config: Config): string | null {

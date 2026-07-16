@@ -1,0 +1,226 @@
+[
+  {
+    "id": "kl-tioman-easybook-adventure",
+    "title": "KL to Tioman: reef, jungle and ATV",
+    "summary": "Hand off the long-haul legs to EasyBook, then let Jalan2 connect the island's dive, hiking and ATV operators into one usable plan.",
+    "region": "Kuala Lumpur to Tioman, Pahang",
+    "source_creator": "Jalan2 route lab",
+    "source_url": "https://www.malaysia.travel/explore/tioman-island",
+    "cover_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Pulau%20Tioman.jpg?width=1400",
+    "demo": false,
+    "origin": "curated",
+    "stops": [
+      {
+        "id": "easybook-kl-tioman",
+        "reservation_hint": "walk_in",
+        "name": "EasyBook: KL to Tioman",
+        "summary": "Compare the live TBS to Mersing coach options, then continue through EasyBook's ferry search. Jalan2 keeps the island activities together after the transport handoff.",
+        "location": { "lat": 2.4319, "lng": 103.8387 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Pulau%20Tioman.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Jorge Cancela", "source_url": "https://commons.wikimedia.org/wiki/File:Pulau_Tioman.jpg", "license": "CC BY 2.0" }],
+        "estimated_spend_myr": null,
+        "duration_minutes": 450,
+        "easybook_url": "https://www.easybook.com/en-my/bus/booking/tbsterminalbersepaduselatan-to-mersinggatewaytotioman",
+        "transport_provider": "easybook",
+        "transport_from": "Kuala Lumpur (TBS)",
+        "transport_to": "Tioman via Mersing",
+        "transport_mode": "Coach + ferry",
+        "transport_url": "https://www.easybook.com/en-my/bus/booking/tbsterminalbersepaduselatan-to-mersinggatewaytotioman",
+        "sources": [
+          { "title": "EasyBook TBS to Mersing", "url": "https://www.easybook.com/en-my/bus/booking/tbsterminalbersepaduselatan-to-mersinggatewaytotioman" },
+          { "title": "EasyBook Mersing to Tekek ferry", "url": "https://www.easybook.com/en-my/ferry/booking/mersingjetty-to-tekekpulautioman" }
+        ]
+      },
+      {
+        "id": "tekek-reef-dive",
+        "reservation_hint": "bookable",
+        "name": "Tekek reef dive",
+        "summary": "Ask a local dive operator for a weather and certification check, then choose a reef session suited to the group's experience instead of assuming a fixed package.",
+        "location": { "lat": 2.8184, "lng": 104.1606 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Pulau%20Tioman%20%28Tioman%20Island%29.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Jorge Cancela", "source_url": "https://commons.wikimedia.org/wiki/File:Pulau_Tioman_(Tioman_Island).jpg", "license": "CC BY 2.0" }],
+        "estimated_spend_myr": null,
+        "duration_minutes": 240,
+        "sources": [{ "title": "Tourism Malaysia: Tioman", "url": "https://www.malaysia.travel/explore/tioman-island" }]
+      },
+      {
+        "id": "asah-waterfall-hike",
+        "reservation_hint": "bookable",
+        "name": "Asah Waterfall jungle hike",
+        "summary": "Arrange a local guide for the rainforest approach to Asah Waterfall, with the trail, boat transfer and turnaround time confirmed for current conditions.",
+        "location": { "lat": 2.716, "lng": 104.138 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Asah%20Waterfall.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Simon Wheatley", "source_url": "https://commons.wikimedia.org/wiki/File:Asah_Waterfall.jpg", "license": "CC BY-SA 2.0" }],
+        "estimated_spend_myr": null,
+        "duration_minutes": 210,
+        "sources": [{ "title": "Tioman Development Authority", "url": "https://tioman.gov.my/" }]
+      },
+      {
+        "id": "bunut-beach-atv",
+        "reservation_hint": "bookable",
+        "name": "Bunut Beach ATV trail",
+        "summary": "Reserve the guided ATV trail toward Bunut Beach and confirm rider limits, weather and safety instructions directly with the operator before setting out.",
+        "location": { "lat": 2.796, "lng": 104.145 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Bucht%20auf%20Pulau%20Tioman.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Lunaloop", "source_url": "https://commons.wikimedia.org/wiki/File:Bucht_auf_Pulau_Tioman.jpg", "license": "CC BY-SA 4.0" }],
+        "estimated_spend_myr": null,
+        "duration_minutes": 90,
+        "sources": [{ "title": "Berjaya Tioman ATV adventure", "url": "https://www.berjayahotel.com/new/atv-adventure" }]
+      }
+    ],
+    "selected_stop_ids": ["easybook-kl-tioman", "tekek-reef-dive", "asah-waterfall-hike", "bunut-beach-atv"],
+    "route": null
+  },
+  {
+    "id": "kuching-jurassic-world",
+    "title": "Kuching's Jurassic World: Bengoh",
+    "summary": "Turn a dramatic social post into a guide-led Bengoh journey with a longboat, a Bidayuh homestay, rainforest waterfalls and a cave finale.",
+    "region": "Kuching and Bengoh, Sarawak",
+    "source_creator": "Jalan2 route lab",
+    "source_url": "https://www.sarawaktourism.com/web/things-to-do/thing-view/adventure/waterfalls-trekking/bengoh-dam",
+    "cover_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Sunsung%20Waterfall%2C%20Bengoh%20dam%2C%20Sarawak.jpg?width=1400",
+    "demo": false,
+    "origin": "curated",
+    "stops": [
+      {
+        "id": "bengoh-guide-longboat",
+        "reservation_hint": "bookable",
+        "name": "Bengoh guide and longboat meetup",
+        "summary": "Meet the community guide at the agreed access point and confirm the reservoir boat, trail conditions, return timing and what the group should carry.",
+        "location": { "lat": 1.226, "lng": 110.216 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Sungai%20Sarawak%20Kiri%2C%20Sarawak.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Fabio Achilli", "source_url": "https://commons.wikimedia.org/wiki/File:Sungai_Sarawak_Kiri,_Sarawak.jpg", "license": "CC BY 2.0" }],
+        "estimated_spend_myr": null,
+        "duration_minutes": 75,
+        "sources": [{ "title": "Sarawak Tourism: Bengoh Dam", "url": "https://www.sarawaktourism.com/web/things-to-do/thing-view/adventure/waterfalls-trekking/bengoh-dam" }]
+      },
+      {
+        "id": "kampung-sting-homestay",
+        "reservation_hint": "bookable",
+        "name": "Kampung Sting homestay",
+        "summary": "Stay with the Bidayuh community, share a home-cooked meal and use the host as the human link between the boat ride, village and next day's trail.",
+        "location": { "lat": 1.229, "lng": 110.198 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Upper%20Bengoh%20Bamboo%20Bridges%20%284757458155%29.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Borneo Project", "source_url": "https://commons.wikimedia.org/wiki/File:Upper_Bengoh_Bamboo_Bridges_(4757458155).jpg", "license": "CC BY 2.0" }],
+        "estimated_spend_myr": null,
+        "duration_minutes": 150,
+        "sources": [{ "title": "Sarawak Tourism: Bengoh Dam", "url": "https://www.sarawaktourism.com/web/things-to-do/thing-view/adventure/waterfalls-trekking/bengoh-dam" }]
+      },
+      {
+        "id": "sunsung-waterfall-trek",
+        "reservation_hint": "bookable",
+        "name": "Susung waterfall trek",
+        "summary": "Follow the local guide through the Bengoh rainforest to the waterfall circuit, allowing extra time for wet paths and the group's actual pace.",
+        "location": { "lat": 1.219761, "lng": 110.203331 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Sunsung%20Waterfall%2C%20Bengoh%20dam%2C%20Sarawak.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Shuttersoul", "source_url": "https://commons.wikimedia.org/wiki/File:Sunsung_Waterfall,_Bengoh_dam,_Sarawak.jpg", "license": "CC0 Public domain" }],
+        "estimated_spend_myr": null,
+        "duration_minutes": 240,
+        "sources": [{ "title": "Sarawak Tourism: Bengoh Dam", "url": "https://www.sarawaktourism.com/web/things-to-do/thing-view/adventure/waterfalls-trekking/bengoh-dam" }]
+      },
+      {
+        "id": "fairy-cave-finale",
+        "reservation_hint": "walk_in",
+        "name": "Fairy Cave finale",
+        "summary": "Add Fairy Cave on the return side of the journey for limestone chambers and forest light, checking the reserve's current access before leaving Bengoh.",
+        "location": { "lat": 1.3818, "lng": 110.1172 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Fairy%20Cave%2C%20Bau%2C%20Kuching%20Sarawak%2C%20Malaysia%2007.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Borneo mobilegrapher", "source_url": "https://commons.wikimedia.org/wiki/File:Fairy_Cave,_Bau,_Kuching_Sarawak,_Malaysia_07.jpg", "license": "CC0 Public domain" }],
+        "estimated_spend_myr": null,
+        "duration_minutes": 90,
+        "sources": [{ "title": "Sarawak Tourism: Fairy Cave", "url": "https://www.sarawaktourism.com/web/things-to-do/thing-view/adventure/mountain-climbing-and-trekking/fairy-cave" }]
+      }
+    ],
+    "selected_stop_ids": ["bengoh-guide-longboat", "kampung-sting-homestay", "sunsung-waterfall-trek", "fairy-cave-finale"],
+    "route": null
+  },
+  {
+    "id": "kl-gopeng-cave-and-rapids",
+    "title": "KL to Gopeng: caves and rapids",
+    "summary": "Use EasyBook for the intercity leg, then solve the missing last mile with a cave guide, a rafting operator and an old-town food stop.",
+    "region": "Kuala Lumpur to Gopeng, Perak",
+    "source_creator": "Jalan2 route lab",
+    "source_url": "https://www.malaysia.travel/deals/1-day-trip-gopeng-white-water-rafting-gua-tempurung",
+    "cover_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Wwr%20my%20gopeng%20resort.jpg?width=1400",
+    "demo": false,
+    "origin": "curated",
+    "stops": [
+      {
+        "id": "easybook-kl-ipoh",
+        "reservation_hint": "walk_in",
+        "name": "EasyBook: KL to Ipoh",
+        "summary": "Choose a current Kuala Lumpur to Ipoh coach in EasyBook, then let Jalan2 preserve the separate local transfer and activity plan for Gopeng.",
+        "location": { "lat": 4.672, "lng": 101.074 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Gopeng%20Interchange%20%28Exit%20135%29%20Northbound%2C%20NSE%2020230628%20103712.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Chongkian", "source_url": "https://commons.wikimedia.org/wiki/File:Gopeng_Interchange_(Exit_135)_Northbound,_NSE_20230628_103712.jpg", "license": "CC BY-SA 4.0" }],
+        "estimated_spend_myr": null,
+        "duration_minutes": 180,
+        "easybook_url": "https://www.easybook.com/en-my/bus/booking/kualalumpur-to-ipoh",
+        "transport_provider": "easybook",
+        "transport_from": "Kuala Lumpur",
+        "transport_to": "Ipoh Amanjaya",
+        "transport_mode": "Intercity coach",
+        "transport_url": "https://www.easybook.com/en-my/bus/booking/kualalumpur-to-ipoh",
+        "sources": [{ "title": "EasyBook Kuala Lumpur to Ipoh", "url": "https://www.easybook.com/en-my/bus/booking/kualalumpur-to-ipoh" }]
+      },
+      {
+        "id": "ipoh-gopeng-transfer",
+        "reservation_hint": "walk_in",
+        "name": "Ipoh to Gopeng local transfer",
+        "summary": "Ask the cave or rafting operator to include an Amanjaya pickup first. If pickup is unavailable, check Grab in the app before arrival because coverage and fares are not guaranteed.",
+        "location": { "lat": 4.41695, "lng": 101.18794 },
+        "image_url": null,
+        "image_attributions": [],
+        "estimated_spend_myr": null,
+        "duration_minutes": 45,
+        "transport_provider": "operator",
+        "transport_from": "Ipoh Amanjaya",
+        "transport_to": "Gopeng adventure base",
+        "transport_mode": "Operator pickup first, Grab fallback",
+        "transport_url": "https://www.grab.com/my/transport/",
+        "sources": [
+          { "title": "Grab Malaysia transport", "url": "https://www.grab.com/my/transport/" },
+          { "title": "Tourism Malaysia: Gopeng day trip", "url": "https://www.malaysia.travel/deals/1-day-trip-gopeng-white-water-rafting-gua-tempurung" }
+        ]
+      },
+      {
+        "id": "gua-tempurung-guide",
+        "reservation_hint": "bookable",
+        "name": "Gua Tempurung cave route",
+        "summary": "Match the cave route to the group's comfort and fitness, then confirm the guide, equipment, water level and transfer time before arrival.",
+        "location": { "lat": 4.41695, "lng": 101.18794 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Gua%20Tempurung%20-%20panoramio%20%283%29.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo from Panoramio archive", "source_url": "https://commons.wikimedia.org/wiki/File:Gua_Tempurung_-_panoramio_(3).jpg", "license": "CC BY 3.0" }],
+        "estimated_spend_myr": null,
+        "duration_minutes": 150,
+        "sources": [{ "title": "Tourism Malaysia: Gopeng day trip", "url": "https://www.malaysia.travel/deals/1-day-trip-gopeng-white-water-rafting-gua-tempurung" }]
+      },
+      {
+        "id": "kampar-river-rafting",
+        "reservation_hint": "bookable",
+        "name": "Kampar River rafting",
+        "summary": "Reserve a guided white-water session and confirm the river grade, safety briefing, age limits and rain plan with the local operator.",
+        "location": { "lat": 4.471, "lng": 101.167 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Wwr%20my%20gopeng%20resort.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Cheowchinhou", "source_url": "https://commons.wikimedia.org/wiki/File:Wwr_my_gopeng_resort.jpg", "license": "Public domain" }],
+        "estimated_spend_myr": null,
+        "duration_minutes": 180,
+        "sources": [{ "title": "Tourism Malaysia: Gopeng day trip", "url": "https://www.malaysia.travel/deals/1-day-trip-gopeng-white-water-rafting-gua-tempurung" }]
+      },
+      {
+        "id": "gopeng-old-town",
+        "reservation_hint": "walk_in",
+        "name": "Gopeng old-town supper",
+        "summary": "Finish among Gopeng's old shopfronts with a flexible local meal, leaving room for the operator or host to recommend what is genuinely open that evening.",
+        "location": { "lat": 4.46667, "lng": 101.167 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Gopeng%20Guesthouse%20and%20Cafe.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Chongkian", "source_url": "https://commons.wikimedia.org/wiki/File:Gopeng_Guesthouse_and_Cafe.jpg", "license": "CC BY-SA 4.0" }],
+        "estimated_spend_myr": null,
+        "duration_minutes": 75,
+        "sources": [{ "title": "Google Maps: Gopeng old town", "url": "https://www.google.com/maps/search/?api=1&query=Gopeng%20old%20town%20Perak" }]
+      }
+    ],
+    "selected_stop_ids": ["easybook-kl-ipoh", "ipoh-gopeng-transfer", "gua-tempurung-guide", "kampar-river-rafting", "gopeng-old-town"],
+    "route": null
+  }
+]

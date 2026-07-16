@@ -7,13 +7,16 @@ import { cardShadow, colors, eyebrow, hairline, radius, spacing, type } from "@/
 interface QuickActionsProps {
   busy: boolean;
   onMenu: () => void;
+  onMenuDemo: () => void;
   onOperators: () => void;
 }
 
 export function HomeQuickActions(props: QuickActionsProps): React.ReactElement {
   return (
     <View style={styles.quickCard}>
-      <QuickAction icon="restaurant-outline" tint={colors.kayaTint} title="Scan a kopitiam menu" detail="Dishes, prices and how to order" disabled={props.busy} onPress={props.onMenu} />
+      <QuickAction icon="restaurant-outline" tint={colors.kayaTint} title="Scan a kopitiam menu" detail="Swipe dishes, see taste notes, and order" disabled={props.busy} onPress={props.onMenu} />
+      <View style={styles.quickDivider} />
+      <QuickAction icon="flask-outline" tint={colors.dangerSoft} title="Test the 22-dish menu demo" detail="Open the Chinese and handwritten Malay board now" disabled={props.busy} onPress={props.onMenuDemo} />
       <View style={styles.quickDivider} />
       <QuickAction icon="people-outline" tint={colors.halo} title="Meet the local operators" detail="The people behind the trips" onPress={props.onOperators} />
     </View>
@@ -37,7 +40,7 @@ export function HomeDiscoveryPreview(props: DiscoveryProps): React.ReactElement 
   return (
     <>
       <View style={styles.sectionRow}>
-        <View><Text style={styles.section}>SOCIAL DISCOVERIES</Text><Text style={styles.sectionTitle}>Discover Malaysia</Text></View>
+        <View><Text style={styles.section}>MORE ROUTES</Text><Text style={styles.sectionTitle}>Keep exploring Malaysia</Text></View>
         <Pressable style={styles.seeAll} onPress={props.onSeeAll}>
           <Text style={styles.seeAllText}>See all</Text><Ionicons name="arrow-forward" size={14} color={colors.sageDeep} />
         </Pressable>

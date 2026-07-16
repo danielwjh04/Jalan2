@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   DEFAULT_TRIP_PREFERENCES,
   haversineMeters,
+  isTransportStop,
   PlaceCandidateSchema,
   TripPreferencesSchema,
   type PlaceCandidate,
@@ -96,7 +97,8 @@ export function tripsRouter(routing: RoutingProvider, places: PlacesProvider): R
       return;
     }
     if (!editable(trip, res)) return;
-    const stop = await customStop(candidate.data, trip.region);
+    const baseStop = customStop(candidate.data);
+    const stop = await withIntercityHandoff(baseStop, candidate.data, trip, routing);
     const stops = replaceOrAppend(trip.stops, stop);
     const selected = insertSelectedStop(trip, candidate.data.location, stop.id);
     res.json(saveTrip({ ...trip, stops, selected_stop_ids: selected, route: null }));
@@ -161,11 +163,7 @@ export function tripsRouter(routing: RoutingProvider, places: PlacesProvider): R
   return router;
 }
 
-export async function customStop(
-  place: PlaceCandidate,
-  region: string,
-  findRoute: TransitRouteFinder = findEasybookRoute,
-): Promise<TripStop> {
+export function customStop(place: PlaceCandidate): TripStop {
   return {
     id: slug(place.place_id),
     name: place.name,
@@ -184,12 +182,47 @@ export async function customStop(
     place_photo_available: place.place_photo_available,
     place_photo_attributions: place.place_photo_attributions,
     image_attributions: place.image_attributions,
-    easybook_url: await findRoute(transitOrigin(region), place.name),
   };
 }
 
+export async function withIntercityHandoff(
+  stop: TripStop,
+  place: PlaceCandidate,
+  trip: TripPlan,
+  routing: RoutingProvider,
+  findRoute: TransitRouteFinder = findEasybookRoute,
+): Promise<TripStop> {
+  if (!isCity(place.primary_type)) return stop;
+  const originStop = lastPhysicalStop(trip);
+  if (!originStop) return stop;
+  const distance = await routeDistance(originStop, stop, trip, routing);
+  if (distance < 80_000) return stop;
+  const origin = transitOrigin(trip.region);
+  const url = await findRoute(origin, place.name);
+  if (!url) return stop;
+  return { ...stop, easybook_url: url, transport_provider: 'easybook', transport_from: origin, transport_to: place.name, transport_mode: 'Intercity coach', transport_url: url };
+}
+
+async function routeDistance(from: TripStop, to: TripStop, trip: TripPlan, routing: RoutingProvider): Promise<number> {
+  try {
+    const route = await routing.optimize([from, to], trip.preferences ?? DEFAULT_TRIP_PREFERENCES);
+    return route.distance_meters;
+  } catch {
+    return haversineMeters(from.location, to.location);
+  }
+}
+
+function lastPhysicalStop(trip: TripPlan): TripStop | null {
+  const byId = new Map(trip.stops.map((stop) => [stop.id, stop]));
+  return [...trip.selected_stop_ids].reverse().map((id) => byId.get(id)).find((stop) => stop && !isTransportStop(stop)) ?? null;
+}
+
+function isCity(primaryType?: string | null): boolean {
+  return primaryType === 'locality' || primaryType === 'administrative_area_level_2';
+}
+
 function transitOrigin(region: string): string {
-  return region.split(',')[0].trim();
+  return region.split(',')[0].split(/\s+(?:to|and)\s+/i)[0].trim();
 }
 
 function replaceOrAppend(stops: TripStop[], added: TripStop): TripStop[] {

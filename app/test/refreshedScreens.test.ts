@@ -9,7 +9,7 @@ const read = (path: string): string => readFileSync(resolve(directory, `../src/$
 describe("refreshed screens", () => {
   it("keeps Home focused with a two-card Discover preview", () => {
     const source = read("app/(tabs)/index.tsx");
-    expect(source).toContain("discoveries.slice(0, 2)");
+    expect(source).toContain("filter(({ featured }) => !featured).slice(0, 2)");
     expect(source).toContain('router.push("/discover")');
   });
 

@@ -20,10 +20,10 @@ export function SmartSuggestions(props: Props): React.ReactElement {
         <View style={styles.icon}><Ionicons name="sparkles" size={18} color={colors.kopi} /></View>
         <View style={styles.copy}>
           <Text style={styles.title}>Popular stops on your way</Text>
-          <Text style={styles.help}>Bobo checks highly rated Google Places near your current route, then removes wasteful detours.</Text>
+          <Text style={styles.help}>Google Places supplies ratings and coordinates. Jalan2 samples the route and removes stops more than 5 km away. No AI guessing.</Text>
         </View>
       </View>
-      <Pressable style={[styles.find, props.busy && styles.disabled]} disabled={props.busy} onPress={() => void props.onLoad()}>
+      <Pressable accessibilityRole="button" accessibilityLabel={props.loaded ? "Refresh route suggestions" : "Find stops on my way"} style={[styles.find, props.busy && styles.disabled]} disabled={props.busy} onPress={() => void props.onLoad()}>
         {props.busy ? <ActivityIndicator color={colors.kopi} /> : <Ionicons name="navigate-outline" size={17} color={colors.kopi} />}
         <Text style={styles.findText}>{props.loaded ? "Refresh suggestions" : "Find stops on my way"}</Text>
       </Pressable>
@@ -67,9 +67,9 @@ const styles = StyleSheet.create({
   find: { minHeight: 46, borderRadius: radius.control, backgroundColor: colors.kayaTint, flexDirection: "row", gap: spacing(2), alignItems: "center", justifyContent: "center" },
   findText: { ...type.label, color: colors.kopi },
   empty: { ...type.caption, color: colors.inkSoft, textAlign: "center" },
-  result: { flexDirection: "row", gap: spacing(3), borderTopWidth: 1, borderTopColor: colors.mist, paddingTop: spacing(3) },
-  image: { width: 104, height: 104, borderRadius: radius.control },
-  resultBody: { flex: 1, justifyContent: "center", gap: spacing(1.5) },
+  result: { width: "100%", flexDirection: "row", gap: spacing(3), borderTopWidth: 1, borderTopColor: colors.mist, paddingTop: spacing(3), overflow: "hidden" },
+  image: { width: 112, height: 112, borderRadius: radius.control },
+  resultBody: { flex: 1, minWidth: 0, justifyContent: "center", gap: spacing(1.5), overflow: "hidden" },
   name: { ...type.heading, color: colors.ink },
   meta: { ...type.caption, color: colors.sageDeep },
   add: { alignSelf: "flex-start", borderRadius: radius.control, backgroundColor: colors.halo, paddingHorizontal: spacing(3), paddingVertical: spacing(2) },

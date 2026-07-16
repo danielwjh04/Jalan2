@@ -7,6 +7,11 @@ const VALID_MENU = {
     {
       name_local: 'Kolo mee',
       name_english: 'Springy egg noodles tossed in shallot oil',
+      reading_confidence: 'high',
+      image_search_query: 'Sarawak kolo mee',
+      taste_profile: 'Savoury and aromatic with gentle shallot sweetness.',
+      texture_profile: 'Springy noodles with tender minced pork.',
+      spice_level: 'mild',
       price_myr: 8,
       image_url: null,
       image_attributions: [{

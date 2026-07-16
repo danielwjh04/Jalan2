@@ -42,6 +42,18 @@ describe("trip reservation batches", () => {
     ).toBe(true);
   });
 
+  it("keeps external EasyBook legs out of Jalan2 reservation requests", () => {
+    const trip = copyDiscoveryTrip("kl-tioman-easybook-adventure", "copy-easybook");
+    const preview = previewTripReservations(config, {
+      tripId: trip.id,
+      tripDate: "2026-07-20",
+      pax: 2,
+    });
+
+    expect(preview.stops.map(({ stopId }) => stopId)).not.toContain("easybook-kl-tioman");
+    expect(preview.stops.map(({ stopId }) => stopId)).toContain("tekek-reef-dive");
+  });
+
   it("sends each bookable stop once and hides destinations", async () => {
     const trip = copyDiscoveryTrip("melaka-river-and-heritage", "copy-1");
     const bodies: string[] = [];

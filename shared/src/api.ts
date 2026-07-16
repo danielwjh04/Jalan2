@@ -34,11 +34,15 @@ export interface DiscoveryCard {
   coverAttributions: import("./media").ImageAttribution[];
   stopCount: number;
   durationMinutes: number;
+  featured: boolean;
+  transportLabel: string;
+  highlights: string[];
 }
 
 export interface SavedTripSummary {
   id: string;
-  sourceDiscoveryId: string;
+  sourceDiscoveryId: string | null;
+  origin: "saved_discovery" | "smart_plan";
   title: string;
   region: string;
   coverUrl: string | null;
@@ -96,4 +100,5 @@ export interface MenuResponse {
   menu: import("./menu").MenuJson;
   servedFrom: "live" | "cache";
   dishAudio: (string | null)[];
+  sourceImageUrl: string | null;
 }

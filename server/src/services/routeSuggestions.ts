@@ -9,12 +9,11 @@ export async function recommendAlongRoute(
 ): Promise<PlaceCandidate[]> {
   const path = routePath(trip);
   if (path.length === 0) return [];
-  const center = centerOf(path);
-  const radius = searchRadius(center, path);
   const candidates = places.nearbyPopular
-    ? await places.nearbyPopular(center, radius)
+    ? await nearbyAlongPath(path, places)
     : await places.search(`popular attractions in ${trip.region}`, trip.region);
-  return rankCandidates(trip, path, candidates, radius).slice(0, MAX_RESULTS);
+  const ranked = rankCandidates(trip, path, candidates).slice(0, MAX_RESULTS);
+  return places.withImages ? places.withImages(ranked) : ranked;
 }
 
 function routePath(trip: TripPlan): GeoPoint[] {
@@ -31,23 +30,34 @@ function centerOf(points: GeoPoint[]): GeoPoint {
   return { lat: total.lat / points.length, lng: total.lng / points.length };
 }
 
-function searchRadius(center: GeoPoint, path: GeoPoint[]): number {
-  const spread = Math.max(...path.map((point) => haversineMeters(center, point)));
-  return Math.min(Math.max(spread + 2_500, 1_500), 50_000);
+async function nearbyAlongPath(path: GeoPoint[], places: PlacesProvider): Promise<PlaceCandidate[]> {
+  if (!places.nearbyPopular) return [];
+  const groups = await Promise.all(searchCenters(path).map((center) => places.nearbyPopular?.(center, 12_000) ?? []));
+  return [...new Map(groups.flat().map((place) => [place.place_id, place])).values()];
+}
+
+function searchCenters(path: GeoPoint[]): GeoPoint[] {
+  const first = path[0];
+  const last = path.at(-1) ?? first;
+  if (haversineMeters(first, last) < 20_000) return [centerOf(path)];
+  return [first, midpoint(first, last), last];
+}
+
+function midpoint(from: GeoPoint, to: GeoPoint): GeoPoint {
+  return { lat: (from.lat + to.lat) / 2, lng: (from.lng + to.lng) / 2 };
 }
 
 function rankCandidates(
   trip: TripPlan,
   path: GeoPoint[],
   candidates: PlaceCandidate[],
-  radius: number,
 ): PlaceCandidate[] {
   const existingIds = new Set(trip.stops.map((stop) => stop.place_id).filter(Boolean));
-  const existingNames = new Set(trip.stops.map((stop) => normalize(stop.name)));
+  const existingNames = trip.stops.map((stop) => normalize(stop.name));
   const existingTypes = new Set(trip.stops.map((stop) => stop.primary_type).filter(Boolean));
-  const maxDetour = Math.min(Math.max(radius * 0.2, 1_500), 5_000);
+  const maxDetour = 5_000;
   return candidates
-    .filter((place) => !existingIds.has(place.place_id) && !existingNames.has(normalize(place.name)))
+    .filter((place) => !existingIds.has(place.place_id) && !duplicatesName(place.name, existingNames))
     .map((place) => ({ ...place, route_distance_meters: distanceToPath(place.location, path) }))
     .filter((place) => (place.route_distance_meters ?? Infinity) <= maxDetour)
     .sort((left, right) => score(right, existingTypes) - score(left, existingTypes));
@@ -83,5 +93,13 @@ function segmentDistance(point: GeoPoint, start: GeoPoint, end: GeoPoint): numbe
 }
 
 function normalize(value: string): string {
-  return value.trim().toLowerCase();
+  return value.trim().toLowerCase().replace(/[^a-z0-9\p{L}]+/gu, ' ').replace(/\s+/g, ' ');
+}
+
+function duplicatesName(value: string, existingNames: string[]): boolean {
+  const candidate = normalize(value);
+  return existingNames.some((existing) =>
+    candidate === existing
+    || (candidate.length >= 8 && existing.includes(candidate))
+    || (existing.length >= 8 && candidate.includes(existing)));
 }

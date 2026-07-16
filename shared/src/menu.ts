@@ -4,6 +4,11 @@ import { ImageAttributionSchema } from './media';
 export const DishSchema = z.object({
   name_local: z.string().min(1),
   name_english: z.string().min(1),
+  reading_confidence: z.enum(['high', 'medium', 'low']),
+  image_search_query: z.string().min(1),
+  taste_profile: z.string().min(1),
+  texture_profile: z.string().min(1),
+  spice_level: z.enum(['none', 'mild', 'medium', 'hot', 'unknown']),
   price_myr: z.number().nonnegative().nullable(),
   image_url: z.string().nullable(),
   image_attributions: z.array(ImageAttributionSchema).default([]),
@@ -35,6 +40,21 @@ export const MenuJsonWireSchema = z.object({
       name_english: z
         .string()
         .describe('Short plain-English description, e.g. "noodles in sweet-savoury gravy"'),
+      reading_confidence: z
+        .enum(['high', 'medium', 'low'])
+        .describe('Confidence that the dish name was read correctly from the photographed row'),
+      image_search_query: z
+        .string()
+        .describe('Canonical Malaysian dish name for licensed photo search, without adjectives'),
+      taste_profile: z
+        .string()
+        .describe('Short sensory description of how a typical version tastes; do not claim the stall recipe is known'),
+      texture_profile: z
+        .string()
+        .describe('Short description of the typical noodle, broth, and topping textures'),
+      spice_level: z
+        .enum(['none', 'mild', 'medium', 'hot', 'unknown'])
+        .describe('Typical heat level; use unknown when the menu gives no useful clue'),
       price_myr: z
         .number()
         .nullable()

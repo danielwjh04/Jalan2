@@ -78,6 +78,27 @@ describe('createDynamicTrip', () => {
     expect(trip.region).toBe('Kuala Lumpur, Malaysia');
     expect(search).toHaveBeenCalledWith('Bengoh Dam', 'Kuala Lumpur, Malaysia');
   });
+
+  it('uses visible Chinese food context to ground an otherwise ambiguous venue name', async () => {
+    const contextualVision = {
+      frames: [{
+        ts: '25.7s',
+        on_screen_text: 'Sunny Hill 冰淇淋 回airbnb前先来吃个',
+        price_candidates: [],
+        phone_candidates: [],
+        place_candidates: ['Sunny Hill'],
+        operator_or_logo: null,
+      }],
+    };
+    const search = vi.fn(async (query: string) => [candidate(query)]);
+
+    const trip = await createDynamicTrip(
+      'trip-ice-cream', 'https://xhslink.com/o/food-stop', booking, contextualVision, providerWith(search),
+    );
+
+    expect(search).toHaveBeenCalledWith('Sunny Hill Ice Cream', 'Sarawak, Malaysia');
+    expect(trip.stops.map((stop) => stop.name)).toContain('Sunny Hill Ice Cream');
+  });
 });
 
 describe('anchorMeetingPoint', () => {

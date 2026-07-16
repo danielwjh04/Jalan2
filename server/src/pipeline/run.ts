@@ -1,10 +1,12 @@
 import type OpenAI from 'openai';
 import path from 'node:path';
+import { writeFile } from 'node:fs/promises';
 import type { BookingJson } from '@shared/booking';
 import type { Config } from '../config';
 import type { Extractor } from '../adapters/extractor/types';
 import type { Retrieval } from '../adapters/retrieval/types';
 import type { PlacesProvider } from '../adapters/places/types';
+import type { RoutingProvider } from '../adapters/routing/types';
 import type { SpeechToText, Transcript } from '../adapters/stt/types';
 import { NotConfiguredError } from '../lib/errors';
 import { loadCachedBooking, resolveFixtureSlug } from '../lib/fixtures';
@@ -18,6 +20,8 @@ import { chooseAestheticCover, type CoverSelection } from './cover';
 import { fuse } from './fusion';
 import { enrichTrust } from './trust';
 import { anchorMeetingPoint, createDynamicTrip } from './trip';
+import { createOpenAIPlanCritic } from '../planner/planCritic';
+import { planImportedTrip } from '../planner/importedTripPlanner';
 import { readFrames } from './vision';
 
 export interface PipelineDeps {
@@ -27,6 +31,7 @@ export interface PipelineDeps {
   openai: OpenAI | null;
   retrieval: Retrieval;
   places: PlacesProvider;
+  routing?: RoutingProvider;
 }
 
 const COVER_FRAME_COUNT = 12;
@@ -36,6 +41,7 @@ interface PipelineResult {
   booking: BookingJson;
   servedFrom: 'live' | 'cache';
   coverUrl: string | null;
+  tripId: string | null;
 }
 
 const memo = new Map<string, PipelineResult>();
@@ -50,6 +56,7 @@ export async function runPipeline(deps: PipelineDeps, id: string, url: string): 
     memo.set(url, result);
     if (result.coverUrl) setCoverUrl(id, result.coverUrl);
     setBooking(id, result.booking, result.servedFrom);
+    if (result.tripId) setTripId(id, result.tripId);
     setStage(id, 'READY');
     recordDemand(result.booking);
   } catch (error) {
@@ -80,7 +87,7 @@ async function produceBooking(
   if (deps.config.PIPELINE_MODE === 'cached') {
     const cached = loadCachedForUrl(url);
     if (!cached) throw new Error(`No cached booking for ${url}`);
-    return { booking: cached, servedFrom: 'cache', coverUrl: null };
+    return { booking: cached, servedFrom: 'cache', coverUrl: null, tripId: null };
   }
   try {
     const live = await runLive(deps, id, url);
@@ -91,7 +98,7 @@ async function produceBooking(
     if (!cached) throw error;
     const reason = error instanceof Error ? error.message : String(error);
     console.warn(`[pipeline] live run failed (${reason}); serving cached booking`);
-    return { booking: cached, servedFrom: 'cache', coverUrl: null };
+    return { booking: cached, servedFrom: 'cache', coverUrl: null, tripId: null };
   }
 }
 
@@ -99,7 +106,7 @@ async function runLive(
   deps: PipelineDeps,
   id: string,
   url: string,
-): Promise<{ booking: BookingJson; coverUrl: string | null }> {
+): Promise<{ booking: BookingJson; coverUrl: string | null; tripId: string }> {
   const { config, extractor, stt, openai } = deps;
   if (!openai) {
     throw new NotConfiguredError('OpenAI', 'Set OPENAI_API_KEY or use PIPELINE_MODE=cached.');
@@ -124,6 +131,7 @@ async function runLive(
     : { text: '', segments: [] };
   setStage(id, 'READING_FRAMES');
   const vision = await readFrames(openai, config.OPENAI_VISION_MODEL, frames);
+  await writeFile(path.join(workDir, 'vision.json'), JSON.stringify(vision, null, 2));
   setStage(id, 'FUSING');
   const fused = await fuse(openai, config.OPENAI_FUSION_MODEL, {
     caption: media.caption,
@@ -131,10 +139,12 @@ async function runLive(
     vision,
   });
   const booking = await anchorMeetingPoint(fused, deps.places);
-  const trip = await createDynamicTrip(id, url, booking, vision, deps.places);
+  const sourceTrip = await createDynamicTrip(id, url, booking, vision, deps.places);
+  const critic = createOpenAIPlanCritic(openai, config.OPENAI_FUSION_MODEL);
+  const trip = deps.routing ? await planImportedTrip(sourceTrip, deps.routing, critic) : sourceTrip;
   saveTrip({ ...trip, cover_url: coverUrl });
   setTripId(id, trip.id);
-  return { booking, coverUrl };
+  return { booking, coverUrl, tripId: trip.id };
 }
 
 function sampleKeyframes(frames: Keyframe[], limit: number): Keyframe[] {

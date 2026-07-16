@@ -1,6 +1,6 @@
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import { postMenu } from './api';
+import { postMenu, postMenuDemo } from './api';
 
 const PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
   mediaTypes: ['images'],
@@ -8,7 +8,7 @@ const PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
   base64: true,
 };
 
-export type MenuSource = 'camera' | 'library';
+export type MenuSource = 'camera' | 'library' | 'demo';
 
 async function pickPhoto(source: MenuSource): Promise<ImagePicker.ImagePickerResult> {
   if (source === 'camera') {
@@ -22,6 +22,11 @@ async function pickPhoto(source: MenuSource): Promise<ImagePicker.ImagePickerRes
 // The menu twin of ingestVideo: camera and library both land here, the photo
 // goes to the backend, and the app navigates to the resulting swipe deck.
 export async function scanMenu(source: MenuSource): Promise<boolean> {
+  if (source === 'demo') {
+    const menu = await postMenuDemo();
+    router.push(`/menu/${menu.id}`);
+    return true;
+  }
   const result = await pickPhoto(source);
   const asset = result.canceled ? null : result.assets[0];
   if (!asset?.base64) return false;

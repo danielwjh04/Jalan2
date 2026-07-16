@@ -12,6 +12,7 @@ import type {
   VoiceBriefResponse,
 } from "@shared/api";
 import type { PlaceCandidate, TripPlan, TripPreferences } from "@shared/trip";
+import type { SmartPlanRequest } from "@shared/planner";
 import type { BookingRequest, Itinerary } from "@shared/status";
 import type { ExperienceRecord, ReviewSubmission } from "@shared/reviews";
 import type {
@@ -20,7 +21,7 @@ import type {
   ReservationPreviewRequest,
   TripReservationBatch,
 } from "@shared/reservation";
-import { buildPlacePhotoUrl, resolveBaseUrl } from "./baseUrl";
+import { buildPlacePhotoUrl, buildTripMapUrl, resolveBaseUrl } from "./baseUrl";
 import { parseApiResponse } from "./httpResponse";
 
 function baseUrl(): string {
@@ -50,6 +51,10 @@ export function ingest(url: string): Promise<IngestResponse> {
 
 export function getTrip(id: string): Promise<TripPlan> {
   return request(`/trips/${id}`);
+}
+
+export function createSmartPlan(input: SmartPlanRequest): Promise<TripPlan> {
+  return post("/smart-plan", input);
 }
 
 export function optimizeTrip(
@@ -82,6 +87,10 @@ export function getTripSuggestions(id: string): Promise<PlaceCandidate[]> {
 
 export function placePhotoUrl(placeId: string): string {
   return buildPlacePhotoUrl(baseUrl(), placeId);
+}
+
+export function tripMapUrl(tripId: string, stopIds: string[]): string {
+  return buildTripMapUrl(baseUrl(), tripId, stopIds);
 }
 
 export function addTripPlace(id: string, place: PlaceCandidate): Promise<TripPlan> {
@@ -185,6 +194,10 @@ export function postMenu(payload: {
   mimeType: "image/jpeg" | "image/png";
 }): Promise<MenuResponse> {
   return post("/menu", payload);
+}
+
+export function postMenuDemo(): Promise<MenuResponse> {
+  return post("/menu/demo", {});
 }
 
 export function getMenu(id: string): Promise<MenuResponse> {

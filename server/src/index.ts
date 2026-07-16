@@ -7,9 +7,9 @@ import { pickRetrieval } from "./adapters/retrieval";
 import { createRouting } from "./adapters/routing";
 import { createPlaces } from "./adapters/places";
 import {
-  createWikimediaFoodImages,
   createWikimediaPlaceImages,
 } from "./adapters/foodImages/wikimedia";
+import { createLicensedFoodImages } from "./adapters/foodImages/licensed";
 import { withLicensedPlaceImages } from "./adapters/places/withImages";
 import { pickStt } from "./adapters/stt";
 import { pickTts } from "./adapters/tts";
@@ -25,15 +25,16 @@ const messaging = pickMessagingProvider(
 );
 const retrieval = pickRetrieval(config);
 const places = withLicensedPlaceImages(createPlaces(config), createWikimediaPlaceImages());
+const routing = createRouting(config);
 
 const app = createApp({
   config,
   messaging,
   tts: pickTts(config),
   retrieval,
-  routing: createRouting(config),
+  routing,
   places,
-  foodImages: createWikimediaFoodImages(),
+  foodImages: createLicensedFoodImages(config.UNSPLASH_ACCESS_KEY),
   pipeline: {
     config,
     extractor: pickExtractor(config),
@@ -41,6 +42,7 @@ const app = createApp({
     openai,
     retrieval,
     places,
+    routing,
   },
 });
 

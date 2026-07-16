@@ -4,6 +4,19 @@ All keys live in `server/.env` (copy `server/.env.example`). The app never
 holds a key. Switching any provider is an env var change followed by a server
 restart; no code changes.
 
+## Google Maps Platform
+
+1. Enable Places API (New), Routes API and Maps Static API in the same Google
+   Cloud project.
+2. Put the server key in `GOOGLE_MAPS_API_KEY`. Never use an `EXPO_PUBLIC_`
+   variable for this key.
+3. Restrict the key to the Jalan2 server and only those three APIs.
+
+Places grounds destinations and supplies ratings, Routes evaluates road legs,
+and Maps Static renders the numbered web preview through `/trips/:id/map`.
+When Maps Static is unavailable the client uses an OpenStreetMap fallback and
+keeps the Google Maps Directions handoff working.
+
 ## OpenAI (live pipeline)
 
 1. Put the key in `OPENAI_API_KEY`.
