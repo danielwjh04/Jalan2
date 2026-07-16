@@ -37,6 +37,13 @@ describe('smart planning agents', () => {
     expect(trip.planning?.hotel_search_url).toContain('checkIn=2026-08-10');
     expect(trip.planning?.critique?.score).toBeGreaterThanOrEqual(0);
     expect(trip.planning?.checks.some((check) => check.message.includes('needs at least'))).toBe(true);
+    expect(trip.planning?.handoffs).toEqual(expect.arrayContaining([
+      expect.objectContaining({ provider: 'KTMB (KITS)' }),
+      expect.objectContaining({ provider: 'EasyBook' }),
+    ]));
+    expect(trip.preferences?.return_to_origin).toBe(true);
+    expect(trip.stops.at(-1)?.name).toBe('Return to Kuala Lumpur');
+    expect(trip.planning?.request.end_destination).toBeNull();
     expect(trip.stops.every((stop) => !stop.transport_provider)).toBe(true);
     expect(optimize.mock.calls[0][0].map((stop) => stop.name)).not.toContain('Kuala Lumpur');
   });
@@ -57,8 +64,20 @@ describe('smart planning agents', () => {
     expect(trip.planning?.checks.some((check) => check.severity === 'blocking')).toBe(true);
   });
 
+  it('finishes a one-way plan at the explicit endpoint instead of assuming a return', async () => {
+    const trip = await createSmartPlan(request({ return_to_origin: false, end_destination: 'Penang' }), {
+      places: fakePlaces(), routing: fakeRouting(), findEasybook: async () => null, save: (value) => value,
+    });
+
+    expect(trip.stops.at(-1)?.name).toBe('Penang');
+    expect(trip.preferences).toEqual(expect.objectContaining({ journey_origin: 'Kuala Lumpur', journey_end: 'Penang', return_to_origin: false }));
+    expect(trip.planning?.request.end_destination).toBe('Penang');
+    expect(trip.planning?.legs.at(-1)).toEqual(expect.objectContaining({ provider: 'ktmb', mode: 'train', evidence: 'needs_confirmation' }));
+  });
+
   it('rejects incomplete briefs before any provider call', () => {
     expect(SmartPlanRequestSchema.safeParse({ origin: 'KL', destination: '', interests: [] }).success).toBe(false);
+    expect(SmartPlanRequestSchema.safeParse({ origin: 'KL', destination: 'Ipoh', return_to_origin: false, end_destination: null, interests: ['food'] }).success).toBe(false);
   });
 });
 
@@ -89,6 +108,7 @@ function fakePlaces(borneo = false): PlacesProvider {
     search: async (query) => {
       if (query === 'Kuala Lumpur') return [place('kl', 'Kuala Lumpur', 3.139, 101.6869, 'locality')];
       if (query === 'Gopeng' || query === 'Kuching') return [destination];
+      if (query === 'Penang') return [place('penang', 'Penang', 5.4141, 100.3288, 'locality')];
       if (query === 'Terminal Amanjaya') return [place('amanjaya', 'Terminal Amanjaya', 4.671, 101.073, 'bus_station')];
       return activities;
     },

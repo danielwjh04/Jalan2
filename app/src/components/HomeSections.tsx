@@ -5,19 +5,12 @@ import { DiscoveryCard } from "./DiscoveryCard";
 import { cardShadow, colors, eyebrow, hairline, radius, spacing, type } from "@/lib/theme";
 
 interface QuickActionsProps {
-  busy: boolean;
-  onMenu: () => void;
-  onMenuDemo: () => void;
   onOperators: () => void;
 }
 
 export function HomeQuickActions(props: QuickActionsProps): React.ReactElement {
   return (
     <View style={styles.quickCard}>
-      <QuickAction icon="restaurant-outline" tint={colors.kayaTint} title="Scan a kopitiam menu" detail="Swipe dishes, see taste notes, and order" disabled={props.busy} onPress={props.onMenu} />
-      <View style={styles.quickDivider} />
-      <QuickAction icon="flask-outline" tint={colors.dangerSoft} title="Test the 22-dish menu demo" detail="Open the Chinese and handwritten Malay board now" disabled={props.busy} onPress={props.onMenuDemo} />
-      <View style={styles.quickDivider} />
       <QuickAction icon="people-outline" tint={colors.halo} title="Meet the local operators" detail="The people behind the trips" onPress={props.onOperators} />
     </View>
   );
@@ -87,7 +80,6 @@ function DevShare({ fixture, busy, onSubmit }: { fixture: FixtureCardData; busy:
 const styles = StyleSheet.create({
   quickCard: { backgroundColor: colors.card, borderRadius: radius.card, ...hairline, ...cardShadow },
   quickRow: { flexDirection: "row", alignItems: "center", gap: spacing(3), paddingHorizontal: spacing(4), paddingVertical: spacing(3.5) },
-  quickDivider: { height: 1, backgroundColor: colors.mist, marginLeft: spacing(13) },
   quickIcon: { width: 36, height: 36, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   quickCopy: { flex: 1, gap: 1 },
   quickTitle: { ...type.label, color: colors.ink, fontSize: 14 },

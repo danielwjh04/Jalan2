@@ -6,7 +6,13 @@ import { voiceCacheDir } from './paths';
 
 export function voiceHash(request: TtsRequest): string {
   return createHash('sha256')
-    .update(`${request.voiceId}|${request.modelId}|${request.text}`)
+    .update([
+      request.voiceId,
+      request.modelId,
+      request.languageCode ?? '',
+      request.voiceName ?? '',
+      request.text,
+    ].join('|'))
     .digest('hex')
     .slice(0, 16);
 }

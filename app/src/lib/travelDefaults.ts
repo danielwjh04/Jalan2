@@ -30,6 +30,7 @@ export function applyTravelDefaults(
   return {
     selectedStopIds,
     preferences: {
+      ...current,
       budget_myr: defaults.budgetMyr,
       day_start_minute: defaults.dayStartMinute,
       start_stop_id: selectedStopIds.includes(current.start_stop_id ?? "")

@@ -1,5 +1,6 @@
 import { haversineMeters, type GeoPoint, type PlaceCandidate, type TripPlan } from '@shared/trip';
 import type { PlacesProvider } from '../adapters/places/types';
+import { isTiomanPlace, tiomanZone } from '../planner/tiomanMobility';
 
 const MAX_RESULTS = 5;
 
@@ -17,9 +18,12 @@ export async function recommendAlongRoute(
 }
 
 function routePath(trip: TripPlan): GeoPoint[] {
-  if (trip.route?.path && trip.route.path.length >= 2) return trip.route.path;
   const selected = new Set(trip.selected_stop_ids);
-  return trip.stops.filter((stop) => selected.has(stop.id)).map((stop) => stop.location);
+  const selectedStops = trip.stops.filter((stop) => selected.has(stop.id));
+  const tiomanStops = selectedStops.filter(isTiomanPlace);
+  if (tiomanStops.length > 0) return tiomanStops.map((stop) => stop.location);
+  if (trip.route?.path && trip.route.path.length >= 2) return trip.route.path;
+  return selectedStops.map((stop) => stop.location);
 }
 
 function centerOf(points: GeoPoint[]): GeoPoint {
@@ -55,9 +59,15 @@ function rankCandidates(
   const existingIds = new Set(trip.stops.map((stop) => stop.place_id).filter(Boolean));
   const existingNames = trip.stops.map((stop) => normalize(stop.name));
   const existingTypes = new Set(trip.stops.map((stop) => stop.primary_type).filter(Boolean));
+  const selected = new Set(trip.selected_stop_ids);
+  const islandZones = new Set(trip.stops
+    .filter((stop) => selected.has(stop.id) && isTiomanPlace(stop))
+    .map(tiomanZone)
+    .filter(Boolean));
   const maxDetour = 5_000;
   return candidates
     .filter((place) => !existingIds.has(place.place_id) && !duplicatesName(place.name, existingNames))
+    .filter((place) => islandZones.size === 0 || (isTiomanPlace(place) && islandZones.has(tiomanZone(place))))
     .map((place) => ({ ...place, route_distance_meters: distanceToPath(place.location, path) }))
     .filter((place) => (place.route_distance_meters ?? Infinity) <= maxDetour)
     .sort((left, right) => score(right, existingTypes) - score(left, existingTypes));

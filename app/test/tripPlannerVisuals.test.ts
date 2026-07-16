@@ -47,7 +47,23 @@ describe("trip planner visuals", () => {
     expect(transition).toContain("Powered by");
     expect(transition).toContain("Easybook-logo.png");
     expect(transition).toContain("Then Jalan2 continues to");
-    expect(transition).toContain("No partnership or live inventory implied");
+    expect(transition).toContain("No partnership, live inventory or booking confirmation implied");
+    expect(transition).toContain("KTMB · KITS");
+  });
+
+  it("puts a changeable local travel mode between adjacent places", () => {
+    const list = read("TripStopList");
+    const connector = read("TravelLegConnector");
+
+    expect(list).toContain("TravelLegConnector");
+    expect(connector).toContain("Change transport from");
+    for (const mode of ["Walk", "Transit", "Drive", "Grab"]) expect(connector).toContain(`label: "${mode}"`);
+    expect(connector).toContain("Open Grab");
+    expect(connector).toContain("Destination copied");
+    expect(connector).toContain("Google Maps confirms the live route");
+    expect(connector).toContain("Water taxi");
+    expect(connector).toContain("fare unknown");
+    expect(connector).toContain("Transfer info");
   });
 
   it("keeps the geographic route and feasibility above the itinerary", () => {
@@ -62,6 +78,8 @@ describe("trip planner visuals", () => {
     expect(map).toContain("MapContainer");
     expect(map).toContain("TileLayer");
     expect(map).toContain("Focus destination");
+    expect(map).toContain("Lines between villages are not roads");
+    expect(map).toContain("Island transport");
   });
 
   it("applies user defaults only through an explicit action", () => {

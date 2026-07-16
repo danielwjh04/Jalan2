@@ -1,8 +1,8 @@
 [
   {
     "id": "kl-tioman-easybook-adventure",
-    "title": "KL to Tioman: reef, jungle and ATV",
-    "summary": "Hand off the long-haul legs to EasyBook, then let Jalan2 connect the island's dive, hiking and ATV operators into one usable plan.",
+    "title": "KL to Tioman: Tekek reef, jungle and ATV",
+    "summary": "Hand off the long-haul legs to EasyBook, then keep the default island day inside the walkable Tekek–Berjaya–Paya corridor. Asah remains a separate south-coast add-on because it needs a confirmed sea taxi.",
     "region": "Kuala Lumpur to Tioman, Pahang",
     "source_creator": "Jalan2 route lab",
     "source_url": "https://www.malaysia.travel/explore/tioman-island",
@@ -47,7 +47,7 @@
         "id": "asah-waterfall-hike",
         "reservation_hint": "bookable",
         "name": "Asah Waterfall jungle hike",
-        "summary": "Arrange a local guide for the rainforest approach to Asah Waterfall, with the trail, boat transfer and turnaround time confirmed for current conditions.",
+        "summary": "Separate south-coast add-on: do not combine this with the Tekek day unless a local operator confirms the outbound and return sea taxi, fare, weather and turnaround time.",
         "location": { "lat": 2.716, "lng": 104.138 },
         "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Asah%20Waterfall.jpg?width=1400",
         "image_attributions": [{ "label": "Photo by Simon Wheatley", "source_url": "https://commons.wikimedia.org/wiki/File:Asah_Waterfall.jpg", "license": "CC BY-SA 2.0" }],
@@ -66,9 +66,24 @@
         "estimated_spend_myr": null,
         "duration_minutes": 90,
         "sources": [{ "title": "Berjaya Tioman ATV adventure", "url": "https://www.berjayahotel.com/new/atv-adventure" }]
+      },
+      {
+        "id": "berjaya-paya-rainforest-walk",
+        "reservation_hint": "walk_in",
+        "name": "Berjaya–Paya rainforest walk",
+        "summary": "Use the short rainforest trail from the Berjaya/Tekek side toward Kampung Paya, then return within the same west-coast corridor. Confirm trail condition and daylight locally.",
+        "location": { "lat": 2.789, "lng": 104.137 },
+        "image_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Pulau%20Tioman%20%28Tioman%20Island%29.jpg?width=1400",
+        "image_attributions": [{ "label": "Photo by Jorge Cancela", "source_url": "https://commons.wikimedia.org/wiki/File:Pulau_Tioman_(Tioman_Island).jpg", "license": "CC BY 2.0" }],
+        "estimated_spend_myr": null,
+        "duration_minutes": 90,
+        "sources": [
+          { "title": "Tioman nature and jungle trails", "url": "https://www.tioman.org/nature.htm" },
+          { "title": "Tourism Pahang: Tioman", "url": "https://www.pahangtourism.org.my/destination/islands-beaches/tioman-island" }
+        ]
       }
     ],
-    "selected_stop_ids": ["easybook-kl-tioman", "tekek-reef-dive", "asah-waterfall-hike", "bunut-beach-atv"],
+    "selected_stop_ids": ["easybook-kl-tioman", "tekek-reef-dive", "bunut-beach-atv", "berjaya-paya-rainforest-walk"],
     "route": null
   },
   {

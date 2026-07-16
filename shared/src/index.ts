@@ -14,6 +14,7 @@ export type {
 } from "./status";
 export { normalizeVideoUrl } from "./videoUrl";
 export type { NormalizedVideoUrl, VideoPlatform } from "./videoUrl";
+export { MAX_SOCIAL_SOURCES, parseSocialUrls, sourcePlatform } from "./social";
 export { ImageAttributionSchema } from "./media";
 export type { ImageAttribution } from "./media";
 export { buildTransitLinks } from "./transit";
@@ -51,6 +52,8 @@ export type {
   ItinerarySummary,
   SavedTripSummary,
   MenuResponse,
+  MenuOrderClipResponse,
+  MenuOrderLanguage,
   PhraseClipResponse,
   VoiceBriefResponse,
   VoiceServedFrom,

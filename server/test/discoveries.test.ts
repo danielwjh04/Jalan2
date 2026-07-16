@@ -55,6 +55,9 @@ describe("curated discoveries", () => {
     expect(cards[0].transportLabel).toBe("EasyBook bus + ferry");
     expect(cards[1].transportLabel).toBe("Local guide + longboat");
     expect(discoveries[0].stops.some(({ easybook_url: url }) => url?.includes("easybook.com"))).toBe(true);
+    expect(discoveries[0].selected_stop_ids).toContain("berjaya-paya-rainforest-walk");
+    expect(discoveries[0].selected_stop_ids).not.toContain("asah-waterfall-hike");
+    expect(discoveries[0].stops.find(({ id }) => id === "asah-waterfall-hike")?.summary).toContain("Separate south-coast add-on");
     expect(discoveries[2].stops.some(({ easybook_url: url }) => url?.includes("easybook.com"))).toBe(true);
     expect(discoveries[2].stops.some(({ transport_provider: provider }) => provider === "operator")).toBe(true);
   });

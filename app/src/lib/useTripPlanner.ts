@@ -26,6 +26,7 @@ export interface TripPlannerState {
   busy: boolean;
   error: string | null;
   optimize: () => Promise<void>;
+  reorder: (stopIds: string[]) => Promise<void>;
   toggle: (stopId: string) => Promise<void>;
   search: (query: string) => Promise<void>;
   suggest: () => Promise<void>;
@@ -108,7 +109,7 @@ function createRunner(setBusy: Setter<boolean>, setError: Setter<string | null>,
   };
 }
 
-function createRouteActions(context: ActionContext, run: TripRunner): Pick<TripPlannerState, "optimize" | "toggle" | "applyDefaults"> {
+function createRouteActions(context: ActionContext, run: TripRunner): Pick<TripPlannerState, "optimize" | "reorder" | "toggle" | "applyDefaults"> {
   const optimize = async (): Promise<void> => {
     const trip = context.trip;
     if (!trip || context.busy || context.selected.length < 2) return;
@@ -127,13 +128,25 @@ function createRouteActions(context: ActionContext, run: TripRunner): Pick<TripP
       context.setTrip(trip);
     }
   };
+  const reorder = async (stopIds: string[]): Promise<void> => {
+    const trip = context.trip;
+    if (!trip || context.busy || stopIds.length !== context.selected.length) return;
+    if (new Set(stopIds).size !== stopIds.length || stopIds.some((id) => !context.selected.includes(id))) return;
+    context.setSelected(stopIds);
+    context.setTrip({ ...trip, selected_stop_ids: stopIds, route: null, planning: null });
+    const updated = await run(() => updateTrip(trip.id, stopIds, context.preferences));
+    if (!updated) {
+      context.setSelected(context.selected);
+      context.setTrip(trip);
+    }
+  };
   const applyDefaults = async (defaults: TravelDefaults): Promise<void> => {
     const trip = context.trip;
     if (!trip || context.busy) return;
     const next = applyTravelDefaults(trip.stops.map(({ id }) => id), context.preferences, defaults);
     await run(() => updateTrip(trip.id, next.selectedStopIds, next.preferences));
   };
-  return { optimize, toggle, applyDefaults };
+  return { optimize, reorder, toggle, applyDefaults };
 }
 
 function createPlaceActions(context: ActionContext, run: TripRunner): Pick<TripPlannerState, "search" | "suggest" | "addDestination" | "removeDestination"> {

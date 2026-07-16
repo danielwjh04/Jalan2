@@ -23,6 +23,41 @@ describe('imported social trip planning', () => {
     expect(trip.planning?.critique?.verdict).toBe('ready');
     expect(trip.summary).toContain('recommendations visible');
   });
+
+  it('adds explicit outbound and return boundaries to an imported social itinerary', async () => {
+    const source = sourceTrip();
+    source.preferences = {
+      ...DEFAULT_TRIP_PREFERENCES,
+      journey_origin: 'Kuala Lumpur',
+      journey_end: 'Kuala Lumpur',
+      return_to_origin: true,
+    };
+    const trip = await planImportedTrip(source, {
+      name: 'google',
+      optimize: async (stops) => ({
+        ordered_stop_ids: stops.map((stop) => stop.id),
+        distance_meters: 1_000_000,
+        duration_minutes: 600,
+        path: stops.map((stop) => stop.location),
+        provider: 'google',
+      }),
+    }, undefined, {
+      name: 'google',
+      search: async () => [{
+        place_id: 'kl', name: 'Kuala Lumpur', address: 'Kuala Lumpur, Malaysia',
+        location: { lat: 3.139, lng: 101.6869 }, google_maps_url: 'https://maps.google.com/?q=Kuala+Lumpur',
+        opening_window: null, suggested_activity: 'Start here.', primary_type: 'locality', reservation_hint: null,
+        place_photo_available: false, place_photo_attributions: [], image_url: null, image_attributions: [],
+      }],
+      photo: async () => null,
+    });
+
+    expect(trip.stops[0].name).toBe('Kuala Lumpur');
+    expect(trip.stops.at(-1)?.name).toBe('Return to Kuala Lumpur');
+    expect(trip.planning?.legs[0].mode).toBe('flight');
+    expect(trip.planning?.legs.at(-1)?.mode).toBe('flight');
+    expect(trip.planning?.request.return_to_origin).toBe(true);
+  });
 });
 
 function sourceTrip(): TripPlan {

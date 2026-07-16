@@ -86,7 +86,10 @@ function dedupeChecks(checks: PlanningCheck[]): PlanningCheck[] {
 function criticPrompt(): string {
   return [
     'You are Jalan2 end-to-end plan critic. Evaluate only the supplied structured plan.',
-    'Check transport continuity, daily load, overnight placement, provider confirmation gaps, and whether every stop is reachable in sequence.',
+    'Check transport continuity, daily load, overnight placement, provider confirmation gaps, island village changes, and whether every stop is reachable in sequence.',
+    'Check that the journey has an explicit starting point and final endpoint. If return_to_origin is true, the final leg must return to the origin; otherwise it must finish at end_destination.',
+    'KTMB and EasyBook handoffs are ticket searches, not confirmed departures. Do not treat a provider link as a purchased ticket.',
+    'On Tioman, never treat straight-line proximity as a road. A cross-village water taxi or Tekek–Juara 4WD leg must be explicit and provider-confirmed.',
     'Do not invent routes, fares, opening hours, safety claims, availability, operators, or facts absent from the input.',
     'Treat estimated and needs-confirmation legs honestly. A plan with a missing critical transfer cannot score above 60.',
     'Return concise, actionable checks. Do not repeat checks already present.',

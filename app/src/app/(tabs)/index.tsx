@@ -3,10 +3,10 @@ import { useCallback } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import { StatusBar } from 'expo-status-bar';
 import { BoboCard } from '@/components/BoboCard';
+import { CoreProductFlows } from '@/components/CoreProductFlows';
 import { DemoFlowShowcase } from '@/components/DemoFlowShowcase';
 import { HomeHeader } from '@/components/HomeHeader';
 import { HomeDiscoveryPreview, HomeQuickActions } from "@/components/HomeSections";
-import { PasteBar } from '@/components/PasteBar';
 import { SmartPlanComposer } from '@/components/SmartPlanComposer';
 import { colors, spacing } from '@/lib/theme';
 import { useHomeScreen } from "@/lib/useHomeScreen";
@@ -28,13 +28,20 @@ export default function HomeScreen(): React.ReactElement {
           hero
           landing
           eyebrow="BOBO SAYS SELAMAT DATANG"
-          title="Pick a demo and let's jalan"
-          message="Watch me connect transport, hidden operators and a route you can actually use."
+          title="Bring the post. I'll make it usable."
+          message="Turn an XHS or TikTok find into a real trip, or scan a kopitiam menu and know exactly what to order."
         />
-        <SmartPlanComposer />
+        <CoreProductFlows
+          prefill={prefill}
+          busy={busy}
+          onSubmit={submit}
+          onMultiSource={() => router.push('/social-plan')}
+          onMenu={chooseMenuSource}
+          onMenuDemo={startMenuDemo}
+        />
         <DemoFlowShowcase discoveries={discoveries} onOpen={(id) => router.push(`/trip/${id}`)} />
-        <PasteBar prefill={prefill} busy={busy} onSubmit={submit} />
-        <HomeQuickActions busy={busy} onMenu={chooseMenuSource} onMenuDemo={startMenuDemo} onOperators={() => router.push('/discover?section=operators')} />
+        <SmartPlanComposer />
+        <HomeQuickActions onOperators={() => router.push('/discover?section=operators')} />
         <HomeDiscoveryPreview
           discoveries={discoveries.filter(({ featured }) => !featured).slice(0, 2)}
           devFixture={fixtures[0]}

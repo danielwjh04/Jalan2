@@ -1,4 +1,4 @@
-import { mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { execa } from 'execa';
 import ffmpegPath from 'ffmpeg-static';
@@ -47,8 +47,12 @@ export async function extractKeyframes(
       '-vf', "scale=w='min(768,iw)':h=-2",
       framePath,
     ]);
-    frames.push({ path: framePath, ts });
+    // ffmpeg can exit successfully without writing a frame when a short or
+    // variable-frame-rate social clip ends just before the requested seek.
+    // Never pass a path that does not exist to the vision model.
+    if (existsSync(framePath)) frames.push({ path: framePath, ts });
   }
+  if (frames.length === 0) throw new Error(`Could not extract a frame from ${videoPath}`);
   return frames;
 }
 

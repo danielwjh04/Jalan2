@@ -11,12 +11,13 @@ interface SwipeDeckProps {
   dishes: Dish[];
   onLike: (index: number) => void;
   onFinish: () => void;
+  sourceMenuUrl?: string;
 }
 
 const SWIPE_THRESHOLD = 110;
 const FLING_DISTANCE = 520;
 
-export function SwipeDeck({ dishes, onLike, onFinish }: SwipeDeckProps): React.ReactElement {
+export function SwipeDeck({ dishes, onLike, onFinish, sourceMenuUrl }: SwipeDeckProps): React.ReactElement {
   const [index, setIndex] = useState(0);
   const [swiping, setSwiping] = useState(false);
   const x = useSharedValue(0);
@@ -56,10 +57,10 @@ export function SwipeDeck({ dishes, onLike, onFinish }: SwipeDeckProps): React.R
     <View style={styles.stack}>
       <View style={styles.progressRow}><Text style={styles.progress}>TASTE {index + 1} OF {dishes.length}</Text><Text style={styles.progressHint}>Drag the card</Text></View>
       <View>
-        {next ? <View style={styles.behind}><DishCard dish={next} /></View> : null}
+        {next ? <View style={styles.behind}><DishCard dish={next} sourceMenuUrl={sourceMenuUrl} /></View> : null}
         <GestureDetector gesture={pan}>
           <Animated.View style={cardStyle}>
-            <DishCard dish={current} />
+            <DishCard dish={current} sourceMenuUrl={sourceMenuUrl} />
             <SwipeBadge label="SAVE" style={[styles.like, likeStyle]} />
             <SwipeBadge label="SKIP" style={[styles.pass, passStyle]} />
           </Animated.View>

@@ -12,10 +12,17 @@ describe('menu photo demo', () => {
     expect(read('lib/menu.ts')).toContain("source === 'demo'");
     expect(read('app/(tabs)/menu/[id].tsx')).toContain('SCANNED MENU');
     expect(read('app/(tabs)/menu/[id].tsx')).toContain('sourceImageUrl');
+    expect(read('components/MenuPointingGuide.tsx')).toContain('POINT TO THIS ON THE MENU');
+    expect(read('components/MenuPointingGuide.tsx')).toContain('dish.source_bbox');
+    expect(read('components/MenuOrderSpeaker.tsx')).toContain('SAY MY ORDER');
+    expect(read('components/MenuOrderSpeaker.tsx')).toContain('Cantonese');
+    expect(read('components/MenuOrderSpeaker.tsx')).toContain('Mandarin');
+    expect(read('components/MenuOrderSpeaker.tsx')).toContain('getMenuOrderAudio');
   });
 
   it('exposes the menu demo as a direct home action', () => {
-    expect(read('components/HomeSections.tsx')).toContain('Test the 22-dish menu demo');
+    expect(read('components/CoreProductFlows.tsx')).toContain('KOPITIAM FOOD RECOGNITION');
+    expect(read('components/CoreProductFlows.tsx')).toContain('Try the 22-dish demo');
     expect(read('app/(tabs)/index.tsx')).toContain('onMenuDemo={startMenuDemo}');
   });
 });

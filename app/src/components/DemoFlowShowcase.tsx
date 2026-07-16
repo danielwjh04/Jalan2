@@ -21,9 +21,9 @@ export function DemoFlowShowcase({ discoveries, onOpen }: Props): React.ReactEle
     <View style={styles.section}>
       <View style={styles.headingRow}>
         <View style={styles.headingCopy}>
-          <Text style={styles.eyebrow}>LIVE DEMO FLOWS</Text>
-          <Text style={styles.heading}>Three stories, one complete product</Text>
-          <Text style={styles.intro}>Start with transport, then watch Bobo connect the local people and places the booking platforms miss.</Text>
+          <Text style={styles.eyebrow}>SEE FLOW 1 WORKING</Text>
+          <Text style={styles.heading}>Social finds turned into real journeys</Text>
+          <Text style={styles.intro}>These prepared XHS and TikTok stories show the itinerary result: grounded places, connected transport and the local operator handoff.</Text>
         </View>
         <View style={styles.livePill}><View style={styles.liveDot} /><Text style={styles.liveText}>READY TO RUN</Text></View>
       </View>

@@ -54,7 +54,11 @@ describe('attachDishImages', () => {
       }),
     };
 
-    const result = await attachDishImages(foodImages, { stall_name: null, dishes: [dish] });
+    const result = await attachDishImages(
+      foodImages,
+      { stall_name: null, dishes: [dish] },
+      async (_dish, candidates) => candidates[0] ?? null,
+    );
 
     expect(result.dishes[0].image_url).toContain('wikimedia.org');
     expect(result.dishes[0].image_attributions[0]?.license).toBe('CC0 1.0');
@@ -73,9 +77,34 @@ describe('attachDishImages', () => {
       },
     };
 
-    await attachDishImages(foodImages, { stall_name: null, dishes: [dish] });
+    await attachDishImages(
+      foodImages,
+      { stall_name: null, dishes: [dish] },
+      async () => null,
+    );
 
     expect(received).toBe('Malaysian mee udang prawn noodles');
+  });
+
+  it('does not attach an unverified keyword-search result', async () => {
+    const menu = loadCachedMenu();
+    if (!menu) throw new Error('Missing cached menu');
+    const dish = { ...menu.dishes[0], image_url: null, image_attributions: [] };
+    const foodImages = {
+      name: 'openverse' as const,
+      findDishPhoto: async () => ({
+        imageUrl: 'https://example.com/unrelated-curry.jpg',
+        imageAttributions: [],
+      }),
+    };
+
+    const result = await attachDishImages(
+      foodImages,
+      { stall_name: null, dishes: [dish] },
+      async () => null,
+    );
+
+    expect(result.dishes[0].image_url).toBeNull();
   });
 });
 

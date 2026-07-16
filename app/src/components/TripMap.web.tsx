@@ -7,6 +7,7 @@ import { isTransportStop, type GeoPoint, type TripStop } from "@shared/trip";
 import { colors, fonts, radius, spacing, type } from "@/lib/theme";
 import { tryOpenExternalUrl } from "@/lib/externalLink";
 import { tripMapUrl } from "@/lib/api";
+import { isTiomanStop, TIOMAN_TRANSPORT_URL } from "@/lib/tiomanMobility";
 
 interface Props {
   tripId: string;
@@ -24,6 +25,7 @@ export function TripMap({ tripId, stops, orderedIds, planning }: Props): React.R
   const local = localStops(physical, planning);
   const [wholeTrip, setWholeTrip] = useState(false);
   const shown = wholeTrip ? physical : local;
+  const tiomanPlan = shown.length > 0 && shown.every(isTiomanStop);
   const canChangeFocus = local.length !== physical.length;
   const mapUrl = tripMapUrl(tripId, shown.map((stop) => stop.id));
   const [googleFailed, setGoogleFailed] = useState(false);
@@ -40,9 +42,9 @@ export function TripMap({ tripId, stops, orderedIds, planning }: Props): React.R
         <View style={styles.headingCopy}><Text style={styles.label}>LIVE ROUTE MAP</Text><Text style={styles.title}>See the plan where it happens</Text></View>
         <View style={styles.actions}>
           {canChangeFocus ? <Pressable style={styles.focus} onPress={() => setWholeTrip((value) => !value)}><Text style={styles.focusText}>{wholeTrip ? "Focus destination" : "Show whole trip"}</Text></Pressable> : null}
-          <Pressable style={styles.open} onPress={() => void openGoogleMaps(ordered)}>
-            <Ionicons name="navigate-outline" size={17} color={colors.kopi} />
-            <Text style={styles.openText}>Directions</Text>
+          <Pressable style={styles.open} onPress={() => void (tiomanPlan ? openTiomanTransport() : openGoogleMaps(ordered))}>
+            <Ionicons name={tiomanPlan ? "boat-outline" : "navigate-outline"} size={17} color={colors.kopi} />
+            <Text style={styles.openText}>{tiomanPlan ? "Island transport" : "Directions"}</Text>
           </Pressable>
         </View>
       </View>
@@ -59,7 +61,7 @@ export function TripMap({ tripId, stops, orderedIds, planning }: Props): React.R
         )}
       </View>
       <View style={styles.legend}>{shown.map((stop, index) => <View key={stop.id} style={styles.legendItem}><Text style={styles.legendNumber}>{index + 1}</Text><Text style={styles.legendName} numberOfLines={1}>{stop.name}</Text></View>)}</View>
-      <Text style={styles.note}>{googleFailed ? "Google Maps is unavailable, so this is the live OpenStreetMap fallback." : "Google Maps shows the destination area and itinerary order."} Open Directions for turn-by-turn road routing.</Text>
+      <Text style={styles.note}>{googleFailed ? "Google Maps is unavailable, so this is the live OpenStreetMap fallback." : "Google Maps shows the destination area and itinerary order."} {tiomanPlan ? "Lines between villages are not roads; confirm water taxi or local 4WD transfers before travel." : "Open Directions for turn-by-turn road routing."}</Text>
     </View>
   );
 }
@@ -79,6 +81,11 @@ async function openGoogleMaps(stops: TripStop[]): Promise<void> {
   if (waypoints) params.set("waypoints", waypoints);
   if (await tryOpenExternalUrl(`https://www.google.com/maps/dir/?${params.toString()}`, Linking.openURL)) return;
   Alert.alert("Could not open Google Maps", "Try the route again later.");
+}
+
+async function openTiomanTransport(): Promise<void> {
+  if (await tryOpenExternalUrl(TIOMAN_TRANSPORT_URL, Linking.openURL)) return;
+  Alert.alert("Could not open Tioman transport guidance", "Try the official Tioman transport page again later.");
 }
 
 const styles = StyleSheet.create({

@@ -1,16 +1,23 @@
 import express, { Router } from 'express';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
-import type { MenuResponse } from '@shared/api';
+import type { MenuOrderClipResponse, MenuOrderLanguage, MenuResponse } from '@shared/api';
 import type { TextToSpeech } from '../adapters/tts/types';
 import { findMenuImagePath, loadCachedMenu, MENU_FIXTURE_SLUG } from '../lib/fixtures';
 import { attachDishImages, produceMenu, type MenuDeps } from '../pipeline/menu';
+import { createOpenAIDishPhotoVerifier } from '../pipeline/dishPhotoVerifier';
 import { textClip, type VoiceDeps } from '../services/voice';
 import { createMenu, getMenu, type MenuSourceImage, type StoredMenu } from '../store/menus';
+import { menuOrderPhrase } from '../voice/menuOrder';
 
 const MenuRequestSchema = z.object({
   imageBase64: z.string().min(1),
   mimeType: z.enum(['image/jpeg', 'image/png']),
+});
+
+const MenuOrderRequestSchema = z.object({
+  dishIndex: z.number().int().nonnegative(),
+  lang: z.enum(['ms', 'yue', 'zh']),
 });
 
 function toResponse(stored: StoredMenu): MenuResponse {
@@ -38,7 +45,7 @@ export function menuRouter(deps: MenuDeps, tts: TextToSpeech): Router {
     void produceMenu(deps, parsed.data.imageBase64, parsed.data.mimeType)
       .then(async ({ menu, servedFrom }) => {
         const source = sourceImage(parsed.data.imageBase64, parsed.data.mimeType);
-        res.status(201).json(await storeMenu(menu, servedFrom, voice, source));
+        res.status(201).json(storeMenu(menu, servedFrom, source));
       })
       .catch((error: Error) => {
         res.status(502).json({ error: error.message });
@@ -53,10 +60,42 @@ export function menuRouter(deps: MenuDeps, tts: TextToSpeech): Router {
       return;
     }
     const source: MenuSourceImage = { bytes: readFileSync(board), mimeType: 'image/png' };
-    void attachDishImages(deps.foodImages, menu)
-      .then((enriched) => storeMenu(enriched, 'cache', voice, source))
+    const verifier = deps.openai
+      ? createOpenAIDishPhotoVerifier(deps.openai, deps.config.OPENAI_MENU_MODEL)
+      : undefined;
+    void attachDishImages(deps.foodImages, menu, verifier)
+      .then((enriched) => storeMenu(enriched, 'cache', source))
       .then((response) => res.status(201).json(response))
       .catch((error: Error) => res.status(502).json({ error: error.message }));
+  });
+
+  router.post('/menu/:id/order-audio', express.json({ limit: '16kb' }), (req, res) => {
+    const stored = getMenu(req.params.id);
+    if (!stored) {
+      res.status(404).json({ error: `Unknown menu ${req.params.id}` });
+      return;
+    }
+    const parsed = MenuOrderRequestSchema.safeParse(req.body);
+    if (!parsed.success || !stored.menu.dishes[parsed.data.dishIndex]) {
+      res.status(400).json({ error: 'Body must include a valid dishIndex and lang (ms, yue or zh)' });
+      return;
+    }
+    const dish = stored.menu.dishes[parsed.data.dishIndex];
+    const phrase = menuOrderPhrase(dish, parsed.data.lang);
+    void textClip(voice, phrase.textLocal, {
+      voiceId: orderVoiceId(deps.config, parsed.data.lang),
+      languageCode: parsed.data.lang === 'yue' ? 'yue-HK' : undefined,
+      voiceName: parsed.data.lang === 'yue' ? deps.config.GOOGLE_CANTONESE_VOICE : undefined,
+    }).then((clip) => {
+      const response: MenuOrderClipResponse = {
+        dishIndex: parsed.data.dishIndex,
+        ...phrase,
+        synthetic: true,
+        audioUrl: clip.audioUrl,
+        servedFrom: clip.servedFrom,
+      };
+      res.json(response);
+    }).catch((error: Error) => res.status(502).json({ error: error.message }));
   });
 
   router.get('/menu/:id/source', (req, res) => {
@@ -90,16 +129,22 @@ export function menuRouter(deps: MenuDeps, tts: TextToSpeech): Router {
   return router;
 }
 
-async function storeMenu(
+function storeMenu(
   menu: Awaited<ReturnType<typeof produceMenu>>['menu'],
   servedFrom: 'live' | 'cache',
-  voice: VoiceDeps,
   source: MenuSourceImage,
-): Promise<MenuResponse> {
-  const dishAudio = await Promise.all(
-    menu.dishes.map(async (dish) => (await textClip(voice, dish.order_phrase)).audioUrl),
-  );
+): MenuResponse {
+  const dishAudio = menu.dishes.map(() => null);
   return toResponse(createMenu(menu, servedFrom, dishAudio, source));
+}
+
+function orderVoiceId(
+  config: VoiceDeps['config'],
+  lang: MenuOrderLanguage,
+): string {
+  if (lang === 'ms') return config.ELEVENLABS_VOICE_ID_MS ?? config.ELEVENLABS_VOICE_ID;
+  if (lang === 'yue') return config.ELEVENLABS_VOICE_ID_YUE ?? config.ELEVENLABS_VOICE_ID;
+  return config.ELEVENLABS_VOICE_ID_ZH ?? config.ELEVENLABS_VOICE_ID;
 }
 
 function sourceImage(imageBase64: string, mimeType: 'image/jpeg' | 'image/png'): MenuSourceImage {

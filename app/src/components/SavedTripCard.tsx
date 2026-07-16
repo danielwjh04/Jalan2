@@ -8,7 +8,7 @@ export function SavedTripCard({ trip, onPress }: { trip: SavedTripSummary; onPre
     <Pressable style={styles.card} onPress={onPress}>
       {trip.coverUrl ? <Image source={{ uri: trip.coverUrl }} style={styles.image} /> : <View style={[styles.image, styles.fallback]} />}
       <View style={styles.body}>
-        <Text style={styles.eyebrow}>{trip.origin === "smart_plan" ? "AGENT-BUILT PLAN" : "SAVED DISCOVERY"}</Text>
+        <Text style={styles.eyebrow}>{trip.origin === "smart_plan" ? "AGENT-BUILT PLAN" : trip.origin === "social_collection" ? "SOCIAL COLLECTION" : "SAVED DISCOVERY"}</Text>
         <Text style={styles.title}>{trip.title}</Text>
         <Text style={styles.meta}>{trip.region} | {trip.stopCount} stops</Text>
         <View style={styles.action}><Text style={styles.actionText}>Continue planning</Text><Ionicons name="arrow-forward" size={17} color={colors.kopi} /></View>

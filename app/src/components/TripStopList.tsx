@@ -1,9 +1,11 @@
+import { Fragment } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { isTransportStop, type TripPlan, type TripStop } from "@shared/trip";
 import { colors, spacing, type } from "@/lib/theme";
 import { EasybookTransitionCard } from "./EasybookTransitionCard";
 import { TripOriginCard } from "./TripOriginCard";
 import { TripStopCard } from "./TripStopCard";
+import { TravelLegConnector } from "./TravelLegConnector";
 
 interface Props {
   trip: TripPlan;
@@ -26,7 +28,16 @@ export function TripStopList(props: Props): React.ReactElement {
         if (isTransportStop(stop)) return <TransportTransition key={stop.id} {...props} stop={stop} ordered={ordered} index={index} />;
         const position = placePosition;
         placePosition += 1;
-        return <TripStopCard key={stop.id} stop={stop} position={position} isLast={index === ordered.length - 1} canRemove={props.selected.length > 2} editable={props.editable} onToggle={() => props.onToggle(stop.id)} onDelete={() => props.onDelete(stop.id)} />;
+        const next = ordered[index + 1];
+        const leg = next && !isTransportStop(next)
+          ? props.trip.planning?.legs.find((candidate) => candidate.from_stop_id === stop.id && candidate.to_stop_id === next.id)
+          : undefined;
+        return (
+          <Fragment key={stop.id}>
+            <TripStopCard stop={stop} position={position} isLast={!next} canRemove={props.selected.length > 2} editable={props.editable} onToggle={() => props.onToggle(stop.id)} onDelete={() => props.onDelete(stop.id)} />
+            {next && !isTransportStop(next) ? <TravelLegConnector key={`${stop.id}-${next.id}`} from={stop} to={next} leg={leg} /> : null}
+          </Fragment>
+        );
       })}
       {available.length ? <Text style={styles.section}>Available places</Text> : null}
       {available.map((stop) => <TripStopCard key={stop.id} stop={stop} position={null} isLast canRemove onToggle={() => props.onToggle(stop.id)} onDelete={() => props.onDelete(stop.id)} />)}

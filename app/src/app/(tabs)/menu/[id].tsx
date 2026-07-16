@@ -7,7 +7,8 @@ import { ScreenHeader } from "@/components/ScreenHeader";
 import { StateCard } from "@/components/StateCard";
 import { SurfaceCard } from "@/components/SurfaceCard";
 import { SwipeDeck } from "@/components/SwipeDeck";
-import { VoiceButton } from "@/components/VoiceButton";
+import { MenuPointingGuide } from "@/components/MenuPointingGuide";
+import { MenuOrderSpeaker } from "@/components/MenuOrderSpeaker";
 import { getMenu, serverUrl } from "@/lib/api";
 import { colors, eyebrow, radius, spacing, type } from "@/lib/theme";
 
@@ -41,14 +42,15 @@ export default function MenuScreen(): React.ReactElement {
 function MenuContent({ data }: { data: MenuResponse }): React.ReactElement {
   const [liked, setLiked] = useState<number[]>([]);
   const [done, setDone] = useState(false);
+  const sourceMenuUrl = data.sourceImageUrl ? serverUrl(data.sourceImageUrl) : undefined;
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.headerRow}>
         <View style={styles.headerCopy}><Text style={styles.eyebrow}>KOPITIAM MODE</Text><Text style={styles.title}>{data.menu.stall_name ?? "Menu scan"}</Text><Text style={styles.subtitle}>Swipe through the board and save what sounds delicious.</Text></View>
         {data.servedFrom === "cache" ? <Text style={styles.demoTag}>Demo menu</Text> : null}
       </View>
-      {data.sourceImageUrl ? <SourcePhoto url={serverUrl(data.sourceImageUrl)} count={data.menu.dishes.length} /> : null}
-      {!done ? <SwipeDeck dishes={data.menu.dishes} onLike={(index) => setLiked((items) => [...items, index])} onFinish={() => setDone(true)} /> : null}
+      {sourceMenuUrl ? <SourcePhoto url={sourceMenuUrl} count={data.menu.dishes.length} /> : null}
+      {!done ? <SwipeDeck dishes={data.menu.dishes} sourceMenuUrl={sourceMenuUrl} onLike={(index) => setLiked((items) => [...items, index])} onFinish={() => setDone(true)} /> : null}
       {done || liked.length > 0 ? <Shortlist data={data} liked={liked} /> : null}
     </ScrollView>
   );
@@ -64,6 +66,7 @@ function SourcePhoto({ url, count }: { url: string; count: number }): React.Reac
 }
 
 function Shortlist({ data, liked }: { data: MenuResponse; liked: number[] }): React.ReactElement {
+  const sourceMenuUrl = data.sourceImageUrl ? serverUrl(data.sourceImageUrl) : undefined;
   return (
     <View style={styles.shortlist}>
       <BoboCard compact title="Ready to order?" message="Play the local phrase, give it a try, and point to the dish if the kopitiam is noisy." />
@@ -71,12 +74,11 @@ function Shortlist({ data, liked }: { data: MenuResponse; liked: number[] }): Re
       {liked.length === 0 ? <Text style={styles.empty}>Nothing shortlisted yet.</Text> : null}
       {liked.map((index) => {
         const dish = data.menu.dishes[index];
-        const audio = data.dishAudio[index];
         return (
           <SurfaceCard key={`${dish.name_local}-${index}`} style={styles.item}>
+            {sourceMenuUrl ? <MenuPointingGuide dish={dish} sourceUrl={sourceMenuUrl} compact /> : null}
             <Text style={styles.itemName}>{dish.name_local}</Text>
-            <Text style={styles.itemPhrase}>Say: {dish.order_phrase}</Text>
-            {audio ? <VoiceButton key={audio} audioUrl={serverUrl(audio)} label="Play order phrase" /> : null}
+            <MenuOrderSpeaker menuId={data.id} dishIndex={index} dish={dish} />
           </SurfaceCard>
         );
       })}

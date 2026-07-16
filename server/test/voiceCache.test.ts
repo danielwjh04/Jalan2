@@ -12,6 +12,8 @@ describe('voiceHash', () => {
     expect(voiceHash(REQUEST)).not.toBe(voiceHash({ ...REQUEST, text: 'Teh C peng satu.' }));
     expect(voiceHash(REQUEST)).not.toBe(voiceHash({ ...REQUEST, voiceId: 'voice-b' }));
     expect(voiceHash(REQUEST)).not.toBe(voiceHash({ ...REQUEST, modelId: 'model-y' }));
+    expect(voiceHash(REQUEST)).not.toBe(voiceHash({ ...REQUEST, languageCode: 'yue-HK' }));
+    expect(voiceHash(REQUEST)).not.toBe(voiceHash({ ...REQUEST, voiceName: 'yue-HK-Standard-A' }));
   });
 
   it('is 16 hex chars and maps to an mp3 cache path', () => {

@@ -14,6 +14,7 @@ export interface DishImageQuery {
 export interface FoodImageProvider {
   readonly name: 'wikimedia' | 'openverse' | 'unsplash' | 'licensed-chain';
   findDishPhoto(query: DishImageQuery): Promise<DishPhoto | null>;
+  findDishPhotos?(query: DishImageQuery, limit: number): Promise<DishPhoto[]>;
 }
 
 export interface PlaceImageProvider {

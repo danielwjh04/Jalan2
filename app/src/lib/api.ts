@@ -7,6 +7,8 @@ import type {
   IngestResponse,
   ItinerarySummary,
   SavedTripSummary,
+  MenuOrderClipResponse,
+  MenuOrderLanguage,
   MenuResponse,
   PhraseClipResponse,
   VoiceBriefResponse,
@@ -55,6 +57,13 @@ export function getTrip(id: string): Promise<TripPlan> {
 
 export function createSmartPlan(input: SmartPlanRequest): Promise<TripPlan> {
   return post("/smart-plan", input);
+}
+
+export function createSocialCollection(input: {
+  title?: string;
+  selections: { tripId: string; stopIds: string[] }[];
+}): Promise<TripPlan> {
+  return post("/trips/merge", input);
 }
 
 export function optimizeTrip(
@@ -202,6 +211,14 @@ export function postMenuDemo(): Promise<MenuResponse> {
 
 export function getMenu(id: string): Promise<MenuResponse> {
   return request(`/menu/${id}`);
+}
+
+export function getMenuOrderAudio(
+  id: string,
+  dishIndex: number,
+  lang: MenuOrderLanguage,
+): Promise<MenuOrderClipResponse> {
+  return post(`/menu/${id}/order-audio`, { dishIndex, lang });
 }
 
 export function serverUrl(path: string): string {

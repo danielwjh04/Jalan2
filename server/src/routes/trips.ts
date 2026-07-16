@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { z } from 'zod';
 import {
   DEFAULT_TRIP_PREFERENCES,
   haversineMeters,
@@ -14,9 +15,14 @@ import type { PlacesProvider } from '../adapters/places/types';
 import type { RoutingProvider } from '../adapters/routing/types';
 import { createOfflineRouting } from '../adapters/routing/offline';
 import { findEasybookRoute } from '../adapters/transit/easybook';
+import { findKtmbRoute } from '../adapters/transit/ktmb';
 import { fitBudget } from '../services/routeConstraints';
 import { recommendAlongRoute } from '../services/routeSuggestions';
 import { getTrip, listSavedTrips, saveTrip } from '../store/trips';
+import { planImportedTrip } from '../planner/importedTripPlanner';
+import type { PlanCritic } from '../planner/planCritic';
+import { createSocialCollectionTrip } from '../planner/socialCollection';
+import { tiomanAwareRoute } from '../planner/tiomanMobility';
 
 type TransitRouteFinder = (origin: string, destination: string) => Promise<string | null>;
 
@@ -41,11 +47,13 @@ export async function optimizePreparedTrip(
   const selected = selectedStops(trip, ids);
   const fitted = fitBudget(selected, preferences);
   if (fitted.stops.length < 2) throw new Error('Budget leaves fewer than two stops');
-  let route;
-  try {
-    route = await routing.optimize(fitted.stops, preferences);
-  } catch {
-    route = await createOfflineRouting().optimize(fitted.stops, preferences);
+  let route = tiomanAwareRoute(fitted.stops);
+  if (!route) {
+    try {
+      route = await routing.optimize(fitted.stops, preferences);
+    } catch {
+      route = await createOfflineRouting().optimize(fitted.stops, preferences);
+    }
   }
   route.warnings = [...fitted.warnings, ...(route.warnings ?? [])];
   return saveTrip({
@@ -56,9 +64,34 @@ export async function optimizePreparedTrip(
   });
 }
 
-export function tripsRouter(routing: RoutingProvider, places: PlacesProvider): Router {
+const SocialCollectionSchema = z.object({
+  title: z.string().trim().min(2).max(100).optional(),
+  selections: z.array(z.object({
+    tripId: z.string().min(1),
+    stopIds: z.array(z.string().min(1)).min(1),
+  })).min(1).max(8),
+});
+
+export function tripsRouter(routing: RoutingProvider, places: PlacesProvider, critic?: PlanCritic): Router {
   const router = Router();
   router.get('/trips', (_req, res) => res.json(listSavedTrips()));
+  router.post('/trips/merge', async (req, res) => {
+    const parsed = SocialCollectionSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.issues.map((issue) => issue.message).join('; ') });
+      return;
+    }
+    try {
+      const selections = parsed.data.selections.map(({ tripId, stopIds }) => {
+        const trip = getTrip(tripId);
+        if (!trip) throw new Error(`Unknown trip ${tripId}`);
+        return { trip, stopIds };
+      });
+      res.status(201).json(await createSocialCollectionTrip(selections, routing, critic, parsed.data.title));
+    } catch (error) {
+      res.status(400).json({ error: errorMessage(error) });
+    }
+  });
   router.get('/trips/:id/suggestions', async (req, res) => {
     const trip = getTrip(req.params.id);
     if (!trip) {
@@ -135,6 +168,7 @@ export function tripsRouter(routing: RoutingProvider, places: PlacesProvider): R
           ? preferences.data
           : trip.preferences ?? DEFAULT_TRIP_PREFERENCES,
         route: null,
+        planning: null,
       }));
     } catch (error) {
       res.status(400).json({ error: errorMessage(error) });
@@ -150,12 +184,16 @@ export function tripsRouter(routing: RoutingProvider, places: PlacesProvider): R
     const ids = Array.isArray(req.body?.stopIds) ? req.body.stopIds : [];
     const preferences = TripPreferencesSchema.safeParse(req.body?.preferences);
     try {
-      res.json(await optimizePreparedTrip(
+      const optimized = await optimizePreparedTrip(
         trip,
         ids,
         routing,
         preferences.success ? preferences.data : trip.preferences ?? DEFAULT_TRIP_PREFERENCES,
-      ));
+      );
+      const selected = selectedStops(optimized, optimized.selected_stop_ids);
+      const unselected = optimized.stops.filter((stop) => !optimized.selected_stop_ids.includes(stop.id));
+      const planned = await planImportedTrip({ ...optimized, stops: selected }, routing, critic, places);
+      res.json(saveTrip({ ...planned, stops: [...planned.stops, ...unselected] }));
     } catch (error) {
       res.status(400).json({ error: errorMessage(error) });
     }
@@ -199,8 +237,17 @@ export async function withIntercityHandoff(
   if (distance < 80_000) return stop;
   const origin = transitOrigin(trip.region);
   const url = await findRoute(origin, place.name);
-  if (!url) return stop;
-  return { ...stop, easybook_url: url, transport_provider: 'easybook', transport_from: origin, transport_to: place.name, transport_mode: 'Intercity coach', transport_url: url };
+  if (url) return { ...stop, easybook_url: url, transport_provider: 'easybook', transport_from: origin, transport_to: place.name, transport_mode: 'Intercity coach', transport_url: url };
+  const ktmb = findKtmbRoute(origin, place.name);
+  if (!ktmb) return stop;
+  return {
+    ...stop,
+    transport_provider: 'ktmb',
+    transport_from: ktmb.originStation,
+    transport_to: ktmb.destinationStation,
+    transport_mode: 'KTMB train',
+    transport_url: ktmb.url,
+  };
 }
 
 async function routeDistance(from: TripStop, to: TripStop, trip: TripPlan, routing: RoutingProvider): Promise<number> {

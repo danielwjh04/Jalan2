@@ -19,6 +19,13 @@ export interface VoiceClip {
   servedFrom: "fixture" | "cache" | "live" | null;
 }
 
+interface VoiceOptions {
+  voiceId?: string;
+  modelId?: string;
+  languageCode?: string;
+  voiceName?: string;
+}
+
 const AUDIO_NAME = /^[a-z0-9][a-z0-9.-]*\.mp3$/;
 
 // One flat name space across fixture briefs, fixture phrases, and the runtime
@@ -37,14 +44,17 @@ async function resolveVoiceAudio(
   deps: VoiceDeps,
   fixtureName: string | null,
   text: string,
+  options: VoiceOptions = {},
 ): Promise<VoiceClip> {
   if (fixtureName && findVoiceAudioFile(fixtureName)) {
     return { audioUrl: `/voice/audio/${fixtureName}`, servedFrom: "fixture" };
   }
   const request: TtsRequest = {
     text,
-    voiceId: deps.config.ELEVENLABS_VOICE_ID,
-    modelId: deps.config.ELEVENLABS_TTS_MODEL,
+    voiceId: options.voiceId ?? deps.config.ELEVENLABS_VOICE_ID,
+    modelId: options.modelId ?? deps.config.ELEVENLABS_TTS_MODEL,
+    languageCode: options.languageCode,
+    voiceName: options.voiceName,
   };
   const hash = voiceHash(request);
   if (hasCachedVoice(hash)) {
@@ -77,6 +87,6 @@ export function phraseClip(
   return resolveVoiceAudio(deps, `${phrase.id}.mp3`, phrase.textLocal);
 }
 
-export function textClip(deps: VoiceDeps, text: string): Promise<VoiceClip> {
-  return resolveVoiceAudio(deps, null, text);
+export function textClip(deps: VoiceDeps, text: string, options?: VoiceOptions): Promise<VoiceClip> {
+  return resolveVoiceAudio(deps, null, text, options);
 }

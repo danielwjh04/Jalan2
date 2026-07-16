@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { isTransportStop, type PlaceCandidate, type TripPlan } from "@shared/trip";
 import type { TripPlannerState } from "@/lib/useTripPlanner";
@@ -16,6 +16,7 @@ import { TripBookingSection } from "./TripBookingSection";
 import { TripFeasibilityCard } from "./TripFeasibilityCard";
 import { TripMap } from "./TripMap";
 import { TripPreferencesCard } from "./TripPreferencesCard";
+import { TripOrderEditor } from "./TripOrderEditor";
 import { TripStopList } from "./TripStopList";
 import { TripReservationSection } from "./TripReservationSection";
 import { useSavedDiscoveryTrips } from "@/lib/useSavedDiscoveryTrips";
@@ -58,6 +59,7 @@ export function TripPlanner(props: Props): React.ReactElement {
       <View style={styles.mapFrame}>
         <TripMap tripId={props.trip.id} stops={props.trip.stops} orderedIds={props.selected} path={props.trip.route?.path ?? []} planning={props.trip.planning} />
       </View>
+      {!curated && !smart ? <TripOrderEditor stops={props.trip.stops} selected={props.selected} busy={props.busy} onReorder={props.reorder} onOptimize={props.optimize} /> : null}
       {props.trip.planning ? <SmartJourneyOverview planning={props.trip.planning} stops={props.trip.stops} /> : null}
       <TripFeasibilityCard trip={props.trip} selected={props.selected} />
       <SmartSuggestions suggestions={props.suggestions} loaded={props.suggestionsLoaded} busy={props.busy} onLoad={props.suggest} onAdd={addSuggestion} />
@@ -115,9 +117,6 @@ function TripSummary(props: Props): React.ReactElement {
           <Text style={styles.subtitle}>{props.trip.region} | {props.trip.source_creator}</Text>
           {props.trip.summary ? <Text style={styles.description}>{props.trip.summary}</Text> : null}
         </View>
-        {props.trip.origin !== "curated" && props.trip.origin !== "smart_plan" ? <Pressable style={styles.optimize} disabled={props.busy} onPress={() => void props.optimize()}>
-          {props.busy ? <ActivityIndicator color={colors.kopi} /> : <Text style={styles.optimizeText}>Optimize</Text>}
-        </Pressable> : null}
       </View>
       <View style={styles.metrics}>
         <Metric value={`${placeCount}`} label="places" />
@@ -151,12 +150,16 @@ function routeNote(trip: TripPlan): string {
   if (trip.origin === "smart_plan") {
     return "The planning agents separated provider-backed facts, estimates and actions that still need confirmation. Rebuild the plan after changing its core route.";
   }
+  if (trip.origin === "social_collection") {
+    return "This itinerary combines the places you selected from multiple posts. Drag to set your own order, then optimize so every route leg and the final reasonableness check are rebuilt.";
+  }
   return `These stops are grounded in ${trip.source_creator}'s source. Open each stop for its original link.`;
 }
 
 function tripEyebrow(trip: TripPlan): string {
   if (trip.origin === "curated") return "CURATED BY JALAN2";
   if (trip.origin === "smart_plan") return "BUILT BY JALAN2 PLANNING AGENTS";
+  if (trip.origin === "social_collection") return "COMBINED FROM YOUR SOCIAL POSTS";
   return trip.demo ? "FROM A LOCAL VIDEO" : "EDITABLE TRIP";
 }
 
@@ -172,8 +175,6 @@ const styles = StyleSheet.create({
   title: { ...type.display, color: colors.ink, fontSize: 27, lineHeight: 32 },
   subtitle: { ...type.caption, color: colors.inkSoft },
   description: { ...type.body, color: colors.inkSoft, marginTop: spacing(1) },
-  optimize: { minHeight: 44, borderRadius: radius.control, backgroundColor: colors.kaya, paddingHorizontal: spacing(3), alignItems: "center", justifyContent: "center" },
-  optimizeText: { ...type.label, color: colors.kopi },
   metrics: { flexDirection: "row", flexWrap: "wrap", gap: spacing(2) },
   metric: { flex: 1, minWidth: 110, backgroundColor: colors.canvas, borderRadius: radius.control, padding: spacing(2.5) },
   metricValue: { ...type.label, color: colors.ink },

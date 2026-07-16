@@ -61,10 +61,10 @@ export function createApp(ctx: ServerContext): Express {
   app.use(itineraryRouter());
   app.use(placePhotosRouter(ctx.places));
   app.use(tripMapsRouter(ctx.config));
-  app.use(tripsRouter(ctx.routing, ctx.places));
   const critic = ctx.pipeline.openai
     ? createOpenAIPlanCritic(ctx.pipeline.openai, ctx.config.OPENAI_FUSION_MODEL)
     : undefined;
+  app.use(tripsRouter(ctx.routing, ctx.places, critic));
   app.use(smartPlannerRouter(ctx.routing, ctx.places, critic));
   app.use(tripReservationsRouter(ctx.messaging, ctx.config));
   app.use(bookRouter(ctx.messaging, ctx.retrieval, ctx.config));

@@ -22,25 +22,39 @@ const ResponseSchema = z.object({
 });
 
 export function parseWikimediaDishPhoto(payload: unknown): DishPhoto | null {
+  return parseWikimediaDishPhotos(payload)[0] ?? null;
+}
+
+export function parseWikimediaDishPhotos(payload: unknown): DishPhoto[] {
   const parsed = ResponseSchema.safeParse(payload);
-  if (!parsed.success) return null;
+  if (!parsed.success) return [];
+  const photos: DishPhoto[] = [];
   for (const page of Object.values(parsed.data.query?.pages ?? {})) {
     const photo = toDishPhoto(page.imageinfo?.[0]);
-    if (photo) return photo;
+    if (photo) photos.push(photo);
   }
-  return null;
+  return photos;
 }
 
 export function createWikimediaFoodImages(): FoodImageProvider {
   return {
     name: 'wikimedia',
     async findDishPhoto(query) {
+      return (await this.findDishPhotos!(query, 1))[0] ?? null;
+    },
+    async findDishPhotos(query, limit) {
       const terms = [query.searchQuery, query.englishName, romanName(query.localName)];
+      const photos: DishPhoto[] = [];
+      const seen = new Set<string>();
       for (const term of [...new Set(terms.filter(Boolean))]) {
-        const photo = await fetchWikimediaPhoto(`${term} Malaysian food filetype:bitmap`);
-        if (photo) return photo;
+        for (const photo of await fetchWikimediaPhotos(`${term} Malaysian food filetype:bitmap`)) {
+          if (seen.has(photo.imageUrl)) continue;
+          photos.push(photo);
+          seen.add(photo.imageUrl);
+          if (photos.length >= limit) return photos;
+        }
       }
-      return null;
+      return photos;
     },
   };
 }
@@ -55,9 +69,13 @@ export function createWikimediaPlaceImages(): PlaceImageProvider {
 }
 
 async function fetchWikimediaPhoto(query: string): Promise<DishPhoto | null> {
+  return (await fetchWikimediaPhotos(query))[0] ?? null;
+}
+
+async function fetchWikimediaPhotos(query: string): Promise<DishPhoto[]> {
   const response = await fetch(searchUrl(query), { signal: AbortSignal.timeout(10_000) });
   if (!response.ok) throw new Error(`Wikimedia Commons failed (${response.status})`);
-  return parseWikimediaDishPhoto(await response.json());
+  return parseWikimediaDishPhotos(await response.json());
 }
 
 function searchUrl(query: string): string {

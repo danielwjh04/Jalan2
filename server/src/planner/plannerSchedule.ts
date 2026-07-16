@@ -47,11 +47,19 @@ function planChecks(request: SmartPlanRequest, stops: TripStop[], legs: Planning
     message: `The requested ${request.days}-day trip needs at least ${recommendedDays} days at a ${request.pace} pace.`,
     resolution: 'Add a day, remove an optional stop, or choose a faster pace.',
   });
-  for (const leg of legs.filter((item) => item.evidence === 'needs_confirmation')) checks.push({
-    severity: 'blocking',
-    message: `${leg.mode.replace('_', ' ')} from ${names.get(leg.from_stop_id) ?? leg.from_stop_id} to ${names.get(leg.to_stop_id) ?? leg.to_stop_id} is not provider-confirmed.`,
-    resolution: 'Open the handoff and confirm a real departure before relying on this plan.',
-  });
+  for (const leg of legs.filter((item) => item.evidence === 'needs_confirmation')) {
+    const from = names.get(leg.from_stop_id) ?? leg.from_stop_id;
+    const to = names.get(leg.to_stop_id) ?? leg.to_stop_id;
+    checks.push(leg.mode === 'ferry' ? {
+      severity: 'blocking',
+      message: `Tioman village change from ${from} to ${to} needs a sea taxi; fare, weather and departure are not confirmed.`,
+      resolution: 'Keep both activities in one village corridor, move the second zone to another day, or confirm both outbound and return boats with a local operator.',
+    } : {
+      severity: 'blocking',
+      message: `${leg.mode.replace('_', ' ')} from ${from} to ${to} is not provider-confirmed.`,
+      resolution: 'Open the handoff and confirm a real departure before relying on this plan.',
+    });
+  }
   if (recommendedDays > 1) checks.push({
     severity: 'info',
     message: `${recommendedDays - 1} overnight stay${recommendedDays > 2 ? 's are' : ' is'} needed.`,

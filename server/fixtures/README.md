@@ -12,7 +12,14 @@ Layout per fixture:
   caption.txt            the post caption, committed.
   booking.cached.json    committed. Schema-valid Booking JSON used by
                          PIPELINE_MODE=cached and as the auto-mode fallback.
+  trip.cached.json       optional prepared multi-stop TripPlan.
+  cover.jpg              optional curated offline cover.
 ```
+
+`menu/<slug>/` contains the menu-board demo image and its structured cached
+menu. Dish rows include normalized 0..999 bounding boxes so the app can
+highlight the exact source row. Cached menu data must not claim that a dish
+photo, taste, allergen or pronunciation was verified at the stall.
 
 Adding or refreshing a clip:
 

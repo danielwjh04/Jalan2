@@ -1,10 +1,18 @@
 import { z } from 'zod';
 import { ImageAttributionSchema } from './media';
 
+export const MenuBoundingBoxSchema = z.object({
+  x_min: z.number().int().min(0).max(999),
+  y_min: z.number().int().min(0).max(999),
+  x_max: z.number().int().min(0).max(999),
+  y_max: z.number().int().min(0).max(999),
+});
+
 export const DishSchema = z.object({
   name_local: z.string().min(1),
   name_english: z.string().min(1),
   reading_confidence: z.enum(['high', 'medium', 'low']),
+  source_bbox: MenuBoundingBoxSchema,
   image_search_query: z.string().min(1),
   taste_profile: z.string().min(1),
   texture_profile: z.string().min(1),
@@ -43,6 +51,9 @@ export const MenuJsonWireSchema = z.object({
       reading_confidence: z
         .enum(['high', 'medium', 'low'])
         .describe('Confidence that the dish name was read correctly from the photographed row'),
+      source_bbox: MenuBoundingBoxSchema.describe(
+        'Tight box around the complete visible menu row as [x_min,y_min,x_max,y_max] fields in 0..999 coordinates, top-left origin, relative to this input image',
+      ),
       image_search_query: z
         .string()
         .describe('Canonical Malaysian dish name for licensed photo search, without adjectives'),

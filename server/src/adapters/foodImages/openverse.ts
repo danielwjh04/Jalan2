@@ -17,46 +17,52 @@ const ResultSchema = z.object({
 const ResponseSchema = z.object({ results: z.array(ResultSchema) });
 
 export function createOpenverseFoodImages(): FoodImageProvider {
-  const cache = new Map<string, DishPhoto | null>();
+  const cache = new Map<string, DishPhoto[]>();
   return {
     name: 'openverse',
     async findDishPhoto(query) {
+      return (await this.findDishPhotos!(query, 1))[0] ?? null;
+    },
+    async findDishPhotos(query, limit) {
       const key = query.searchQuery.trim().toLowerCase();
-      if (cache.has(key)) return cache.get(key) ?? null;
-      const photo = await searchQueries(query);
-      cache.set(key, photo);
-      return photo;
+      if (!cache.has(key)) cache.set(key, await searchQueries(query, 8));
+      return (cache.get(key) ?? []).slice(0, limit);
     },
   };
 }
 
-async function searchQueries(query: DishImageQuery): Promise<DishPhoto | null> {
+async function searchQueries(query: DishImageQuery, limit: number): Promise<DishPhoto[]> {
   const terms = uniqueTerms([
     query.searchQuery,
     simplifyQuery(query.searchQuery),
     romanName(query.localName),
     query.englishName,
   ]);
+  const photos: DishPhoto[] = [];
+  const seen = new Set<string>();
   for (const term of terms) {
-    const photo = await searchOpenverse(term);
-    if (photo) return photo;
+    for (const photo of await searchOpenverse(term)) {
+      if (seen.has(photo.imageUrl)) continue;
+      photos.push(photo);
+      seen.add(photo.imageUrl);
+      if (photos.length >= limit) return photos;
+    }
   }
-  return null;
+  return photos;
 }
 
-async function searchOpenverse(query: string): Promise<DishPhoto | null> {
+async function searchOpenverse(query: string): Promise<DishPhoto[]> {
   const response = await fetch(searchUrl(query), {
     headers: { 'User-Agent': 'Jalan2/0.1 (licensed food image lookup)' },
     signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) throw new Error(`Openverse failed (${response.status})`);
   const parsed = ResponseSchema.safeParse(await response.json());
-  if (!parsed.success) return null;
+  if (!parsed.success) return [];
   const candidates = parsed.data.results.filter((photo) => (
     isUsablePhoto(photo) && isRelevant(photo, query)
   ));
-  const photo = candidates.sort((a, b) => score(b, query) - score(a, query))[0];
-  return photo ? toDishPhoto(photo) : null;
+  return candidates.sort((a, b) => score(b, query) - score(a, query)).map(toDishPhoto);
 }
 
 function searchUrl(query: string): string {

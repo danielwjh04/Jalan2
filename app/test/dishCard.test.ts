@@ -18,4 +18,9 @@ describe('DishCard', () => {
     expect(source).toContain('dish.spice_level');
     expect(source).toContain('mediaUrl(dish.image_url)');
   });
+
+  it('shows the exact menu row before the food guide', () => {
+    expect(source).toContain('<MenuPointingGuide dish={dish}');
+    expect(source.indexOf('<MenuPointingGuide dish={dish}')).toBeLessThan(source.indexOf('<View style={styles.imageWrap}>'));
+  });
 });

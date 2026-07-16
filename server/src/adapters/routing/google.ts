@@ -91,10 +91,21 @@ export function decodePolyline(encoded: string): GeoPoint[] {
   return points;
 }
 
-function waypoint(stop: TripStop): {
-  waypoint: { location: { latLng: GeoPoint } };
+export function googleWaypoint(stop: TripStop): {
+  waypoint: {
+    location: { latLng: { latitude: number; longitude: number } };
+  };
 } {
-  return { waypoint: { location: { latLng: stop.location } } };
+  return {
+    waypoint: {
+      location: {
+        latLng: {
+          latitude: stop.location.lat,
+          longitude: stop.location.lng,
+        },
+      },
+    },
+  };
 }
 
 async function requestJson<T>(
@@ -123,7 +134,7 @@ async function routeMatrix(
   stops: TripStop[],
   apiKey: string,
 ): Promise<MatrixElement[]> {
-  const locations = stops.map(waypoint);
+  const locations = stops.map(googleWaypoint);
   return requestJson(
     MATRIX_URL,
     apiKey,
@@ -146,9 +157,9 @@ async function detailedRoute(
     apiKey,
     "routes.distanceMeters,routes.duration,routes.polyline.encodedPolyline",
     {
-      origin: waypoint(stops[0]).waypoint,
-      destination: waypoint(stops[stops.length - 1]).waypoint,
-      intermediates: stops.slice(1, -1).map((stop) => waypoint(stop).waypoint),
+      origin: googleWaypoint(stops[0]).waypoint,
+      destination: googleWaypoint(stops[stops.length - 1]).waypoint,
+      intermediates: stops.slice(1, -1).map((stop) => googleWaypoint(stop).waypoint),
       travelMode: "DRIVE",
       routingPreference: "TRAFFIC_UNAWARE",
       polylineQuality: "OVERVIEW",

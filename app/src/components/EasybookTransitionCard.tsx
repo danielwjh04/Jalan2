@@ -19,6 +19,8 @@ interface Props {
 export function EasybookTransitionCard(props: Props): React.ReactElement {
   const [logoFailed, setLogoFailed] = useState(false);
   const easybook = props.stop.transport_provider === "easybook" || Boolean(props.stop.easybook_url);
+  const ktmb = props.stop.transport_provider === "ktmb";
+  const intercity = easybook || ktmb;
   const mode = props.stop.transport_mode ?? (props.stop.sources.length > 1 ? "Coach + ferry" : "Coach");
   const openRoute = (): void => { void openExternal(props.stop.transport_url ?? props.stop.easybook_url ?? "", providerName(props.stop)); };
   return (
@@ -26,10 +28,10 @@ export function EasybookTransitionCard(props: Props): React.ReactElement {
       <TransitionRail />
       <View style={styles.card}>
         <View style={styles.topline}>
-          <Text style={styles.eyebrow}>{easybook ? "INTERCITY TRANSPORT" : "LAST-MILE TRANSFER"}</Text>
+          <Text style={styles.eyebrow}>{intercity ? "INTERCITY TRANSPORT" : "LAST-MILE TRANSFER"}</Text>
           <View style={styles.brand}>
-            <Text style={styles.poweredBy}>{easybook ? "Powered by" : "Recommended"}</Text>
-            {easybook ? (logoFailed ? <Text style={styles.logoFallback}>easybook</Text> : (
+            <Text style={styles.poweredBy}>{ktmb ? "Check with" : easybook ? "Powered by" : "Recommended"}</Text>
+            {ktmb ? <Text style={styles.ktmbLogo}>KTMB · KITS</Text> : easybook ? (logoFailed ? <Text style={styles.logoFallback}>easybook</Text> : (
               <Image source={{ uri: EASYBOOK_LOGO }} style={styles.logo} resizeMode="contain" onError={() => setLogoFailed(true)} />
             )) : <Text style={styles.localBrand}>Operator pickup + Grab backup</Text>}
           </View>
@@ -46,11 +48,11 @@ export function EasybookTransitionCard(props: Props): React.ReactElement {
         <Text style={styles.summary}>{props.stop.summary}</Text>
         {props.nextStop ? <Text style={styles.continue}>Then Jalan2 continues to {props.nextStop}.</Text> : null}
         <Pressable accessibilityRole="link" style={styles.button} onPress={openRoute}>
-          <Text style={styles.buttonText}>{easybook ? "Check live options on EasyBook" : "Check Grab availability"}</Text>
+          <Text style={styles.buttonText}>{ktmb ? "Check trains on KTMB KITS" : easybook ? "Check live options on EasyBook" : "Check Grab availability"}</Text>
           <Ionicons name="open-outline" size={18} color={colors.white} />
         </Pressable>
         <View style={styles.footer}>
-          <Text style={styles.disclaimer}>{easybook ? "External booking handoff. No partnership or live inventory implied." : "Operator pickup is preferred. Grab coverage and fares must be checked in the app."}</Text>
+          <Text style={styles.disclaimer}>{intercity ? "Official external ticket-search handoff. No partnership, live inventory or booking confirmation implied." : "Operator pickup is preferred. Grab coverage and fares must be checked in the app."}</Text>
           {props.editable ? <Pressable onPress={props.onRemove}><Text style={styles.remove}>Remove leg</Text></Pressable> : null}
         </View>
       </View>
@@ -73,7 +75,8 @@ function formatDuration(minutes: number): string {
 }
 
 function providerName(stop: TripStop): string {
-  return stop.transport_provider === "operator" ? "Grab transport" : "EasyBook route";
+  if (stop.transport_provider === "operator") return "Grab transport";
+  return stop.transport_provider === "ktmb" ? "KTMB KITS" : "EasyBook route";
 }
 
 async function openExternal(url: string, label: string): Promise<void> {
@@ -93,6 +96,7 @@ const styles = StyleSheet.create({
   poweredBy: { ...type.caption, color: colors.inkSoft },
   logo: { width: 124, height: 30 },
   logoFallback: { ...type.title, color: colors.danger, textTransform: "lowercase" },
+  ktmbLogo: { ...type.heading, color: colors.danger },
   localBrand: { ...type.label, color: colors.danger },
   route: { flexDirection: "row", alignItems: "center", gap: spacing(2), paddingVertical: spacing(1) },
   routePoint: { flex: 1, gap: spacing(0.5) },

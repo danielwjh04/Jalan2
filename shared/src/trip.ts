@@ -14,6 +14,8 @@ export const TripSourceSchema = z.object({
   url: z.string().url(),
 });
 
+export type TripSource = z.infer<typeof TripSourceSchema>;
+
 export const OpeningWindowSchema = z.object({
   open_minute: z.number().int().min(0).max(1439),
   close_minute: z.number().int().min(1).max(1440),
@@ -45,6 +47,7 @@ export type PlaceCandidate = z.infer<typeof PlaceCandidateSchema>;
 
 export const TransportProviderSchema = z.enum([
   "easybook",
+  "ktmb",
   "grab",
   "operator",
   "flight",
@@ -89,6 +92,9 @@ export const TripPreferencesSchema = z.object({
   day_start_minute: z.number().int().min(0).max(1439),
   start_stop_id: z.string().min(1).nullable(),
   end_stop_id: z.string().min(1).nullable(),
+  journey_origin: z.string().trim().min(2).max(100).nullable().default(null),
+  journey_end: z.string().trim().min(2).max(100).nullable().default(null),
+  return_to_origin: z.boolean().default(false),
 });
 
 export type TripPreferences = z.infer<typeof TripPreferencesSchema>;
@@ -98,6 +104,9 @@ export const DEFAULT_TRIP_PREFERENCES: TripPreferences = {
   day_start_minute: 9 * 60,
   start_stop_id: null,
   end_stop_id: null,
+  journey_origin: null,
+  journey_end: null,
+  return_to_origin: false,
 };
 
 export const RouteVisitSchema = z.object({
@@ -129,7 +138,7 @@ export const TripPlanSchema = z
     source_url: z.string().url(),
     cover_url: z.string().nullable(),
     demo: z.boolean(),
-    origin: z.enum(["video", "curated", "saved_discovery", "smart_plan"]).default("video"),
+    origin: z.enum(["video", "curated", "saved_discovery", "smart_plan", "social_collection"]).default("video"),
     source_discovery_id: z.string().min(1).nullable().default(null),
     stops: z.array(TripStopSchema).min(1),
     selected_stop_ids: z.array(z.string().min(1)).min(1),

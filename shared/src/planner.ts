@@ -3,12 +3,22 @@ import { z } from 'zod';
 export const SmartPlanRequestSchema = z.object({
   origin: z.string().trim().min(2).max(100),
   destination: z.string().trim().min(2).max(100),
+  return_to_origin: z.boolean().default(true),
+  end_destination: z.string().trim().min(2).max(100).nullable().default(null),
   start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().default(null),
   days: z.number().int().min(1).max(14).default(3),
   travelers: z.number().int().min(1).max(20).default(2),
   budget_myr: z.number().nonnegative().nullable().default(null),
   interests: z.array(z.string().trim().min(2).max(60)).min(1).max(6),
   pace: z.enum(['relaxed', 'balanced', 'packed']).default('balanced'),
+}).superRefine((request, context) => {
+  if (!request.return_to_origin && !request.end_destination) {
+    context.addIssue({
+      code: 'custom',
+      path: ['end_destination'],
+      message: 'Set where the trip ends when you are not returning to the starting point',
+    });
+  }
 });
 
 export type SmartPlanRequest = z.infer<typeof SmartPlanRequestSchema>;
@@ -32,7 +42,7 @@ export const PlanningLegSchema = z.object({
   from_stop_id: z.string().min(1),
   to_stop_id: z.string().min(1),
   mode: z.enum(['walk', 'drive', 'coach', 'train', 'ferry', 'flight', 'ride_hail', 'operator_pickup', 'multimodal']),
-  provider: z.enum(['google_routes', 'easybook', 'grab', 'operator', 'offline', 'unknown']),
+  provider: z.enum(['google_routes', 'easybook', 'ktmb', 'grab', 'operator', 'offline', 'unknown']),
   duration_minutes: z.number().int().positive(),
   distance_meters: z.number().nonnegative().nullable(),
   evidence: z.enum(['provider_verified', 'estimated', 'needs_confirmation']),

@@ -6,6 +6,7 @@ const VALID_MENU = {
   dishes: [
     {
       name_local: 'Kolo mee',
+      source_bbox: { x_min: 100, y_min: 200, x_max: 500, y_max: 300 },
       name_english: 'Springy egg noodles tossed in shallot oil',
       reading_confidence: 'high',
       image_search_query: 'Sarawak kolo mee',
@@ -58,6 +59,14 @@ describe('MenuJsonSchema', () => {
         ...VALID_MENU.dishes[0],
         image_attributions: [{ label: 'Unknown', source_url: 'invalid', license: null }],
       }],
+    };
+    expect(MenuJsonSchema.safeParse(bad).success).toBe(false);
+  });
+
+  it('rejects menu-row coordinates outside the normalized board space', () => {
+    const bad = {
+      ...VALID_MENU,
+      dishes: [{ ...VALID_MENU.dishes[0], source_bbox: { x_min: 0, y_min: 0, x_max: 1200, y_max: 100 } }],
     };
     expect(MenuJsonSchema.safeParse(bad).success).toBe(false);
   });

@@ -12,6 +12,7 @@ export function isDuplicate(first: WireDish, second: WireDish): boolean {
   const firstName = normalise(first.name_local);
   const secondName = normalise(second.name_local);
   if (firstName === secondName) return true;
+  if (hasWetStyle(first) !== hasWetStyle(second)) return false;
   if (hasChinese(first.name_local) && hasChinese(second.name_local)) {
     const firstChinese = chineseOnly(first.name_local);
     const secondChinese = chineseOnly(second.name_local);
@@ -27,6 +28,10 @@ export function isDuplicate(first: WireDish, second: WireDish): boolean {
   const secondWords = words(second.name_english);
   const shared = firstWords.filter((word) => secondWords.includes(word)).length;
   return shared / Math.max(firstWords.length, secondWords.length) >= 0.5;
+}
+
+function hasWetStyle(dish: WireDish): boolean {
+  return /\b(?:basah|wet)\b/i.test(`${dish.name_local} ${dish.name_english} ${dish.image_search_query}`);
 }
 
 export function cleanQuery(dish: WireDish): string {

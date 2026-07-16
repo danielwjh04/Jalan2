@@ -42,7 +42,7 @@ export interface DiscoveryCard {
 export interface SavedTripSummary {
   id: string;
   sourceDiscoveryId: string | null;
-  origin: "saved_discovery" | "smart_plan";
+  origin: "saved_discovery" | "smart_plan" | "social_collection";
   title: string;
   region: string;
   coverUrl: string | null;
@@ -93,8 +93,21 @@ export interface PhraseClipResponse {
   servedFrom: VoiceServedFrom;
 }
 
-// What POST /menu and GET /menu/:id serve. dishAudio is index-aligned with
-// menu.dishes; entries are null when no synthetic clip is available yet.
+export type MenuOrderLanguage = "ms" | "yue" | "zh";
+
+export interface MenuOrderClipResponse {
+  dishIndex: number;
+  lang: MenuOrderLanguage;
+  languageLabel: string;
+  textLocal: string;
+  textEnglish: string;
+  synthetic: true;
+  audioUrl: string | null;
+  servedFrom: VoiceServedFrom;
+}
+
+// dishAudio remains for backwards compatibility with early menu results. New
+// multilingual order audio is generated lazily through the order-audio route.
 export interface MenuResponse {
   id: string;
   menu: import("./menu").MenuJson;

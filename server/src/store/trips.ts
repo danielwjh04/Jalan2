@@ -23,7 +23,7 @@ export function getTrip(id: string): TripPlan | null {
 export function saveTrip(trip: TripPlan): TripPlan {
   const parsed = TripPlanSchema.parse(trip);
   trips.set(parsed.id, parsed);
-  if (parsed.origin === 'saved_discovery' || parsed.origin === 'smart_plan') touchSavedSummary(parsed);
+  if (parsed.origin === 'saved_discovery' || parsed.origin === 'smart_plan' || parsed.origin === 'social_collection') touchSavedSummary(parsed);
   if (parsed.origin !== 'saved_discovery') persist(parsed);
   return parsed;
 }
@@ -57,7 +57,7 @@ function hydrateStoredSmartPlans(): void {
   for (const filename of readdirSync(root).filter((name) => name.endsWith('.json'))) {
     try {
       const parsed = TripPlanSchema.safeParse(JSON.parse(readFileSync(path.join(root, filename), 'utf8')));
-      if (parsed.success && parsed.data.origin === 'smart_plan' && !savedSummaries.has(parsed.data.id)) {
+      if (parsed.success && (parsed.data.origin === 'smart_plan' || parsed.data.origin === 'social_collection') && !savedSummaries.has(parsed.data.id)) {
         trips.set(parsed.data.id, parsed.data);
         touchSavedSummary(parsed.data);
       }
@@ -85,7 +85,7 @@ function touchSavedSummary(trip: TripPlan): void {
   savedSummaries.set(trip.id, {
     id: trip.id,
     sourceDiscoveryId: trip.source_discovery_id,
-    origin: trip.origin === 'smart_plan' ? 'smart_plan' : 'saved_discovery',
+    origin: trip.origin === 'smart_plan' || trip.origin === 'social_collection' ? trip.origin : 'saved_discovery',
     title: trip.title,
     region: trip.region,
     coverUrl: trip.cover_url,

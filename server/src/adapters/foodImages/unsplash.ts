@@ -14,19 +14,28 @@ export function createUnsplashFoodImages(accessKey: string): FoodImageProvider {
   return {
     name: 'unsplash',
     async findDishPhoto(query) {
+      return (await this.findDishPhotos!(query, 1))[0] ?? null;
+    },
+    async findDishPhotos(query, limit) {
+      const photos: DishPhoto[] = [];
+      const seen = new Set<string>();
       for (const term of searchTerms(query)) {
-        const photo = await searchUnsplash(accessKey, term);
-        if (photo) return photo;
+        for (const photo of await searchUnsplash(accessKey, term, limit)) {
+          if (seen.has(photo.imageUrl)) continue;
+          photos.push(photo);
+          seen.add(photo.imageUrl);
+          if (photos.length >= limit) return photos;
+        }
       }
-      return null;
+      return photos;
     },
   };
 }
 
-async function searchUnsplash(accessKey: string, query: string): Promise<DishPhoto | null> {
+async function searchUnsplash(accessKey: string, query: string, limit: number): Promise<DishPhoto[]> {
   const params = new URLSearchParams({
     query: `${query} food`,
-    per_page: '1',
+    per_page: String(Math.min(8, Math.max(1, limit))),
     orientation: 'landscape',
     content_filter: 'high',
   });
@@ -36,16 +45,15 @@ async function searchUnsplash(accessKey: string, query: string): Promise<DishPho
   });
   if (!response.ok) throw new Error(`Unsplash failed (${response.status})`);
   const parsed = ResponseSchema.safeParse(await response.json());
-  const photo = parsed.success ? parsed.data.results[0] : null;
-  if (!photo) return null;
-  return {
+  if (!parsed.success) return [];
+  return parsed.data.results.map((photo) => ({
     imageUrl: photo.urls.regular,
     imageAttributions: [{
       label: `Illustrative photo by ${photo.user.name} on Unsplash`,
       source_url: trackingUrl(photo.links.html),
       license: 'Unsplash License',
     }],
-  };
+  }));
 }
 
 function searchTerms(query: DishImageQuery): string[] {

@@ -3,6 +3,7 @@ import { DEFAULT_TRIP_PREFERENCES, type TripStop } from "@shared/trip";
 import { createOfflineRouting } from "../src/adapters/routing/offline";
 import {
   decodePolyline,
+  googleWaypoint,
   orderByTravelDuration,
 } from "../src/adapters/routing/google";
 
@@ -64,6 +65,16 @@ describe("offline routing", () => {
 });
 
 describe("Google route helpers", () => {
+  it("maps Jalan2 coordinates to the field names required by Routes API", () => {
+    expect(googleWaypoint(stops[0])).toEqual({
+      waypoint: {
+        location: {
+          latLng: { latitude: 1.56, longitude: 110.34 },
+        },
+      },
+    });
+  });
+
   it("orders stops by road duration while keeping the start fixed", () => {
     const matrix = [
       { originIndex: 0, destinationIndex: 1, duration: "600s" },

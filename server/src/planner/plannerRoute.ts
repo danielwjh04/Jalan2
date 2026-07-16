@@ -2,19 +2,28 @@ import {
   DEFAULT_TRIP_PREFERENCES,
   haversineMeters,
   type OptimizedRoute,
+  type TripPreferences,
   type TripStop,
 } from '@shared/trip';
 import { createOfflineRouting } from '../adapters/routing/offline';
 import type { RoutingProvider } from '../adapters/routing/types';
 import type { PlanningLeg } from './types';
+import { tiomanAwareRoute } from './tiomanMobility';
 
 export interface RoutedStops { route: OptimizedRoute; fallback: boolean }
 
 export async function routePhysicalStops(
   stops: TripStop[],
   routing: RoutingProvider,
+  requestedPreferences?: TripPreferences,
 ): Promise<RoutedStops> {
-  const preferences = { ...DEFAULT_TRIP_PREFERENCES, start_stop_id: stops[0].id };
+  const islandRoute = tiomanAwareRoute(stops);
+  if (islandRoute) return { route: islandRoute, fallback: false };
+  const preferences = {
+    ...(requestedPreferences ?? DEFAULT_TRIP_PREFERENCES),
+    start_stop_id: requestedPreferences?.start_stop_id ?? stops[0].id,
+    end_stop_id: requestedPreferences?.end_stop_id ?? null,
+  };
   try { return { route: await routing.optimize(stops, preferences), fallback: false }; }
   catch { return { route: await createOfflineRouting().optimize(stops, preferences), fallback: true }; }
 }

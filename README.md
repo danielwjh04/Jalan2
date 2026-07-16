@@ -18,8 +18,9 @@ The two users are:
 The current proof of concept focuses on one narrow loop:
 
 ```
-paste/share URL -> extract -> transcribe + read frames -> Booking JSON
--> itinerary + map + transit link -> WhatsApp send -> YES -> CONFIRMED
+create itinerary -> paste one or more XHS/TikTok URLs -> extract each source
+-> choose grounded places -> de-duplicate + optimize -> drag/reorder + re-check
+-> itinerary + map + transport handoffs -> optional booking requests
 -> living experience record -> booking-linked review
 ```
 
@@ -39,10 +40,12 @@ and the entire vendor-side experience remain to be built.
 | Expo tourist app | Working scaffold | Four-tab Home, Discover, Trips, and You shell with charcoal glass navigation, Bobo guide cards, image-led trip timelines, map and transit handoffs, booking states, and menu flow |
 | Social media extraction | Working demo | The self-hosted XHS sidecar handles XHS posts; TikHub handles supported TikTok videos and photo carousels, including source media and metadata |
 | Multimodal fusion | Partial | OpenAI frame reading and structured Booking JSON exist; quality has not been benchmarked on a representative dataset |
-| Editable trip planner | Working demo | Extracted and saved discovery journeys become image-led timelines; tourists can remove, restore, or delete stops through an in-app action menu, optimize the selected route, and explicitly send separate reservation requests |
-| Route constraints | Demo-grade | Google Routes is preferred, with an offline matrix fallback; ordering considers travel time, visit duration, opening windows, fixed endpoints, and known stop costs |
+| Multi-post itinerary builder | Working demo | A traveler can add up to eight mixed XHS/TikTok links, inspect extraction status per source, choose whole posts or individual places, keep failures visible, and merge the selection into one de-duplicated trip |
+| Editable trip planner | Working demo | Extracted and saved discovery journeys become image-led timelines; tourists can drag/reorder selected stops on web (arrow controls on native), remove, restore, or delete stops, run Optimize + check, switch walking/transit/driving/Grab between adjacent places, and explicitly send separate reservation requests |
+| Route constraints | Demo-grade | Google Routes is preferred on ordinary roads, with an offline fallback; Tioman bypasses Google DRIVE and uses village-corridor, walkway, 4WD and water-taxi rules instead |
 | EasyBook handoff | Limited | A link appears only when Jalan2 validates an official EasyBook route page for the selected city pair; there is no inventory, fare, seat, payment, or booking API integration |
-| Speech and voice | Demo-grade | OpenAI and ElevenLabs STT adapters exist; cached and ElevenLabs TTS serve multilingual safety briefs and local phrases |
+| KTMB handoff | Limited | Rail-served journey boundaries map to published KTMB stations and open the official KITS timetable/ticket search; there is no live inventory, fare, seat, payment, or booking API integration |
+| Speech and voice | Demo-grade | OpenAI and ElevenLabs STT adapters exist; ElevenLabs TTS handles Malay and Mandarin while Cantonese routes only to Google Cloud TTS `yue-HK`. A dedicated permitted `GOOGLE_CLOUD_TTS_API_KEY` is still required for live Cantonese audio |
 | WhatsApp booking | Demo-grade | Twilio send/webhook adapters exist, but the recommended demo opens a `wa.me` draft and uses mock auto-confirmation |
 | Demand directory | Demo-grade | Prepared fixture operators are shown with zero demand alongside session demand records; opt-in and live demand state are lost on restart and this is not an operator registry |
 | Jalan2 Live reviews | Demo-grade | Live experience page, structured ratings, community reports, booking-linked reviews, source evidence, and five-second refresh work; state is in-memory and there is no account or moderation system |
@@ -50,7 +53,7 @@ and the entire vendor-side experience remain to be built.
 | Stealth ERP | Not built | No operator booking view, accept/decline action, constraints view, or update workflow |
 | Firebase | Not used | Trips use a local JSON demo store while bookings, reviews, and other records still use process memory |
 | Local travel defaults | Working demo | Budget, start time, pace, and safety language are stored on-device and only change a trip after the tourist taps Use my defaults |
-| Menu flow | Demo-grade | Camera/library ingestion segments wide menu boards into enlarged column panels, asks OpenAI for every visible row, marks uncertain readings, and retrieves attributed illustrative food photos through Openverse plus Wikimedia fallbacks; broader benchmarking is still required |
+| Menu flow | Demo-grade | Camera/library ingestion segments wide menu boards into enlarged column panels, asks OpenAI for every visible row, grounds Malaysian regional dish identities, and accepts attributed Openverse/Wikimedia/Unsplash candidates only after a conservative multimodal match check; broader benchmarking is still required |
 | Trust and safety | Partial | Exa public-web evidence, explicit disclaimers, safety briefs, and separated review labels exist; official-record matching, moderation, incident handling, and a risk policy do not |
 | Production controls | Not built | No auth, transactional persistence, rate limiting, webhook signature validation, job queue, audit log, observability, or retention controls |
 
@@ -63,9 +66,17 @@ Home now leads with three source-backed routes that each prove a different part
 of the product. They open the real trip planner, not a separate presentation
 screen:
 
+The landing hierarchy now makes the two product wedges explicit before those
+examples: **1) paste an XHS/TikTok post and receive a grounded end-to-end
+itinerary; 2) scan a kopitiam menu and receive a swipeable dish guide.** The
+manual smart planner is deliberately secondary and labeled as the path for a
+traveler who does not already have a social post.
+
 1. **KL to Tioman:** hand off TBS to Mersing and Mersing to Tekek transport to
-   EasyBook, then use Jalan2 to connect a reef dive, a guided waterfall hike,
-   and a Bunut Beach ATV operator. EasyBook remains an external booking handoff.
+   EasyBook, then keep the default island day inside the Tekek–Berjaya–Paya
+   corridor: a Tekek reef dive, Bunut Beach ATV and the short Berjaya–Paya
+   rainforest walk. Asah Waterfall remains visible as a separate south-coast
+   add-on, not a same-day default. EasyBook remains an external booking handoff.
 2. **Kuching's Jurassic World:** turn Bengoh social discovery into a community
    guide meetup, reservoir longboat, Kampung Sting homestay, waterfall trek,
    and Fairy Cave finale. This is the clearest informal-operator story.
@@ -127,6 +138,11 @@ opening-hours data. A tourist can then:
   stops.
 - Optimize with Google Routes when possible and fall back visibly to the
   deterministic offline router when Google cannot calculate the route.
+- Change the compact travel connector between adjacent stops to walking,
+  transit, driving, or Grab. Google Maps opens with both endpoints and the
+  selected route mode. Grab copies the exact next-stop address before opening
+  the official booking screen because Jalan2 does not claim a booked or
+  destination-prefilled ride.
 - See estimated travel plus visit time, known spend, and opening-hours or
   budget warnings.
 - See licensed Google Place photos when a photo reference is available, with
@@ -137,6 +153,32 @@ opening-hours data. A tourist can then:
 - Review dates, guests, and per-stop times before sending separate WhatsApp
   availability requests for eligible selected stops. Stops removed from the
   itinerary are excluded, while walk-in stops remain in the plan.
+
+### Multi-post social itinerary flow
+
+Home's primary social action opens a collection builder instead of forcing each
+link into an isolated trip. The traveler can paste one public link per line,
+mix XHS and TikTok, and process up to eight sources. Two sources are processed
+at a time so a large collection does not overwhelm the media and vision
+pipeline. Each source card shows its current stage, its grounded place matches,
+its photos, and a contained error if that source fails. The traveler can select
+or deselect an entire post, then refine the choice place by place.
+
+`POST /trips/merge` combines those selections into a persisted
+`social_collection` trip. Google Place IDs de-duplicate the same venue across
+creators while all original source URLs remain attached as evidence. The first
+route is optimized, scheduled and sent through the end-to-end critic. Adjacent
+local legs use Google Routes when available; mainland intercity legs check an
+EasyBook route before falling back to an explicit unconfirmed multimodal
+handoff; Peninsular Malaysia-to-Borneo combinations become flight-search
+handoffs and are never drawn as a drive.
+
+The trip screen exposes the order before the map. On web, rows are draggable;
+native clients get accessible move-earlier/move-later controls. A manual reorder
+immediately clears the stale route and old critic output. **Optimize + check**
+then rebuilds the ordered route, day schedule, transport legs and final
+reasonableness score. This avoids displaying a polished plan whose evidence no
+longer matches the user's edits.
 
 Budget optimization is intentionally conservative. It only reasons about
 costs Jalan2 actually knows, removes optional high-cost stops when necessary,
@@ -149,12 +191,12 @@ or another transactional database before a multi-user pilot.
 
 ### A-to-Z planning agents
 
-Home now includes an end-to-end planner for origin, destination, duration,
-party size, start date, budget, interests and pace. It uses one typed orchestrator with seven
+Home now includes an end-to-end planner for origin, destination, final endpoint,
+return intent, duration, party size, start date, budget, interests and pace. It uses one typed orchestrator with seven
 bounded agents instead of asking one model to invent a route:
 
 1. Place grounding resolves Malaysian Google Place IDs and coordinates.
-2. Mobility builds first-class legs and separates EasyBook, operator pickup,
+2. Mobility builds first-class legs and separates EasyBook, KTMB, operator pickup,
    Grab fallback, flights, Google routing and offline estimates.
 3. Experience discovery ranks a varied set of requested interests and local
    food without treating every search result as a must-do stop.
@@ -172,7 +214,7 @@ bounded agents instead of asking one model to invent a route:
 `planning` metadata: physical stops, connected legs, day plans, agent reports,
 provider evidence, critic checks and handoffs. Transport is not passed to the
 Google DRIVE matrix as a fake attraction. The KL to Gopeng path explicitly
-grounds Terminal Amanjaya, validates the KL to Ipoh EasyBook search, and creates
+grounds Terminal Amanjaya, checks the KL to Ipoh KTMB and EasyBook handoffs, and creates
 a separate operator-pickup request with Grab as an availability fallback.
 
 New live XHS and TikTok plans with at least two grounded recommendations now go
@@ -220,20 +262,50 @@ with a visible warning instead of silently dropping them.
 
 Each swipe card includes the printed price, a typical taste and texture guide,
 an advisory heat level, likely allergens, and a short local ordering phrase.
-Dish photos use the AI-produced canonical food name to query Openverse first,
-restricted to commercially reusable CC licences, then Wikimedia Commons.
-Every accepted image keeps source and licence attribution. A missing licensed
-match becomes a designed placeholder rather than a guessed or unlicensed web
-image.
+Before the food photo, it also shows the original menu board with that dish's
+exact printed row highlighted so a tourist can point to it at a noisy stall.
+The same pointing panel remains in the saved ordering shortlist.
+
+The shortlist now pairs that pointing panel with **Say my order** buttons for
+Bahasa Melayu, Cantonese, and Mandarin. `POST /menu/:id/order-audio` builds a
+short phrase around the exact printed dish name, synthesizes it only when the
+tourist taps a language, caches the MP3, and returns a
+visibly labelled synthetic-audio result. On-demand generation prevents a
+22-dish scan from spending quota on 66 unheard clips. Set
+`TTS_PROVIDER=elevenlabs` and `ELEVENLABS_API_KEY` for Malay and Mandarin.
+Cantonese deliberately does not fall back to ElevenLabs: its current model
+metadata exposes Mandarin Chinese, not a verified Cantonese voice. Enable Google
+Cloud Text-to-Speech and configure `GOOGLE_CLOUD_TTS_API_KEY` for the explicit
+`yue-HK` voice. Do not use an OAuth client ID, browser-referrer Maps key, or
+silent ElevenLabs fallback. The backend requires a dedicated server-side API
+key permitted to call `texttospeech.googleapis.com`; otherwise the Cantonese
+button fails clearly. Malaysian Cantonese wording and pronunciation should
+still be human-checked before a pilot.
+
+Menu understanding and text geometry are separate stages. `OPENAI_MENU_MODEL`
+reads and explains the dishes. `OPENAI_MENU_LOCALIZATION_MODEL` defaults to
+`gpt-5.6` and reruns each enlarged menu column at original image detail, returning
+strict 0..999 bounding boxes that are mapped back onto the uploaded board. This
+keeps crop coordinates aligned with the original photo and avoids confusing the
+shop title, ordinary yee mee, and wet-style yee mee rows.
+
+Dish photos use a region-aware Malaysian identity to retrieve several candidates
+from Openverse, Wikimedia Commons, and optional Unsplash. A second multimodal
+check compares the visible noodle form, soup/dry/gravy preparation, colour,
+toppings, and regional style before an image is accepted. It explicitly keeps
+KL dark Hokkien mee, Penang Hokkien prawn mee, Singapore Hokkien mee, yee mee,
+and handmade ban mian-style noodles separate. Only an exact high-confidence
+match is shown; every accepted image retains source and licence attribution.
+A rejected or missing match becomes a designed placeholder rather than a
+plausible-looking but incorrect dish photo.
 
 Do not build a new dependency on Google Custom Search for dish photos. Google
 has closed that API to new customers and scheduled its discontinuation for
 January 2027. Google Places photos remain appropriate for a specific venue,
 not for identifying a dish. An optional Unsplash fallback is wired in through
-`UNSPLASH_ACCESS_KEY` for polished generic coverage after exact licensed search
-misses. It uses the required hotlinked image URL and visible attribution, but
-its broad food search is often less exact than Openverse or Commons for
-Malaysian dishes.
+`UNSPLASH_ACCESS_KEY` for additional candidate coverage after Openverse and
+Commons. It uses the required hotlinked image URL and visible attribution, but
+its broad food search is never trusted without the same dish-identity check.
 
 Tourists can drag left or right or use accessible skip and save buttons. Saved
 dishes appear in the ordering shortlist; skipped dishes do not. The scanned
@@ -243,6 +315,30 @@ not a claim about the stall's exact preparation. Production should benchmark
 menu extraction across layouts and languages, retain uploaded photos in
 managed storage with deletion controls, cache image lookups, and let the diner
 correct uncertain readings before relying on them.
+
+### Tioman island mobility
+
+Tioman is not sent to the normal Google `DRIVE` optimizer. Straight-line
+distance is particularly misleading on an island whose villages sit on
+different coasts without a continuous public road. Jalan2 classifies grounded
+stops into mobility zones: the Tekek–Berjaya–Paya/Air Batang corridor, Juara,
+Salang, Genting, Nipah, and Mukut–Asah. It groups activities within one zone
+before allowing a zone change.
+
+Within the Tekek corridor, legs are described as walkways, trails, resort
+shuttles or operator pickup. Tekek–Juara becomes an explicit locally arranged
+4WD leg. Other zone changes become a **water-taxi** leg with `needs_confirmation`
+evidence and a blocking critic check. Jalan2 deliberately leaves price unknown:
+the traveler must confirm fare, weather, departure point, seats and the return
+boat with a local operator. The UI removes the misleading Drive/Grab selector
+for these fixed island transfers and opens the Tioman Development Authority's
+transport guidance instead.
+
+“Suggested on the way” results also inherit the selected Tioman zone. A Tekek
+day will not quietly recommend an attractive Asah or Juara stop that introduces
+an undocumented boat or 4WD transfer. If the tourist explicitly adds another
+zone, the planner keeps the zones together, exposes the transfer, and will not
+mark the plan actionable until that handoff is confirmed.
 
 ### Four-tab client and session history
 
@@ -262,7 +358,21 @@ backend restart. Trip reservation batches use unique `J2-` references so each
 operator reply updates only the matching stop. The app polls pending batches
 and shows confirmed, waiting, declined, failed, and walk-in states separately.
 
-### EasyBook boundary
+### Whole-journey boundaries, EasyBook and KTMB
+
+Every editable journey now carries three explicit boundary decisions: where the
+traveler starts, whether they return there, and where the trip ends when it is
+one-way. The planner does not assume that the final attraction is the end of
+the journey. A round trip adds a real return leg to the origin; a one-way plan
+requires a named endpoint. Both outbound and final intercity boundaries are
+passed through the same provider-selection and end-to-end critic pipeline.
+
+When both boundary cities map to stations on KTMB's published ETS, Intercity or
+Komuter network, Jalan2 adds the official KTMB KITS timetable/ticketing handoff.
+The UI states the mapped stations and still requires the traveler to confirm
+the live train, departure, fare and seats. It does not claim a KTMB inventory,
+fare or booking API. Rail-ineligible destinations such as Tioman and Kuching do
+not receive a misleading KTMB option.
 
 Jalan2 does not claim a completed EasyBook integration. The server constructs
 an official EasyBook city-pair URL, fetches it without following redirects,
@@ -277,7 +387,9 @@ that Jalan2 can reserve. The card shows the route, estimated journey time,
 transport mode, the next Jalan2 stop, and a prominent external EasyBook action.
 External EasyBook legs are excluded from Jalan2's WhatsApp reservation workflow.
 
-Transport selection is not delegated to an AI guess. AI extracts the source
+When rail and coach are both plausible, the plan shows KTMB and EasyBook as
+separate ticket-search choices rather than silently picking one and hiding the
+other. Transport selection is not delegated to an AI guess. AI extracts the source
 places, Google Places grounds their coordinates, and Google Routes provides
 distance for a city-level destination. Jalan2 only checks EasyBook for an
 intercity leg above 80 km, then shows the handoff only when the official route
@@ -632,12 +744,20 @@ PIPELINE_MODE=live
 PLACES_PROVIDER=auto
 ROUTING_PROVIDER=auto
 GOOGLE_MAPS_API_KEY=your_server_side_key
+GOOGLE_CLOUD_TTS_API_KEY=your_dedicated_tts_server_key
+GOOGLE_CANTONESE_VOICE=yue-HK-Standard-A
 ```
 
 Enable Places API (New), Routes API and Maps Static API for that server key.
 The live map endpoint intentionally returns a failure and lets the web client
 use its OpenStreetMap fallback when Maps Static is not enabled. Restrict the key
 to the server and those APIs; do not copy it into an `EXPO_PUBLIC_` variable.
+
+For Cantonese menu audio, enable Cloud Text-to-Speech and create a separate API
+key restricted to that API. A Google OAuth web client ID cannot be used as the
+key, and an HTTP-referrer-restricted Maps key will normally return
+`API_KEY_SERVICE_BLOCKED` from the Node backend. Keep the TTS key only in
+`server/.env`; the app requests audio through Jalan2's menu endpoint.
 
 The sidecar exposes `POST /xhs/detail` on port 5556. It is GPL-3.0 software;
 review its license obligations before distributing a combined deployment. Keep

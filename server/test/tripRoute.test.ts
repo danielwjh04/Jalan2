@@ -115,4 +115,25 @@ describe("prepared trips", () => {
     expect(findRoute).toHaveBeenCalledWith("Kuching", "Ipoh");
     expect(stop.transport_provider).toBe("easybook");
   });
+
+  it("prefers an official KTMB handoff when both city boundaries are rail-served", async () => {
+    const base = cityTrip();
+    if (!base) throw new Error("Missing test trip");
+    const trip = { ...base, region: "Kuala Lumpur, Malaysia" };
+    const place: PlaceCandidate = {
+      place_id: "ipoh-city", name: "Ipoh", address: "Ipoh, Perak, Malaysia",
+      location: { lat: 4.5975, lng: 101.0764 }, google_maps_url: "https://maps.google.com/?q=Ipoh",
+      opening_window: null, suggested_activity: "Explore Ipoh.", primary_type: "locality",
+      place_photo_available: false, place_photo_attributions: [], image_url: null, image_attributions: [],
+    };
+    const routing: RoutingProvider = { name: "google", optimize: async () => ({ ordered_stop_ids: ["from", "to"], distance_meters: 200_000, duration_minutes: 180, path: [trip.stops[0].location, place.location], provider: "google" }) };
+    const findRoute = vi.fn(async () => null);
+
+    const stop = await withIntercityHandoff(customStop(place), place, trip, routing, findRoute);
+
+    expect(stop.transport_provider).toBe("ktmb");
+    expect(stop.transport_from).toBe("KL Sentral");
+    expect(stop.transport_to).toBe("Ipoh");
+    expect(findRoute).toHaveBeenCalledWith("Kuala Lumpur", "Ipoh");
+  });
 });

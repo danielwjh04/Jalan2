@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -5,13 +6,19 @@ import type { Dish } from "@shared/menu";
 import { mediaUrl } from "@/lib/api";
 import { cardShadow, colors, fonts, radius, spacing, type } from "@/lib/theme";
 import { ImageAttribution } from "./ImageAttribution";
+import { MenuPointingGuide } from "./MenuPointingGuide";
 
-export function DishCard({ dish }: { dish: Dish }): React.ReactElement {
+export function DishCard({ dish, sourceMenuUrl }: { dish: Dish; sourceMenuUrl?: string }): React.ReactElement {
   const imageUrl = mediaUrl(dish.image_url);
+  const [imageFailed, setImageFailed] = useState(false);
+  useEffect(() => setImageFailed(false), [imageUrl]);
   return (
     <View style={styles.card}>
+      {sourceMenuUrl ? <MenuPointingGuide dish={dish} sourceUrl={sourceMenuUrl} /> : null}
       <View style={styles.imageWrap}>
-        {imageUrl ? <Image source={{ uri: imageUrl }} style={styles.image} /> : <Placeholder dish={dish} />}
+        {imageUrl && !imageFailed
+          ? <Image source={{ uri: imageUrl }} style={styles.image} onError={() => setImageFailed(true)} />
+          : <Placeholder dish={dish} />}
         <LinearGradient colors={["transparent", "rgba(18,28,24,0.88)"]} style={styles.scrim} />
         <Text style={styles.price}>{dish.price_myr === null ? "Price not shown" : `RM${dish.price_myr.toFixed(2)}`}</Text>
         <View style={styles.imageCopy}>
@@ -32,7 +39,12 @@ export function DishCard({ dish }: { dish: Dish }): React.ReactElement {
         </View>
         {dish.allergens.length > 0 ? <AllergenRow allergens={dish.allergens} /> : null}
         {dish.reading_confidence !== "high" ? <ConfidenceNote level={dish.reading_confidence} /> : null}
-        <Text style={styles.caption}>Taste and allergens are typical-recipe guidance. Check with the stall.</Text>
+        <Text style={styles.caption}>
+          {imageUrl && !imageFailed
+            ? "Illustrative photo checked against the dish family; stall recipes still vary. "
+            : "No reliable matching photo was found. "}
+          Taste and allergens are typical-recipe guidance. Check with the stall.
+        </Text>
       </View>
     </View>
   );
@@ -58,7 +70,13 @@ function Placeholder({ dish }: { dish: Dish }): React.ReactElement {
 }
 
 function SpicePill({ level }: { level: Dish["spice_level"] }): React.ReactElement {
-  const label = level === "unknown" ? "Heat varies" : `${level} heat`;
+  const label = {
+    none: "Not usually spicy",
+    mild: "Mild heat",
+    medium: "Medium heat",
+    hot: "Hot",
+    unknown: "Ask about spice",
+  }[level];
   return <Text style={[styles.spice, level === "hot" && styles.hot]}>{label}</Text>;
 }
 
