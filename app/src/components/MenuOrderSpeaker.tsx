@@ -52,14 +52,12 @@ export function MenuOrderSpeaker({ menuId, dishIndex, dish }: MenuOrderSpeakerPr
       const clip = clips[lang] ?? await getMenuOrderAudio(menuId, dishIndex, lang);
       setClips((current) => ({ ...current, [lang]: clip }));
       if (!clip.audioUrl) {
-        throw new Error(lang === 'yue'
-          ? 'Cantonese voice unavailable. Enable Google Cloud Text-to-Speech for yue-HK.'
-          : 'ElevenLabs voice is not configured on the server.');
+        throw new Error('Voice is unavailable right now. Try again later.');
       }
       player.replace(serverUrl(clip.audioUrl));
       setQueued(true);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Could not generate this order.');
+    } catch {
+      setError('Voice is unavailable right now. Try again later.');
     } finally {
       setBusyLang(null);
     }
@@ -95,7 +93,7 @@ export function MenuOrderSpeaker({ menuId, dishIndex, dish }: MenuOrderSpeakerPr
         <Text style={styles.phrase}>{activeClip?.textLocal ?? fallbackPhrase[activeLang]}</Text>
         <Text style={styles.translation}>{activeClip?.textEnglish ?? `Boss, one ${dish.name_english}, please.`}</Text>
       </View>
-      {error ? <Text style={styles.error}>{error}</Text> : <Text style={styles.disclosure}>{activeLang === 'yue' ? 'Synthetic Google yue-HK voice' : 'Synthetic ElevenLabs voice'} · Verify special requests with the stall</Text>}
+      {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
   );
 }
@@ -116,6 +114,5 @@ const styles = StyleSheet.create({
   phraseBox: { backgroundColor: 'rgba(255,255,255,0.72)', borderRadius: radius.control, padding: spacing(3), gap: spacing(1) },
   phrase: { ...type.heading, color: colors.ink },
   translation: { ...type.caption, color: colors.inkSoft },
-  disclosure: { ...type.caption, color: colors.kopi },
   error: { ...type.caption, color: colors.danger },
 });

@@ -19,13 +19,15 @@ describe('multi-source social planner', () => {
     expect(sourcePlatform('https://xhslink.com/a')).toBe('XHS');
   });
 
-  it('exposes selection, multi-post creation and route reordering in the UI', () => {
+  it('uses one shared link composer and keeps route reordering in the guide', () => {
     const screen = readFileSync(resolve(__dirname, '../src/app/social-plan.tsx'), 'utf8');
     const reorder = readFileSync(resolve(__dirname, '../src/components/TripOrderEditor.web.tsx'), 'utf8');
-    expect(screen).toContain('Read all posts');
-    expect(screen).toContain('CHOOSE PLACES');
-    expect(screen).toContain('createSocialCollection');
+    const list = readFileSync(resolve(__dirname, '../src/components/TripStopList.tsx'), 'utf8');
+    expect(screen).toContain('<SocialGuideComposer');
+    expect(screen).toContain('generateSocialGuide');
+    expect(screen).not.toContain('Read all posts');
+    expect(screen).not.toContain('CHOOSE PLACES');
     expect(reorder).toContain('draggable');
-    expect(reorder).toContain('Optimize + check');
+    expect(list).toContain('label="Optimise"');
   });
 });

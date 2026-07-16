@@ -18,8 +18,8 @@ The two users are:
 The current proof of concept focuses on one narrow loop:
 
 ```
-create itinerary -> paste one or more XHS/TikTok URLs -> extract each source
--> choose grounded places -> de-duplicate + optimize -> drag/reorder + re-check
+create guide -> add one or more XHS/TikTok URLs -> generate all grounded places
+-> de-duplicate + optimize -> drag/reorder + re-check
 -> itinerary + map + transport handoffs -> optional booking requests
 -> living experience record -> booking-linked review
 ```
@@ -37,10 +37,10 @@ and the entire vendor-side experience remain to be built.
 
 | Capability | Status | Reality today |
 |---|---|---|
-| Expo tourist app | Working scaffold | Four-tab Home, Discover, Trips, and You shell with charcoal glass navigation, Bobo guide cards, image-led trip timelines, map and transit handoffs, booking states, and menu flow |
+| Expo tourist app | Working scaffold | Four-tab Home, Discover, Trips, and You shell with charcoal glass navigation, a Bobo landing hero, image-led trip timelines, map and transit handoffs, booking states, and menu flow |
 | Social media extraction | Working demo | The self-hosted XHS sidecar handles XHS posts; TikHub handles supported TikTok videos and photo carousels, including source media and metadata |
 | Multimodal fusion | Partial | OpenAI frame reading and structured Booking JSON exist; quality has not been benchmarked on a representative dataset |
-| Multi-post itinerary builder | Working demo | A traveler can add up to eight mixed XHS/TikTok links, inspect extraction status per source, choose whole posts or individual places, keep failures visible, and merge the selection into one de-duplicated trip |
+| Multi-post itinerary builder | Working demo | A traveler can queue up to eight mixed XHS/TikTok links, generate once, follow the live extraction stages, and receive one editable de-duplicated guide containing the grounded physical places |
 | Editable trip planner | Working demo | Extracted and saved discovery journeys become image-led timelines; tourists can drag/reorder selected stops on web (arrow controls on native), remove, restore, or delete stops, run Optimize + check, switch walking/transit/driving/Grab between adjacent places, and explicitly send separate reservation requests |
 | Route constraints | Demo-grade | Google Routes is preferred on ordinary roads, with an offline fallback; Tioman bypasses Google DRIVE and uses village-corridor, walkway, 4WD and water-taxi rules instead |
 | EasyBook handoff | Limited | A link appears only when Jalan2 validates an official EasyBook route page for the selected city pair; there is no inventory, fare, seat, payment, or booking API integration |
@@ -62,15 +62,15 @@ as a live extraction during a demo.
 
 ## Recommended live demo routes
 
-Home now leads with three source-backed routes that each prove a different part
-of the product. They open the real trip planner, not a separate presentation
-screen:
+Discover contains three source-backed routes that each prove a different part
+of the product. Home presents them as guides created by other users, and they
+open the real trip planner rather than a separate presentation screen:
 
 The landing hierarchy now makes the two product wedges explicit before those
 examples: **1) paste an XHS/TikTok post and receive a grounded end-to-end
 itinerary; 2) scan a kopitiam menu and receive a swipeable dish guide.** The
-manual smart planner is deliberately secondary and labeled as the path for a
-traveler who does not already have a social post.
+round-trip planner lives in Trips so Home stays focused on social guides and
+menu scanning.
 
 1. **KL to Tioman:** hand off TBS to Mersing and Mersing to Tekek transport to
    EasyBook, then keep the default island day inside the Tekek–Berjaya–Paya
@@ -84,19 +84,17 @@ traveler who does not already have a social post.
    missing local transfer and operator layer for Gua Tempurung, Kampar River
    rafting, and an old-town meal.
 
-The landing cards state the transport boundary and the planner shows a short
-three-step product proof. On larger screens the cards form a three-column grid
-and itinerary stops use a horizontal image layout; tablets use two columns and
-phones collapse to one. Bobo has a dedicated larger landing treatment and
-stacks above the greeting on narrow phones.
+On larger screens the community cards form a three-column grid and itinerary
+stops use a horizontal image layout; tablets use two columns and phones collapse
+to one. Bobo has a dedicated larger landing treatment beside the wordmark.
 
 ## Bobo, the Jalan2 guide
 
 Bobo is Jalan2's baby Malayan tapir travel companion. His songkok, batik
 neckerchief, and acid-yellow pouch detail connect the character to Malaysia and
 the product's visual system without turning him into a trust or safety badge.
-He guides the tourist through discovery, extraction progress, the operator
-directory, and local menu phrases.
+He introduces the product and provides concise guidance on selected trip and
+booking surfaces without replacing functional progress or status controls.
 
 The transparent production asset lives at
 `app/assets/images/bobo.png`. `BoboCard` is the reusable React Native component;
@@ -153,27 +151,29 @@ opening-hours data. A tourist can then:
 - Review dates, guests, and per-stop times before sending separate WhatsApp
   availability requests for eligible selected stops. Stops removed from the
   itinerary are excluded, while walk-in stops remain in the plan.
+- See the itinerary first, followed by the safety brief, optional route
+  suggestions, and the final one-day feasibility check.
+- Move to a focused confirmation screen when an operator confirms, then return
+  to the editable itinerary without reopening the confirmation screen.
 
 ### Multi-post social itinerary flow
 
-Home's primary social action opens a collection builder instead of forcing each
-link into an isolated trip. The traveler can paste one public link per line,
-mix XHS and TikTok, and process up to eight sources. Two sources are processed
-at a time so a large collection does not overwhelm the media and vision
-pipeline. Each source card shows its current stage, its grounded place matches,
-its photos, and a contained error if that source fails. The traveler can select
-or deselect an entire post, then refine the choice place by place.
+Home's primary social action uses one shared link queue. The traveler adds one
+public link at a time, can mix XHS and TikTok, and can queue up to eight sources
+before pressing `Generate guide`. Two sources are processed at a time so a large
+collection does not overwhelm the media and vision pipeline. The screen shows
+the active extracting, transcribing, frame-reading and fusion stages without
+exposing backend provider details.
 
-`POST /trips/merge` combines those selections into a persisted
+`POST /trips/merge` combines all grounded physical places into a persisted
 `social_collection` trip. Google Place IDs de-duplicate the same venue across
-creators while all original source URLs remain attached as evidence. The first
-route is optimized, scheduled and sent through the end-to-end critic. Adjacent
+creators while all original source URLs remain attached as evidence. Adjacent
 local legs use Google Routes when available; mainland intercity legs check an
 EasyBook route before falling back to an explicit unconfirmed multimodal
 handoff; Peninsular Malaysia-to-Borneo combinations become flight-search
 handoffs and are never drawn as a drive.
 
-The trip screen exposes the order before the map. On web, rows are draggable;
+The trip screen shows the geographic map before the itinerary. On web, rows are draggable;
 native clients get accessible move-earlier/move-later controls. A manual reorder
 immediately clears the stale route and old critic output. **Optimize + check**
 then rebuilds the ordered route, day schedule, transport legs and final

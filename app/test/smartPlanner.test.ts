@@ -3,28 +3,23 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 describe("blank-slate smart planner UI", () => {
-  it("keeps the whole-trip composer as the secondary no-post path", () => {
-    const source = readFileSync(resolve(__dirname, "../src/components/SmartPlanComposer.tsx"), "utf8");
-    expect(source).toContain("NO POST? START FROM SCRATCH");
-    expect(source).toContain("Build a trip from an idea instead");
-    expect(source).toContain("Build my end-to-end trip");
-    expect(source).toContain("7 agents");
-    expect(source).toContain("Start date");
-    expect(source).toContain("Return to start");
-    expect(source).toContain("Trip ends at");
-    expect(source).toContain("return_to_origin");
+  it("keeps a concise round-trip planner only in the Trips tab", () => {
+    const composer = readFileSync(resolve(__dirname, "../src/components/SmartPlanComposer.tsx"), "utf8");
+    const home = readFileSync(resolve(__dirname, "../src/app/(tabs)/index.tsx"), "utf8");
+    const trips = readFileSync(resolve(__dirname, "../src/app/(tabs)/trips.tsx"), "utf8");
+    expect(home).not.toContain("SmartPlanComposer");
+    expect(trips).toContain("<SmartPlanComposer />");
+    expect(composer).toContain("Trip planner");
+    expect(composer).toContain("Build my trip");
+    expect(composer).toContain("Start date");
+    expect(composer).toContain("return_to_origin: true");
+    expect(composer).toContain("end_destination: null");
+    expect(composer).not.toContain("How does the journey finish?");
+    expect(composer).not.toContain("End somewhere else");
   });
 
-  it("renders agents, day plans, transport evidence and critic checks", () => {
-    const source = readFileSync(resolve(__dirname, "../src/components/SmartJourneyOverview.tsx"), "utf8");
-    expect(source).toContain("agents, one connected plan");
-    expect(source).toContain("End-to-end reasonableness");
-    expect(source).toContain("Connected transport legs");
-    expect(source).toContain("Critic checks");
-    expect(source).toContain("Needs confirmation");
-    expect(source).toContain("WHOLE-JOURNEY BOUNDARY");
-    expect(source).toContain("Ticket and transfer options");
-    expect(source).toContain("/ktmb/i");
-    expect(source).toContain("/easybook/i");
+  it("does not render the verbose planning control centre", () => {
+    const planner = readFileSync(resolve(__dirname, "../src/components/TripPlanner.tsx"), "utf8");
+    expect(planner).not.toContain("SmartJourneyOverview");
   });
 });

@@ -10,22 +10,22 @@ const read = (path: string): string => readFileSync(
 );
 
 describe("social discoveries", () => {
-  it("loads a separate curated catalog on Home and Discover", () => {
+  it("keeps the full route catalog in Discover instead of duplicating it on Home", () => {
     const home = read("app/(tabs)/index.tsx");
     const discover = read("app/(tabs)/discover.tsx");
 
-    expect(home).toContain("filter(({ featured }) => !featured).slice(0, 2)");
+    expect(home).not.toContain("HomeDiscoveryPreview");
+    expect(home).not.toContain("filter(({ featured }) => !featured)");
     expect(discover).toContain("getDiscoveries");
     expect(discover).toContain("DiscoveryCard");
     expect(discover).not.toContain("getFixtures");
   });
 
-  it("opens curated cards as trips without submitting a video", () => {
-    const sections = read("components/HomeSections.tsx");
+  it("opens community guide cards as trips without submitting a video", () => {
+    const showcase = read("components/DemoFlowShowcase.tsx");
 
-    expect(sections).toContain("DiscoveryCard");
-    expect(sections).toContain("onOpen(discovery.id)");
-    expect(sections).toContain("onPlan(discovery.id)");
-    expect(sections).not.toContain("onSubmit(discovery");
+    expect(showcase).toContain("onOpen(discovery.id)");
+    expect(showcase).toContain("Guides other users created");
+    expect(showcase).not.toMatch(/DEMO \{String\(index \+ 1\)/);
   });
 });

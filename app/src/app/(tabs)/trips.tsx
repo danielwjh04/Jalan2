@@ -7,6 +7,7 @@ import { ScreenHeader } from "@/components/ScreenHeader";
 import { StateCard } from "@/components/StateCard";
 import { TripSummaryCard } from "@/components/TripSummaryCard";
 import { SavedTripCard } from "@/components/SavedTripCard";
+import { SmartPlanComposer } from "@/components/SmartPlanComposer";
 import { deleteItinerary, getFixtures, getItineraries, getSavedTrips } from "@/lib/api";
 import { groupItineraries } from "@/lib/tripSections";
 import { colors, eyebrow, spacing, type } from "@/lib/theme";
@@ -22,6 +23,7 @@ export default function TripsScreen(): React.ReactElement {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <ScreenHeader eyebrowText="Plans from your discoveries" title="Trips" />
+      <SmartPlanComposer />
       {data.loading && data.fixtures.length === 0 ? <ActivityIndicator color={colors.sage} /> : null}
       {data.error ? (
         <StateCard title="Trips could not load" message={data.error} actionLabel="Retry" onAction={() => void data.load()} />

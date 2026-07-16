@@ -12,9 +12,9 @@ describe("ingestDestination", () => {
     ).toBe("/trip/kuching-city-guide-01?bookingId=booking-123");
   });
 
-  it("keeps ordinary links on the booking itinerary route", () => {
+  it("marks ordinary link bookings to continue into the generated guide", () => {
     expect(ingestDestination({ kind: "booking", id: "booking-456" })).toBe(
-      "/itinerary/booking-456",
+      "/itinerary/booking-456?view=guide",
     );
   });
 });

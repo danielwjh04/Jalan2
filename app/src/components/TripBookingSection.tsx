@@ -1,11 +1,23 @@
+import { useEffect } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { useRouter } from "expo-router";
 import { BookingPanel } from "./BookingPanel";
 import { StateCard } from "./StateCard";
 import { useItinerary } from "@/lib/useItinerary";
 import { colors, spacing } from "@/lib/theme";
 
-export function TripBookingSection({ bookingId }: { bookingId: string }): React.ReactElement {
+interface Props {
+  bookingId: string;
+  confirmationSeen?: boolean;
+}
+
+export function TripBookingSection({ bookingId, confirmationSeen }: Props): React.ReactElement | null {
+  const router = useRouter();
   const { itinerary, error, apply, retry } = useItinerary(bookingId);
+  const confirmed = itinerary?.status === "CONFIRMED";
+  useEffect(() => {
+    if (confirmed && !confirmationSeen) router.replace(`/itinerary/${bookingId}`);
+  }, [bookingId, confirmationSeen, confirmed, router]);
   if (!itinerary) {
     return (
       <View style={styles.loading}>
@@ -15,6 +27,7 @@ export function TripBookingSection({ bookingId }: { bookingId: string }): React.
       </View>
     );
   }
+  if (confirmed) return null;
   return <View style={styles.section}><BookingPanel itinerary={itinerary} onBooked={apply} /></View>;
 }
 

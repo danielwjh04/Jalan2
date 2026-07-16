@@ -4,8 +4,6 @@ import { haversineMeters, type TripStop } from "@shared/trip";
 export type LocalTravelMode = "walk" | "transit" | "drive" | "grab";
 export type PlanningLeg = SmartPlanningMetadata["legs"][number];
 
-export const GRAB_BOOKING_URL = "https://grab.onelink.me/2695613898?af_ad=my&af_adset=grab_website&af_channel=transport&af_dp=grab%3A%2F%2Fopen%3FscreenType%3DBOOKING&af_force_deeplink=true&af_sub1=book_ride&af_web_dp=https%3A%2F%2Fwww.grab.com%2Fmy%2Fdownload%2F&c=organic_web&is_retargeting=true&pid=organic_web";
-
 export interface TravelEstimate {
   distanceMeters: number;
   durationMinutes: number;
@@ -60,10 +58,22 @@ export function destinationLabel(stop: TripStop): string {
   return stop.address ?? stop.name;
 }
 
-function routeAdjustedDistance(straightLine: number, mode: LocalTravelMode): number {
-  return Math.round(straightLine * (mode === "walk" ? 1.2 : 1.3));
+export function formatDuration(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const remainder = minutes % 60;
+  return remainder ? `${hours} hr ${remainder} min` : `${hours} hr`;
 }
 
-function isGooglePlaceId(value: string | null | undefined): value is string {
+export function formatDistance(meters: number): string {
+  if (meters < 1_000) return `${Math.max(10, Math.round(meters / 10) * 10)} m`;
+  return `${(meters / 1_000).toFixed(1)} km`;
+}
+
+export function isGooglePlaceId(value: string | null | undefined): value is string {
   return Boolean(value && !value.startsWith("source-") && !value.startsWith("fixture-"));
+}
+
+function routeAdjustedDistance(straightLine: number, mode: LocalTravelMode): number {
+  return Math.round(straightLine * (mode === "walk" ? 1.2 : 1.3));
 }

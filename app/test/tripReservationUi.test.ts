@@ -29,4 +29,11 @@ describe("trip reservation UI", () => {
     expect(review).toContain("Send reservation requests");
     expect(section).toContain("Bobo is checking with each place separately");
   });
+
+  it("keeps the booking round trip as the sole primary action when a booking exists", () => {
+    const planner = read("components/TripPlanner.tsx");
+
+    expect(planner).toContain("confirmationSeen={props.confirmationSeen}");
+    expect(planner).toContain("{!curated && !props.bookingId ? <TripReservationSection trip={props.trip} /> : null}");
+  });
 });

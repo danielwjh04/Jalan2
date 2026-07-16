@@ -7,10 +7,11 @@ const directory = dirname(fileURLToPath(import.meta.url));
 const read = (path: string): string => readFileSync(resolve(directory, `../src/${path}`), "utf8");
 
 describe("refreshed screens", () => {
-  it("keeps Home focused with a two-card Discover preview", () => {
+  it("keeps Home focused without repeating the Discover route catalog", () => {
     const source = read("app/(tabs)/index.tsx");
-    expect(source).toContain("filter(({ featured }) => !featured).slice(0, 2)");
-    expect(source).toContain('router.push("/discover")');
+    expect(source).toContain("CoreProductFlows");
+    expect(source).toContain("DemoFlowShowcase");
+    expect(source).not.toContain("HomeDiscoveryPreview");
   });
 
   it("uses the shared header and recovery system on menu", () => {

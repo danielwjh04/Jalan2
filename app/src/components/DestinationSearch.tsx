@@ -85,11 +85,11 @@ const styles = StyleSheet.create({
   },
   searchButton: {
     borderRadius: radius.control,
-    backgroundColor: colors.kaya,
+    backgroundColor: colors.halo,
     justifyContent: "center",
     paddingHorizontal: spacing(4),
   },
-  searchText: { ...type.button, color: colors.kopi },
+  searchText: { ...type.button, color: colors.sageDeep },
   disabled: { opacity: 0.45 },
   result: {
     backgroundColor: colors.card,

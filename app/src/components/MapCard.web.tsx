@@ -15,16 +15,18 @@ export function MapCard({
   return (
     <View style={styles.wrap}>
       {stop ? (
-        <PlaceImage
-          placeId={stop.place_id}
-          placePhotoAvailable={stop.place_photo_available}
-          fallbackUrl={mediaUrl(stop.image_url)}
-          placeAttributions={stop.place_photo_attributions}
-          fallbackAttributions={stop.image_attributions}
-          style={styles.photo}
-        />
+        <View style={styles.photoSurface}>
+          <PlaceImage
+            placeId={stop.place_id}
+            placePhotoAvailable={stop.place_photo_available}
+            fallbackUrl={mediaUrl(stop.image_url)}
+            placeAttributions={stop.place_photo_attributions}
+            fallbackAttributions={stop.image_attributions}
+            style={styles.photo}
+          />
+        </View>
       ) : null}
-      <View style={styles.body}>
+      <View style={styles.mapSurface}>
         <Text style={styles.label}>MEETING POINT</Text>
         <Text style={styles.name}>{point.name}</Text>
         <Text style={styles.coordinates}>
@@ -37,19 +39,26 @@ export function MapCard({
 
 const styles = StyleSheet.create({
   wrap: {
+    gap: spacing(4),
+  },
+  photoSurface: {
     borderRadius: radius.card,
     borderWidth: 1,
     borderColor: colors.mist,
-    backgroundColor: colors.halo,
-    overflow: "hidden",
+    backgroundColor: colors.card,
     ...cardShadow,
   },
-  photo: { width: "100%", height: 170 },
-  body: {
+  photo: { width: "100%", height: 210, borderRadius: radius.card },
+  mapSurface: {
     minHeight: 130,
     padding: spacing(5),
     justifyContent: "center",
     gap: spacing(2),
+    borderRadius: radius.card,
+    borderWidth: 1,
+    borderColor: colors.mist,
+    backgroundColor: colors.halo,
+    ...cardShadow,
   },
   label: { ...type.caption, color: colors.inkSoft, letterSpacing: 1.2 },
   name: { ...type.title, color: colors.ink },

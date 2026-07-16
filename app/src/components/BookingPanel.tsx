@@ -3,7 +3,6 @@ import type { Itinerary } from "@shared/status";
 import { bookingViewFor, type BookingView } from "@/lib/bookingPresentation";
 import { buildOperatorChatLink } from "@/lib/whatsappLink";
 import { tryOpenExternalUrl } from "@/lib/externalLink";
-import { useUserPreferences } from "@/lib/useUserPreferences";
 import { colors, radius, spacing, type } from "@/lib/theme";
 import { BookSheet } from "./BookSheet";
 import { BookingDetailsCard } from "./BookingDetailsCard";
@@ -12,7 +11,6 @@ import { BookingHero } from "./BookingHero";
 import { BookingMessages } from "./BookingMessages";
 import { BookingProgress } from "./BookingProgress";
 import { ExperienceLink } from "./ExperienceLink";
-import { SafetyBriefCard } from "./SafetyBriefCard";
 import { StageProgress } from "./StageProgress";
 import { StateCard } from "./StateCard";
 
@@ -26,7 +24,6 @@ interface Props {
 export function BookingPanel(props: Props): React.ReactElement {
   const view = bookingViewFor(props.itinerary, null);
   const booking = props.itinerary.booking;
-  const user = useUserPreferences();
   if (!booking) {
     return (
       <View style={styles.panel}>
@@ -44,11 +41,8 @@ export function BookingPanel(props: Props): React.ReactElement {
         <DiscoveredOperatorCard discovered={props.itinerary.discoveredOperator} />
       ) : null}
       <BookingStateBody {...props} view={view} />
-      {props.itinerary.experienceId ? (
+      {view !== "confirmed" && props.itinerary.experienceId ? (
         <ExperienceLink experienceId={props.itinerary.experienceId} bookingId={props.itinerary.id} />
-      ) : null}
-      {view === "confirmed" ? (
-        <SafetyBriefCard itineraryId={props.itinerary.id} initialLanguage={user.defaults.safetyLanguage} />
       ) : null}
     </View>
   );
@@ -73,7 +67,7 @@ function ConfirmedActions({ itinerary, onViewTrip }: { itinerary: Itinerary; onV
   return (
     <View style={styles.actions}>
       {onViewTrip && itinerary.tripId ? (
-        <Pressable style={styles.primary} onPress={onViewTrip}><Text style={styles.primaryText}>View my trip</Text></Pressable>
+        <Pressable style={styles.primary} onPress={onViewTrip}><Text style={styles.primaryText}>Back to my itinerary</Text></Pressable>
       ) : null}
       {chatLink ? (
         <Pressable style={styles.secondary} onPress={() => void openChat(chatLink)}><Text style={styles.secondaryText}>Chat on WhatsApp</Text></Pressable>

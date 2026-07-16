@@ -4,19 +4,18 @@ import { useRouter } from "expo-router";
 import { isTransportStop, type PlaceCandidate, type TripPlan } from "@shared/trip";
 import type { TripPlannerState } from "@/lib/useTripPlanner";
 import { useUserPreferences } from "@/lib/useUserPreferences";
+import { formatDuration } from "@/lib/travelLeg";
 import { colors, eyebrow, radius, spacing, type } from "@/lib/theme";
 import { BoboCard } from "./BoboCard";
 import { DestinationSearch } from "./DestinationSearch";
 import { GradientButton } from "./GradientButton";
 import { SafetyBriefCard } from "./SafetyBriefCard";
 import { SmartSuggestions } from "./SmartSuggestions";
-import { SmartJourneyOverview } from "./SmartJourneyOverview";
 import { SurfaceCard } from "./SurfaceCard";
 import { TripBookingSection } from "./TripBookingSection";
 import { TripFeasibilityCard } from "./TripFeasibilityCard";
 import { TripMap } from "./TripMap";
 import { TripPreferencesCard } from "./TripPreferencesCard";
-import { TripOrderEditor } from "./TripOrderEditor";
 import { TripStopList } from "./TripStopList";
 import { TripReservationSection } from "./TripReservationSection";
 import { useSavedDiscoveryTrips } from "@/lib/useSavedDiscoveryTrips";
@@ -25,6 +24,7 @@ import { addTripPlace } from "@/lib/api";
 interface Props extends Omit<TripPlannerState, "trip"> {
   trip: TripPlan;
   bookingId?: string;
+  confirmationSeen?: boolean;
 }
 
 export function TripPlanner(props: Props): React.ReactElement {
@@ -59,18 +59,7 @@ export function TripPlanner(props: Props): React.ReactElement {
       <View style={styles.mapFrame}>
         <TripMap tripId={props.trip.id} stops={props.trip.stops} orderedIds={props.selected} path={props.trip.route?.path ?? []} planning={props.trip.planning} />
       </View>
-      {!curated && !smart ? <TripOrderEditor stops={props.trip.stops} selected={props.selected} busy={props.busy} onReorder={props.reorder} onOptimize={props.optimize} /> : null}
-      {props.trip.planning ? <SmartJourneyOverview planning={props.trip.planning} stops={props.trip.stops} /> : null}
-      <TripFeasibilityCard trip={props.trip} selected={props.selected} />
-      <SmartSuggestions suggestions={props.suggestions} loaded={props.suggestionsLoaded} busy={props.busy} onLoad={props.suggest} onAdd={addSuggestion} />
-      {curated ? (
-        <SurfaceCard style={styles.planCard}>
-          <Text style={styles.planTitle}>Make this journey yours</Text>
-          <Text style={styles.description}>Add all stops to Trips, then edit the route and reserve eligible places.</Text>
-          <GradientButton label={savedId ? "Open my trip" : "Add to my trips"} busy={saved.busyId === props.trip.id} onPress={() => void planDiscovery()} />
-          {saved.error ? <Text style={styles.warning}>{saved.error}</Text> : null}
-        </SurfaceCard>
-      ) : smart ? null : (
+      {!curated && !smart ? (
         <TripPreferencesCard
           stops={props.trip.stops}
           selected={props.selected}
@@ -78,10 +67,36 @@ export function TripPlanner(props: Props): React.ReactElement {
           onChange={props.setPreferences}
           onApplyDefaults={props.applyDefaults}
         />
-      )}
-      {props.bookingId ? <TripBookingSection bookingId={props.bookingId} /> : null}
-      {!curated ? <TripReservationSection trip={props.trip} /> : null}
-      <TripStopList trip={props.trip} selected={props.selected} editable={!curated && !smart} onToggle={(id) => void props.toggle(id)} onDelete={(id) => void props.removeDestination(id)} />
+      ) : null}
+      <TripStopList
+        trip={props.trip}
+        selected={props.selected}
+        editable={!curated && !smart}
+        busy={props.busy}
+        onReorder={props.reorder}
+        onOptimize={props.optimize}
+        onToggle={(id) => void props.toggle(id)}
+        onDelete={(id) => void props.removeDestination(id)}
+      />
+      {props.trip.origin === "video" ? (
+        <SafetyBriefCard
+          tripId={props.trip.demo ? props.trip.id : undefined}
+          itineraryId={!props.trip.demo ? props.bookingId : undefined}
+          initialLanguage={user.defaults.safetyLanguage}
+        />
+      ) : null}
+      <SmartSuggestions suggestions={props.suggestions} loaded={props.suggestionsLoaded} busy={props.busy} onLoad={props.suggest} onAdd={addSuggestion} />
+      <TripFeasibilityCard trip={props.trip} selected={props.selected} />
+      {props.bookingId ? <TripBookingSection bookingId={props.bookingId} confirmationSeen={props.confirmationSeen} /> : null}
+      {!curated && !props.bookingId ? <TripReservationSection trip={props.trip} /> : null}
+      {curated ? (
+        <SurfaceCard style={styles.planCard}>
+          <Text style={styles.planTitle}>Make this journey yours</Text>
+          <Text style={styles.description}>Add all stops to Trips, then edit the route and reserve eligible places.</Text>
+          <GradientButton label={savedId ? "Open my trip" : "Add to my trips"} busy={saved.busyId === props.trip.id} onPress={() => void planDiscovery()} />
+          {saved.error ? <Text style={styles.warning}>{saved.error}</Text> : null}
+        </SurfaceCard>
+      ) : null}
       {!curated && !smart ? (
         <DestinationSearch
           results={props.searchResults}
@@ -91,13 +106,6 @@ export function TripPlanner(props: Props): React.ReactElement {
         />
       ) : null}
       <BoboCard compact title="Bobo route note" message={routeNote(props.trip)} />
-      {props.trip.origin === "video" ? (
-        <SafetyBriefCard
-          tripId={props.trip.demo ? props.trip.id : undefined}
-          itineraryId={!props.trip.demo ? props.bookingId : undefined}
-          initialLanguage={user.defaults.safetyLanguage}
-        />
-      ) : null}
     </ScrollView>
   );
 }
@@ -121,7 +129,7 @@ function TripSummary(props: Props): React.ReactElement {
       <View style={styles.metrics}>
         <Metric value={`${placeCount}`} label="places" />
         <Metric value={route ? `${(route.distance_meters / 1000).toFixed(1)} km` : "Not set"} label="distance" />
-        <Metric value={route ? `${route.duration_minutes} min` : "Ready"} label="route" />
+        <Metric value={route ? formatDuration(route.duration_minutes) : "Ready"} label="route" />
       </View>
       {route?.estimated_spend_myr !== undefined ? (
         <Text style={styles.spend}>

@@ -6,9 +6,10 @@ import { colors, type } from "@/lib/theme";
 import { useTripPlanner } from "@/lib/useTripPlanner";
 
 export default function TripScreen(): React.ReactElement {
-  const { id, bookingId } = useLocalSearchParams<{
+  const { id, bookingId, confirmationSeen } = useLocalSearchParams<{
     id: string;
     bookingId?: string;
+    confirmationSeen?: string;
   }>();
   const router = useRouter();
   const planner = useTripPlanner(id);
@@ -16,7 +17,7 @@ export default function TripScreen(): React.ReactElement {
     return (
       <View style={styles.screen}>
         <ScreenHeader title="Trip plan" onBack={() => router.back()} />
-        <TripPlanner {...planner} trip={planner.trip} bookingId={bookingId} />
+        <TripPlanner {...planner} trip={planner.trip} bookingId={bookingId} confirmationSeen={confirmationSeen === "1"} />
       </View>
     );
   }

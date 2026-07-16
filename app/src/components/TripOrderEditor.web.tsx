@@ -1,5 +1,5 @@
 import { createElement, useRef, type CSSProperties, type DragEvent } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { TripStop } from '@shared/trip';
 import { colors, eyebrow, radius, spacing, type } from '@/lib/theme';
@@ -10,7 +10,6 @@ interface Props {
   selected: string[];
   busy: boolean;
   onReorder: (ids: string[]) => Promise<void>;
-  onOptimize: () => Promise<void>;
 }
 
 export function TripOrderEditor(props: Props): React.ReactElement {
@@ -28,7 +27,7 @@ export function TripOrderEditor(props: Props): React.ReactElement {
   };
   return (
     <SurfaceCard style={styles.card}>
-      <View style={styles.header}><View><Text style={styles.eyebrow}>ROUTE ORDER</Text><Text style={styles.title}>Drag stops into your day</Text></View><Pressable accessibilityRole="button" disabled={props.busy} style={styles.optimize} onPress={() => void props.onOptimize()}><Ionicons name="sparkles" size={17} color={colors.kopi} /><Text style={styles.optimizeText}>{props.busy ? 'Checking…' : 'Optimize + check'}</Text></Pressable></View>
+      <View><Text style={styles.eyebrow}>ROUTE ORDER</Text><Text style={styles.title}>Drag stops into your day</Text></View>
       <Text style={styles.help}>Manual changes clear the old route. Drop a stop anywhere, then optimize to recalculate every leg and run the end-to-end critic.</Text>
       <View style={styles.list}>{ordered.map((stop, index) => {
         const dragProps = {
@@ -59,7 +58,6 @@ function orderedStops(stops: TripStop[], ids: string[]): TripStop[] {
 
 const styles = StyleSheet.create({
   card: { gap: spacing(3) },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing(3) },
   eyebrow: { ...eyebrow },
   title: { ...type.title, color: colors.ink },
   help: { ...type.caption, color: colors.inkSoft },
@@ -69,6 +67,4 @@ const styles = StyleSheet.create({
   numberText: { ...type.label, color: colors.sageDeep },
   name: { ...type.label, color: colors.ink, flex: 1 },
   dragLabel: { ...type.caption, color: colors.inkSoft },
-  optimize: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: spacing(1.5), paddingHorizontal: spacing(3), borderRadius: radius.control, backgroundColor: colors.kaya },
-  optimizeText: { ...type.label, color: colors.kopi },
 });

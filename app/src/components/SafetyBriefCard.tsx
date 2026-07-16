@@ -59,7 +59,7 @@ function useSafetyBrief(itineraryId: string | undefined, tripId: string | undefi
     setError(null);
     const request = tripId ? getTripVoiceBrief(tripId, lang) : getVoiceBrief(itineraryId ?? "", lang);
     request.then((data) => { if (active) setBrief(data); })
-      .catch((cause: Error) => { if (active) setError(cause.message); });
+      .catch(() => { if (active) setError("Safety brief is unavailable right now."); });
     return () => { active = false; };
   }, [itineraryId, lang, tripId]);
   return { brief, error };
@@ -72,7 +72,7 @@ function LanguageSelector({ value, onChange }: { value: BriefLang; onChange: (la
 function BriefContent({ brief, error, audioUrl }: { brief: VoiceBriefResponse | null; error: string | null; audioUrl: string | null }): React.ReactElement {
   if (error) return <Text style={styles.error}>{error}</Text>;
   if (!brief) return <ActivityIndicator color={colors.sage} />;
-  return <><Text style={styles.body}>{brief.text}</Text><VoiceButton key={audioUrl ?? "none"} audioUrl={audioUrl} label="Play safety brief" /><Text style={styles.caption}>Synthetic voice</Text></>;
+  return <><Text style={styles.body}>{brief.text}</Text><VoiceButton key={audioUrl ?? "none"} audioUrl={audioUrl} label="Play safety brief" /></>;
 }
 
 const styles = StyleSheet.create({
@@ -99,6 +99,5 @@ const styles = StyleSheet.create({
   langText: { ...type.label, color: colors.inkSoft },
   langTextActive: { color: colors.sageDeep },
   body: { ...type.body, color: colors.ink },
-  caption: { ...type.caption, color: colors.inkSoft },
   error: { ...type.caption, color: colors.danger },
 });

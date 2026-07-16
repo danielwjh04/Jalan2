@@ -11,8 +11,6 @@ export function SmartPlanComposer(): React.ReactElement {
   const router = useRouter();
   const [origin, setOrigin] = useState("Kuala Lumpur");
   const [destination, setDestination] = useState("Gopeng");
-  const [returnToOrigin, setReturnToOrigin] = useState(true);
-  const [endDestination, setEndDestination] = useState("Kuala Lumpur");
   const [startDate, setStartDate] = useState(defaultStartDate());
   const [days, setDays] = useState("2");
   const [travelers, setTravelers] = useState("2");
@@ -26,8 +24,8 @@ export function SmartPlanComposer(): React.ReactElement {
       const trip = await createSmartPlan({
         origin: origin.trim(),
         destination: destination.trim(),
-        return_to_origin: returnToOrigin,
-        end_destination: returnToOrigin ? null : endDestination.trim(),
+        return_to_origin: true,
+        end_destination: null,
         start_date: startDate.trim(),
         days: Number(days),
         travelers: Number(travelers),
@@ -44,20 +42,12 @@ export function SmartPlanComposer(): React.ReactElement {
   };
   return (
     <View style={styles.card}>
-      <View style={styles.headingRow}>
-        <View style={styles.copy}><Text style={styles.eyebrow}>NO POST? START FROM SCRATCH</Text><Text style={styles.title}>Build a trip from an idea instead</Text></View>
-        <Text style={styles.agentCount}>7 agents</Text>
-      </View>
-      <Text style={styles.intro}>Tell Jalan2 where you are going and what you like. The same planning agents will ground places, connect transport, balance days and flag booking gaps.</Text>
+      <View style={styles.copy}><Text style={styles.eyebrow}>PLAN A ROUND TRIP</Text><Text style={styles.title}>Trip planner</Text></View>
+      <Text style={styles.intro}>Choose where you want to go. Your route returns to the starting point.</Text>
       <View style={styles.row}>
         <Field label="From" value={origin} onChangeText={setOrigin} />
         <Field label="To" value={destination} onChangeText={setDestination} />
       </View>
-      <View><Text style={styles.label}>How does the journey finish?</Text><View style={styles.paces}>
-        <Pressable style={[styles.pace, returnToOrigin && styles.paceActive]} onPress={() => setReturnToOrigin(true)}><Text style={[styles.paceText, returnToOrigin && styles.paceTextActive]}>Return to start</Text></Pressable>
-        <Pressable style={[styles.pace, !returnToOrigin && styles.paceActive]} onPress={() => setReturnToOrigin(false)}><Text style={[styles.paceText, !returnToOrigin && styles.paceTextActive]}>End somewhere else</Text></Pressable>
-      </View></View>
-      {!returnToOrigin ? <Field label="Trip ends at" value={endDestination} onChangeText={setEndDestination} hint="Required final city or station" /> : <Text style={styles.endpointNote}>Final endpoint: {origin.trim() || "your starting point"}. Return EasyBook and KTMB options will be checked too.</Text>}
       <Field label="Start date" value={startDate} onChangeText={setStartDate} hint="YYYY-MM-DD" />
       <Field label="What sounds good?" value={interests} onChangeText={setInterests} hint="Comma-separated: diving, hiking, street food" />
       <View style={styles.row}>
@@ -66,10 +56,9 @@ export function SmartPlanComposer(): React.ReactElement {
         <Field small label="Budget (MYR)" value={budget} onChangeText={setBudget} keyboardType="number-pad" />
       </View>
       <View><Text style={styles.label}>Pace</Text><View style={styles.paces}>{PACES.map((item) => <Pressable key={item} style={[styles.pace, pace === item && styles.paceActive]} onPress={() => setPace(item)}><Text style={[styles.paceText, pace === item && styles.paceTextActive]}>{item}</Text></Pressable>)}</View></View>
-      <Pressable accessibilityRole="button" accessibilityLabel="Build my end-to-end trip" disabled={busy} style={styles.button} onPress={() => void submit()}>
-        {busy ? <ActivityIndicator color={colors.white} /> : <Text style={styles.buttonText}>Build my end-to-end trip</Text>}
+      <Pressable accessibilityRole="button" accessibilityLabel="Build my trip" disabled={busy} style={styles.button} onPress={() => void submit()}>
+        {busy ? <ActivityIndicator color={colors.white} /> : <Text style={styles.buttonText}>Build my trip</Text>}
       </Pressable>
-      <Text style={styles.boundary}>Provider-backed where possible. Estimates and missing confirmations stay visible.</Text>
     </View>
   );
 }
@@ -94,11 +83,9 @@ function Field(props: {
 
 const styles = StyleSheet.create({
   card: { padding: spacing(5), gap: spacing(3), backgroundColor: colors.card, borderRadius: radius.card, ...cardShadow },
-  headingRow: { flexDirection: "row", alignItems: "flex-start", gap: spacing(3) },
   copy: { flex: 1, gap: spacing(1) },
   eyebrow: { ...eyebrow },
   title: { ...type.display, color: colors.ink, fontSize: 27, lineHeight: 32 },
-  agentCount: { ...type.label, color: colors.sageDeep, backgroundColor: colors.halo, paddingHorizontal: spacing(2.5), paddingVertical: spacing(1), borderRadius: radius.pill, overflow: "hidden" },
   intro: { ...type.body, color: colors.inkSoft },
   row: { flexDirection: "row", flexWrap: "wrap", gap: spacing(2.5) },
   field: { flex: 1, minWidth: 210, gap: spacing(1) },
@@ -110,8 +97,6 @@ const styles = StyleSheet.create({
   paceActive: { backgroundColor: colors.sageDeep },
   paceText: { ...type.label, color: colors.inkSoft, textTransform: "capitalize" },
   paceTextActive: { color: colors.white },
-  endpointNote: { ...type.caption, color: colors.sageDeep, padding: spacing(2.5), borderRadius: radius.control, backgroundColor: colors.halo },
   button: { minHeight: 54, borderRadius: radius.control, backgroundColor: colors.danger, alignItems: "center", justifyContent: "center", paddingHorizontal: spacing(4) },
   buttonText: { ...type.button, color: colors.white },
-  boundary: { ...type.caption, color: colors.inkSoft, textAlign: "center" },
 });

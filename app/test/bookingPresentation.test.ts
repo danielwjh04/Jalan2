@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { Itinerary } from "@shared/status";
 import { bookingViewFor } from "../src/lib/bookingPresentation";
@@ -53,5 +55,15 @@ describe("booking presentation", () => {
   it("distinguishes an expired demo session from a network error", () => {
     expect(bookingViewFor(null, "Unknown itinerary old-id")).toBe("expired");
     expect(bookingViewFor(null, "Network request failed")).toBe("failed");
+  });
+
+  it("keeps booking photos and maps on separate surfaces", () => {
+    for (const file of ["MapCard.tsx", "MapCard.web.tsx"]) {
+      const source = readFileSync(resolve(__dirname, `../src/components/${file}`), "utf8");
+      expect(source).toContain("styles.photoSurface");
+      expect(source).toContain("styles.mapSurface");
+      expect(source).not.toContain("overflow: 'hidden'");
+      expect(source).not.toContain('overflow: "hidden"');
+    }
   });
 });

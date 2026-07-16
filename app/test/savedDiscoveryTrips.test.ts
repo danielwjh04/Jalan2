@@ -7,7 +7,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "../src");
 const read = (path: string): string => readFileSync(resolve(root, path), "utf8");
 
 describe("saved discovery trip workflow", () => {
-  it("offers the same planning action on Home and Discover cards", () => {
+  it("keeps saved-trip planning in Discover after removing More routes from Home", () => {
     const card = read("components/DiscoveryCard.tsx");
     const home = read("app/(tabs)/index.tsx");
     const discover = read("app/(tabs)/discover.tsx");
@@ -15,7 +15,8 @@ describe("saved discovery trip workflow", () => {
     expect(card).toContain("Plan this trip");
     expect(card).toContain("Open my trip");
     expect(card).toContain("onPlan");
-    expect(home).toContain("useSavedDiscoveryTrips");
+    expect(home).not.toContain("useSavedDiscoveryTrips");
+    expect(home).not.toContain("HomeDiscoveryPreview");
     expect(discover).toContain("useSavedDiscoveryTrips");
   });
 

@@ -1,58 +1,44 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { colors, hairline, radius, spacing, type } from "@/lib/theme";
 
 interface Props {
   selected: boolean;
   canRemove: boolean;
   editable: boolean;
+  onTioman: boolean;
   hasEasybook: boolean;
   onViewSource: () => void;
-  onToggle: () => void;
+  onDirections: () => void;
+  onGrab: () => void;
+  onIslandTransport: () => void;
+  onRemove: () => void;
   onEasybook: () => void;
   onDelete: () => void;
   onClose: () => void;
 }
 
 export function StopActionMenu(props: Props): React.ReactElement {
+  const showRemove = props.editable && props.selected && props.canRemove;
   return (
     <View accessibilityRole="menu" style={styles.menu}>
-      <ActionRow
-        icon="open-outline"
-        label="View source"
-        onPress={props.onViewSource}
-      />
-      {props.editable && (!props.selected || props.canRemove) ? (
-        <ActionRow
-          icon={props.selected ? "remove-circle-outline" : "add-circle-outline"}
-          label={props.selected ? "Remove from itinerary" : "Add to itinerary"}
-          onPress={props.onToggle}
-        />
-      ) : null}
-      {props.hasEasybook ? (
-        <ActionRow
-          icon="bus-outline"
-          label="Open EasyBook"
-          onPress={props.onEasybook}
-        />
-      ) : null}
-      {props.editable ? (
-        <ActionRow
-          destructive
-          icon="trash-outline"
-          label="Delete place"
-          onPress={props.onDelete}
-        />
-      ) : null}
-      <ActionRow icon="close-outline" label="Close" onPress={props.onClose} />
+      <Row label="View source" onPress={props.onViewSource} />
+      <Row label={props.onTioman ? "View on map" : "Directions"} onPress={props.onDirections} />
+      {props.onTioman ? (
+        <Row label="Island transport" onPress={props.onIslandTransport} />
+      ) : (
+        <Row label="Open Grab" onPress={props.onGrab} />
+      )}
+      {props.hasEasybook ? <Row label="Open EasyBook" onPress={props.onEasybook} /> : null}
+      {showRemove ? <Row label="Remove from itinerary" onPress={props.onRemove} /> : null}
+      {props.editable ? <Row danger label="Delete place" onPress={props.onDelete} /> : null}
+      <Row label="Close" onPress={props.onClose} />
     </View>
   );
 }
 
-function ActionRow(props: {
-  icon: React.ComponentProps<typeof Ionicons>["name"];
+function Row(props: {
   label: string;
-  destructive?: boolean;
+  danger?: boolean;
   onPress: () => void;
 }): React.ReactElement {
   return (
@@ -61,14 +47,7 @@ function ActionRow(props: {
       onPress={props.onPress}
       style={({ pressed }) => [styles.action, pressed && styles.pressed]}
     >
-      <Ionicons
-        name={props.icon}
-        size={19}
-        color={props.destructive ? colors.danger : colors.sageDeep}
-      />
-      <Text style={[styles.label, props.destructive && styles.destructive]}>
-        {props.label}
-      </Text>
+      <Text style={[styles.label, props.danger && styles.danger]}>{props.label}</Text>
     </Pressable>
   );
 }
@@ -82,14 +61,12 @@ const styles = StyleSheet.create({
   },
   action: {
     minHeight: 44,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing(2.5),
+    justifyContent: "center",
     paddingHorizontal: spacing(3),
     borderBottomWidth: 1,
     borderBottomColor: colors.mist,
   },
   pressed: { backgroundColor: colors.halo },
   label: { ...type.label, color: colors.ink },
-  destructive: { color: colors.danger },
+  danger: { color: colors.danger },
 });

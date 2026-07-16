@@ -2,7 +2,7 @@ import { Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from "r
 import { Ionicons } from "@expo/vector-icons";
 import type { DiscoveryCard } from "@shared/api";
 import { mediaUrl } from "@/lib/api";
-import { cardShadow, colors, eyebrow, fonts, hairline, radius, spacing, type } from "@/lib/theme";
+import { cardShadow, colors, hairline, radius, spacing, type } from "@/lib/theme";
 import { ImageAttribution } from "./ImageAttribution";
 
 interface Props {
@@ -19,31 +19,23 @@ export function DemoFlowShowcase({ discoveries, onOpen }: Props): React.ReactEle
   const cardWidth = (available - spacing(4) * (columns - 1)) / columns;
   return (
     <View style={styles.section}>
-      <View style={styles.headingRow}>
-        <View style={styles.headingCopy}>
-          <Text style={styles.eyebrow}>SEE FLOW 1 WORKING</Text>
-          <Text style={styles.heading}>Social finds turned into real journeys</Text>
-          <Text style={styles.intro}>These prepared XHS and TikTok stories show the itinerary result: grounded places, connected transport and the local operator handoff.</Text>
-        </View>
-        <View style={styles.livePill}><View style={styles.liveDot} /><Text style={styles.liveText}>READY TO RUN</Text></View>
-      </View>
+      <Text style={styles.heading}>Guides other users created</Text>
       <View style={styles.grid}>
-        {featured.map((discovery, index) => (
-          <DemoFlowCard key={discovery.id} discovery={discovery} index={index} width={cardWidth} onPress={() => onOpen(discovery.id)} />
+        {featured.map((discovery) => (
+          <DemoFlowCard key={discovery.id} discovery={discovery} width={cardWidth} onPress={() => onOpen(discovery.id)} />
         ))}
       </View>
     </View>
   );
 }
 
-function DemoFlowCard({ discovery, index, width, onPress }: { discovery: DiscoveryCard; index: number; width: number; onPress: () => void }): React.ReactElement {
+function DemoFlowCard({ discovery, width, onPress }: { discovery: DiscoveryCard; width: number; onPress: () => void }): React.ReactElement {
   const cover = mediaUrl(discovery.coverUrl);
   return (
     <View style={[styles.card, { width }]}>
       <View style={styles.coverWrap}>
         <Pressable accessibilityRole="button" style={({ pressed }) => pressed && styles.pressed} onPress={onPress}>
           {cover ? <Image source={{ uri: cover }} resizeMode="cover" style={styles.cover} /> : <View style={[styles.cover, styles.fallback]} />}
-          <View style={styles.demoPill}><Text style={styles.demoText}>DEMO {String(index + 1).padStart(2, "0")}</Text></View>
         </Pressable>
         <ImageAttribution items={discovery.coverAttributions} />
       </View>
@@ -58,7 +50,7 @@ function DemoFlowCard({ discovery, index, width, onPress }: { discovery: Discove
           {discovery.highlights.map((highlight) => <Text key={highlight} style={styles.highlight} numberOfLines={1}>{highlight}</Text>)}
         </View>
         <View style={styles.actionRow}>
-          <Text style={styles.action}>Run this demo</Text>
+          <Text style={styles.action}>Open guide</Text>
           <View style={styles.actionIcon}><Ionicons name="arrow-forward" size={16} color={colors.kopi} /></View>
         </View>
       </Pressable>
@@ -68,22 +60,13 @@ function DemoFlowCard({ discovery, index, width, onPress }: { discovery: Discove
 
 const styles = StyleSheet.create({
   section: { gap: spacing(4), marginTop: spacing(2) },
-  headingRow: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: spacing(3) },
-  headingCopy: { flex: 1, minWidth: 260, maxWidth: 650, gap: spacing(1) },
-  eyebrow: { ...eyebrow },
   heading: { ...type.display, color: colors.ink, fontSize: 28, lineHeight: 34 },
-  intro: { ...type.body, color: colors.inkSoft, maxWidth: 620 },
-  livePill: { flexDirection: "row", alignItems: "center", gap: spacing(1.5), backgroundColor: colors.confirmSoft, borderRadius: radius.pill, paddingHorizontal: spacing(3), paddingVertical: spacing(2) },
-  liveDot: { width: 7, height: 7, borderRadius: radius.pill, backgroundColor: colors.confirm },
-  liveText: { fontFamily: fonts.medium, fontSize: 9, letterSpacing: 1, color: colors.confirm },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: spacing(4) },
   card: { backgroundColor: colors.card, borderRadius: radius.card, overflow: "hidden", ...hairline, ...cardShadow },
   pressed: { opacity: 0.86, transform: [{ scale: 0.99 }] },
   coverWrap: { position: "relative" },
   cover: { width: "100%", height: 210 },
   fallback: { backgroundColor: colors.halo },
-  demoPill: { position: "absolute", top: spacing(3), left: spacing(3), backgroundColor: "rgba(255,255,255,0.94)", borderRadius: radius.pill, paddingHorizontal: spacing(3), paddingVertical: spacing(1.5) },
-  demoText: { fontFamily: fonts.medium, fontSize: 10, letterSpacing: 1.1, color: colors.ink },
   body: { padding: spacing(4), gap: spacing(2) },
   transportRow: { flexDirection: "row", alignItems: "center", gap: spacing(1) },
   transport: { ...type.label, color: colors.sageDeep },

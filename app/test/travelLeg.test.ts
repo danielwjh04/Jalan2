@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { TripStop } from "@shared/trip";
-import { destinationLabel, googleDirectionsUrl, initialTravelMode, travelEstimate } from "../src/lib/travelLeg";
+import { destinationLabel, formatDuration, googleDirectionsUrl, initialTravelMode, travelEstimate } from "../src/lib/travelLeg";
 
 const stop = (id: string, lat: number, lng: number, address?: string): TripStop => ({
   id,
@@ -35,5 +35,12 @@ describe("local travel legs", () => {
 
   it("copies the exact destination label for the Grab handoff", () => {
     expect(destinationLabel(to)).toBe("Petaling Street");
+  });
+
+  it("formats itinerary durations with the canonical words", () => {
+    expect(formatDuration(45)).toBe("45 min");
+    expect(formatDuration(60)).toBe("1 hr");
+    expect(formatDuration(90)).toBe("1 hr 30 min");
+    expect(formatDuration(250)).toBe("4 hr 10 min");
   });
 });

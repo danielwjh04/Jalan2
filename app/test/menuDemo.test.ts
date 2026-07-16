@@ -8,7 +8,7 @@ const read = (file: string): string => readFileSync(resolve(directory, `../src/$
 
 describe('menu photo demo', () => {
   it('is reachable from home and shows the scanned board', () => {
-    expect(read('lib/useHomeScreen.ts')).toContain('Try demo photo');
+    expect(read('components/MenuHowItWorks.tsx')).toContain('onDemo');
     expect(read('lib/menu.ts')).toContain("source === 'demo'");
     expect(read('app/(tabs)/menu/[id].tsx')).toContain('SCANNED MENU');
     expect(read('app/(tabs)/menu/[id].tsx')).toContain('sourceImageUrl');
@@ -20,9 +20,11 @@ describe('menu photo demo', () => {
     expect(read('components/MenuOrderSpeaker.tsx')).toContain('getMenuOrderAudio');
   });
 
-  it('exposes the menu demo as a direct home action', () => {
+  it('keeps the sample menu inside the optional how-it-works tutorial', () => {
     expect(read('components/CoreProductFlows.tsx')).toContain('KOPITIAM FOOD RECOGNITION');
-    expect(read('components/CoreProductFlows.tsx')).toContain('Try the 22-dish demo');
+    expect(read('components/CoreProductFlows.tsx')).toContain('MenuHowItWorks');
+    expect(read('components/CoreProductFlows.tsx')).not.toContain('Try the 22-dish demo');
+    expect(read('components/MenuHowItWorks.tsx')).toContain('Try sample menu');
     expect(read('app/(tabs)/index.tsx')).toContain('onMenuDemo={startMenuDemo}');
   });
 });

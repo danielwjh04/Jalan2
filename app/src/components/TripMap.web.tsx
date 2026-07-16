@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Alert, Image, Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Linking, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { ActionButton } from "./ActionButton";
 import type { ComponentType } from "react";
 import type { SmartPlanningMetadata } from "@shared/planner";
 import { isTransportStop, type GeoPoint, type TripStop } from "@shared/trip";
@@ -39,13 +40,15 @@ export function TripMap({ tripId, stops, orderedIds, planning }: Props): React.R
   return (
     <View style={styles.frame}>
       <View style={styles.topline}>
-        <View style={styles.headingCopy}><Text style={styles.label}>LIVE ROUTE MAP</Text><Text style={styles.title}>See the plan where it happens</Text></View>
+        <View style={styles.headingCopy}><Text style={styles.label}>LIVE ROUTE MAP</Text><Text style={styles.title}>Stops on the map</Text></View>
         <View style={styles.actions}>
-          {canChangeFocus ? <Pressable style={styles.focus} onPress={() => setWholeTrip((value) => !value)}><Text style={styles.focusText}>{wholeTrip ? "Focus destination" : "Show whole trip"}</Text></Pressable> : null}
-          <Pressable style={styles.open} onPress={() => void (tiomanPlan ? openTiomanTransport() : openGoogleMaps(ordered))}>
-            <Ionicons name={tiomanPlan ? "boat-outline" : "navigate-outline"} size={17} color={colors.kopi} />
-            <Text style={styles.openText}>{tiomanPlan ? "Island transport" : "Directions"}</Text>
-          </Pressable>
+          {canChangeFocus ? <ActionButton variant="ghost" underline label={wholeTrip ? "Focus destination" : "Show whole trip"} onPress={() => setWholeTrip((value) => !value)} /> : null}
+          <ActionButton
+            variant="tonal"
+            accessibilityRole="link"
+            label={tiomanPlan ? "Island transport" : "Open route in Maps"}
+            onPress={() => void (tiomanPlan ? openTiomanTransport() : openGoogleMaps(ordered))}
+          />
         </View>
       </View>
       <View style={styles.mapShell}>
@@ -61,7 +64,7 @@ export function TripMap({ tripId, stops, orderedIds, planning }: Props): React.R
         )}
       </View>
       <View style={styles.legend}>{shown.map((stop, index) => <View key={stop.id} style={styles.legendItem}><Text style={styles.legendNumber}>{index + 1}</Text><Text style={styles.legendName} numberOfLines={1}>{stop.name}</Text></View>)}</View>
-      <Text style={styles.note}>{googleFailed ? "Google Maps is unavailable, so this is the live OpenStreetMap fallback." : "Google Maps shows the destination area and itinerary order."} {tiomanPlan ? "Lines between villages are not roads; confirm water taxi or local 4WD transfers before travel." : "Open Directions for turn-by-turn road routing."}</Text>
+      <Text style={styles.note}>{googleFailed ? "Showing the OpenStreetMap fallback." : "Google Maps shows the area and stop order."} {tiomanPlan ? "Village lines are not roads; confirm water taxi or 4WD transfers." : "Open the route for turn-by-turn directions."}</Text>
     </View>
   );
 }
@@ -94,11 +97,7 @@ const styles = StyleSheet.create({
   headingCopy: { minWidth: 220, flex: 1 },
   label: { ...type.caption, color: colors.sageDeep, letterSpacing: 1.2 },
   title: { ...type.title, color: colors.ink },
-  actions: { flexDirection: "row", flexWrap: "wrap", gap: spacing(2) },
-  focus: { minHeight: 42, justifyContent: "center", paddingHorizontal: spacing(3), borderRadius: radius.control, backgroundColor: colors.halo },
-  focusText: { ...type.label, color: colors.sageDeep },
-  open: { minHeight: 42, flexDirection: "row", alignItems: "center", gap: spacing(1.5), paddingHorizontal: spacing(3), borderRadius: radius.control, backgroundColor: colors.kayaTint },
-  openText: { ...type.label, color: colors.kopi },
+  actions: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: spacing(2) },
   mapShell: { height: 390, overflow: "hidden", borderRadius: radius.control, backgroundColor: colors.halo },
   googleMap: { width: "100%", height: "100%" },
   googleBadge: { position: "absolute", left: spacing(2), bottom: spacing(2), borderRadius: radius.pill, backgroundColor: "rgba(255,255,255,0.92)", paddingHorizontal: spacing(2), paddingVertical: spacing(1) },

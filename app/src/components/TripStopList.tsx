@@ -1,8 +1,10 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { isTransportStop, type TripPlan, type TripStop } from "@shared/trip";
 import { colors, spacing, type } from "@/lib/theme";
+import { ActionButton } from "./ActionButton";
 import { EasybookTransitionCard } from "./EasybookTransitionCard";
+import { TripOrderEditor } from "./TripOrderEditor";
 import { TripOriginCard } from "./TripOriginCard";
 import { TripStopCard } from "./TripStopCard";
 import { TravelLegConnector } from "./TravelLegConnector";
@@ -11,18 +13,39 @@ interface Props {
   trip: TripPlan;
   selected: string[];
   editable: boolean;
+  busy: boolean;
+  onReorder: (ids: string[]) => Promise<void>;
+  onOptimize: () => Promise<void>;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
 }
 
 export function TripStopList(props: Props): React.ReactElement {
+  const [reordering, setReordering] = useState(false);
   const ordered = selectedStops(props.trip, props.selected);
   const available = props.trip.stops.filter((stop) => !props.selected.includes(stop.id));
   const startsWithTransport = ordered[0] ? isTransportStop(ordered[0]) : false;
   let placePosition = startsWithTransport ? 1 : 0;
   return (
     <View>
-      <Text style={styles.section}>Your itinerary</Text>
+      <View style={styles.sectionHead}>
+        <Text style={styles.sectionTitle}>Your itinerary</Text>
+        {props.editable ? (
+          <View style={styles.tools}>
+            <ActionButton
+              variant="tonal"
+              label="Reorder"
+              style={styles.tool}
+              accessibilityState={{ expanded: reordering }}
+              onPress={() => setReordering((value) => !value)}
+            />
+            <ActionButton variant="tonal" label="Optimise" style={styles.tool} onPress={() => void props.onOptimize()} />
+          </View>
+        ) : null}
+      </View>
+      {props.editable && reordering ? (
+        <TripOrderEditor stops={props.trip.stops} selected={props.selected} busy={props.busy} onReorder={props.onReorder} />
+      ) : null}
       {startsWithTransport ? <TripOriginCard name={routeLabels(ordered[0]).from} /> : null}
       {ordered.map((stop, index) => {
         if (isTransportStop(stop)) return <TransportTransition key={stop.id} {...props} stop={stop} ordered={ordered} index={index} />;
@@ -40,7 +63,7 @@ export function TripStopList(props: Props): React.ReactElement {
         );
       })}
       {available.length ? <Text style={styles.section}>Available places</Text> : null}
-      {available.map((stop) => <TripStopCard key={stop.id} stop={stop} position={null} isLast canRemove onToggle={() => props.onToggle(stop.id)} onDelete={() => props.onDelete(stop.id)} />)}
+      {available.map((stop) => <TripStopCard key={stop.id} stop={stop} position={null} isLast canRemove editable={props.editable} onToggle={() => props.onToggle(stop.id)} onDelete={() => props.onDelete(stop.id)} />)}
     </View>
   );
 }
@@ -67,4 +90,8 @@ function routeLabels(stop: TripStop): { from: string; to: string } {
 
 const styles = StyleSheet.create({
   section: { ...type.title, color: colors.ink, marginTop: spacing(2), marginBottom: spacing(3) },
+  sectionHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing(2), marginTop: spacing(2), marginBottom: spacing(3) },
+  sectionTitle: { ...type.title, color: colors.ink },
+  tools: { flexDirection: "row", gap: spacing(2) },
+  tool: { minHeight: 36, paddingHorizontal: spacing(3) },
 });

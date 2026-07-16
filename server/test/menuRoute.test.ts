@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { loadCachedMenu } from '../src/lib/fixtures';
+import { findMenuImagePath, loadCachedMenu } from '../src/lib/fixtures';
 import { attachDishImages, produceMenu, type MenuDeps } from '../src/pipeline/menu';
 import { loadConfig } from '../src/config';
 import { createMenu, getMenu, resetMenus } from '../src/store/menus';
@@ -23,6 +23,20 @@ describe('produceMenu', () => {
       if (dish.image_url) expect(dish.image_attributions).not.toHaveLength(0);
     }
     expect(result.menu.dishes.some((dish) => dish.name_local.includes('Mi Udang'))).toBe(true);
+  });
+
+  it('gives every cached dish a local attributed photo', () => {
+    const menu = loadCachedMenu();
+    if (!menu) throw new Error('Missing cached menu');
+    expect(menu.dishes).toHaveLength(22);
+    for (const dish of menu.dishes) {
+      expect(typeof dish.image_url, dish.name_local).toBe('string');
+      if (typeof dish.image_url !== 'string') continue;
+      expect(dish.image_url, dish.name_local).toMatch(/^\/menu-images\/kopitiam-01\/[a-z0-9.-]+\.(jpg|jpeg|png)$/);
+      expect(dish.image_attributions, dish.name_local).not.toHaveLength(0);
+      const file = dish.image_url.split('/').at(-1);
+      expect(file && findMenuImagePath('kopitiam-01', file), dish.name_local).not.toBeNull();
+    }
   });
 
   it('falls back to the fixture in auto mode without OpenAI', async () => {

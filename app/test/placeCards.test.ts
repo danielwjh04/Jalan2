@@ -11,7 +11,7 @@ const suggestions = readFileSync(resolve(directory, '../src/components/SmartSugg
 describe('place cards', () => {
   it('labels destination guidance and uses the shared place image', () => {
     expect(tripCard).toContain('<PlaceImage');
-    expect(tripCard).toContain('What to do');
+    expect(tripCard).toContain('stop.summary');
   });
 
   it('shows a photo and activity suggestion in Google search results', () => {

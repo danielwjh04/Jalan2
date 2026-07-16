@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { isTransportStop, type TripPlan } from "@shared/trip";
 import { colors, radius, spacing, type } from "@/lib/theme";
 import { tryOpenExternalUrl } from "@/lib/externalLink";
+import { formatDuration } from "@/lib/travelLeg";
 import { SurfaceCard } from "./SurfaceCard";
 
 interface Props { trip: TripPlan; selected: string[]; }
@@ -52,12 +53,6 @@ function assessmentForPlan(days: number, requested: number): { days: number; ver
   if (days > requested) return { days, verdict: "The requested duration is too tight.", note: "The scheduler added time instead of hiding an impossible connection." };
   if (days > 1) return { days, verdict: "Yes, split across grounded day plans.", note: "Critical transport confirmations must still be completed before travel." };
   return { days: 1, verdict: "Yes, with the current estimated buffers.", note: "Recheck provider handoffs and opening hours before departure." };
-}
-
-function formatDuration(minutes: number): string {
-  const hours = Math.floor(minutes / 60);
-  const rest = minutes % 60;
-  return `${hours}h${rest ? ` ${rest}m` : ""}`;
 }
 
 function hotelDestination(region: string): string {
