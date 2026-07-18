@@ -150,4 +150,13 @@ describe('menu store', () => {
   it('returns undefined for unknown ids', () => {
     expect(getMenu('nope')).toBeUndefined();
   });
+
+  it('can use a stable id for a stateless cached menu', () => {
+    const menu = loadCachedMenu();
+    if (!menu) throw new Error('Missing cached menu');
+    const stored = createMenu(menu, 'cache', menu.dishes.map(() => null), null, 'demo-kopitiam-01');
+
+    expect(stored.id).toBe('demo-kopitiam-01');
+    expect(getMenu('demo-kopitiam-01')?.menu.dishes).toHaveLength(menu.dishes.length);
+  });
 });

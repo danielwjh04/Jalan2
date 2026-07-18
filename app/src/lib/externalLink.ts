@@ -1,8 +1,10 @@
+import { Linking } from "react-native";
+
 export type UrlOpener = (url: string) => Promise<unknown>;
 
 export async function tryOpenExternalUrl(
   url: string,
-  open: UrlOpener,
+  open: UrlOpener = (target) => Linking.openURL(target),
 ): Promise<boolean> {
   try {
     await open(url);

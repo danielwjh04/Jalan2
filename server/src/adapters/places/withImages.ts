@@ -8,7 +8,7 @@ export function withLicensedPlaceImages(
 ): PlacesProvider {
   return {
     name: places.name,
-    photo: (placeId) => places.photo(placeId),
+    photo: (placeId, index) => places.photo(placeId, index),
     withImages: (candidates) => attachAll(candidates, images),
     nearbyPopular: places.nearbyPopular
       ? async (center, radiusMeters) => places.nearbyPopular?.(center, radiusMeters) ?? []

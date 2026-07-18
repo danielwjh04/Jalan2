@@ -1,4 +1,4 @@
-import { Alert, Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { isTransportStop, type TripPlan } from "@shared/trip";
 import { colors, radius, spacing, type } from "@/lib/theme";
@@ -61,7 +61,7 @@ function hotelDestination(region: string): string {
 
 async function openHotelSearch(destination: string, plannedUrl?: string | null): Promise<void> {
   const url = plannedUrl ?? `https://www.agoda.com/search?text=${encodeURIComponent(destination)}`;
-  if (await tryOpenExternalUrl(url, Linking.openURL)) return;
+  if (await tryOpenExternalUrl(url)) return;
   Alert.alert("Could not open Agoda", "Search for accommodation again later.");
 }
 

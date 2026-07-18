@@ -10,7 +10,7 @@ describe('KTMB official ticket handoff', () => {
 
   it('offers KITS only when both journey boundaries are rail-served', () => {
     expect(findKtmbRoute('Kuala Lumpur', 'Ipoh')).toEqual({
-      url: 'https://online.ktmb.com.my/TimeTable/Search',
+      url: 'https://online.ktmb.com.my/',
       originStation: 'KL Sentral',
       destinationStation: 'Ipoh',
     });

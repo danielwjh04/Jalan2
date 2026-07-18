@@ -19,10 +19,16 @@ export function buildFusionMessages(
   evidence: FusionEvidence,
 ): OpenAI.Chat.Completions.ChatCompletionMessageParam[] {
   const system = [
-    'You fuse evidence from a Malaysian adventure-tourism video into one booking record.',
+    'You fuse evidence from a Malaysian travel post into one grounded booking record.',
     'Rules:',
     '- Use only the supplied caption, transcript, and vision readout. Never invent.',
+    '- The activity and meeting point must describe the post\'s main trip or first explicit',
+    '  itinerary stop, not a hashtag, sponsor, incidental product, or place inferred from scenery.',
     '- Prefer null over a guessed price, phone number, or date.',
+    '- price_myr is the price of the selected booking activity only. A parking,',
+    '  meal, hotel, entrance, or other stop price must never become the activity',
+    '  price. Use null unless the amount and activity are tied together in the',
+    '  same caption passage, transcript segment, or frame.',
     '- pax is the tourist party size. No tourist choice exists during ingestion,',
     '  so always set pax to 2. Never use tour capacity or available seats.',
     '- date_requested is chosen by the tourist after ingestion. Always set it to null;',
@@ -77,7 +83,7 @@ export async function fuse(
   const messages = buildFusionMessages(evidence);
   const first = await requestBooking(client, model, messages);
   const validated = validateFusedBooking(first);
-  if (validated.ok) return validated.booking;
+  if (validated.ok) return enforceFieldEvidence(validated.booking, evidence);
   const second = await requestBooking(client, model, [
     ...messages,
     { role: 'assistant', content: JSON.stringify(first) },
@@ -87,8 +93,101 @@ export async function fuse(
     },
   ]);
   const revalidated = validateFusedBooking(second);
-  if (revalidated.ok) return revalidated.booking;
+  if (revalidated.ok) return enforceFieldEvidence(revalidated.booking, evidence);
   throw new Error(`Fusion failed validation twice: ${revalidated.problems.join('; ')}`);
+}
+
+function enforceFieldEvidence(booking: BookingJson, evidence: FusionEvidence): BookingJson {
+  return removeUngroundedContact(removeUngroundedPrice(booking, evidence), evidence);
+}
+
+export function removeUngroundedPrice(
+  booking: BookingJson,
+  evidence: FusionEvidence,
+): BookingJson {
+  if (booking.price_myr === null) return booking;
+  const amount = String(booking.price_myr);
+  const selectedFrame = evidence.vision.frames.find((frame) => frame.ts === booking.raw_evidence.frame_ts);
+  const frameGrounded = selectedFrame?.price_candidates.some((candidate) =>
+    numericAmount(candidate) === amount) && mentionsActivity(
+    selectedFrame?.on_screen_text ?? '', booking.activity,
+  );
+  const quoteGrounded = numericAmount(booking.raw_evidence.transcript_span) === amount;
+  const segmentGrounded = evidence.transcript.segments.some((segment) =>
+    numericAmount(segment.text) === amount && mentionsActivity(segment.text, booking.activity));
+  const captionGrounded = nearbyPriceMentionsActivity(evidence.caption, amount, booking.activity);
+  return frameGrounded || quoteGrounded || segmentGrounded || captionGrounded
+    ? booking
+    : { ...booking, price_myr: null };
+}
+
+export function removeUngroundedContact(
+  booking: BookingJson,
+  evidence: FusionEvidence,
+): BookingJson {
+  const whatsapp = booking.contact.whatsapp;
+  if (!whatsapp) return booking;
+  const number = phoneDigits(whatsapp);
+  const grounded = booking.contact.source === 'vision'
+    ? evidence.vision.frames
+      .find((frame) => frame.ts === booking.raw_evidence.frame_ts)
+      ?.phone_candidates.some((candidate) => phoneDigits(candidate) === number) ?? false
+    : booking.contact.source === 'speech'
+      ? evidence.transcript.segments.some((segment) =>
+        containsPhone(segment.text, number) && mentionsActivity(segment.text, booking.activity))
+      : captionSegmentGroundsContact(evidence.caption, number, booking.activity);
+  return grounded ? booking : {
+    ...booking,
+    contact: { ...booking.contact, whatsapp: null },
+  };
+}
+
+function captionSegmentGroundsContact(
+  caption: string | null,
+  number: string,
+  activity: string,
+): boolean {
+  if (!caption) return false;
+  return caption.split(/[\n.!?。！？]+/u).some((segment) =>
+    containsPhone(segment, number) && mentionsActivity(segment, activity));
+}
+
+function containsPhone(text: string, expected: string): boolean {
+  const candidates = text.match(/(?:\+?60|0)\s*\d(?:[\s-]*\d){7,10}/g) ?? [];
+  return candidates.some((candidate) => phoneDigits(candidate) === expected);
+}
+
+function phoneDigits(value: string): string {
+  const digits = value.replace(/\D/g, '');
+  return digits.startsWith('0') ? `60${digits.slice(1)}` : digits;
+}
+
+function nearbyPriceMentionsActivity(
+  text: string | null,
+  amount: string,
+  activity: string,
+): boolean {
+  if (!text) return false;
+  const price = new RegExp(`(?:RM\\s*)?${escapeRegex(amount)}(?:\\.00)?`, 'i');
+  return text
+    .split(/[\n.!?。！？]+/u)
+    .some((segment) => price.test(segment) && mentionsActivity(segment, activity));
+}
+
+function mentionsActivity(text: string, activity: string): boolean {
+  const lowered = text.toLowerCase();
+  const tokens = activity.toLowerCase().match(/[a-z]{4,}/g) ?? [];
+  return tokens.some((token) => lowered.includes(token));
+}
+
+function numericAmount(text: string): string | null {
+  const match = text.match(/(?:RM\s*)?(\d+(?:\.\d{1,2})?)/i);
+  if (!match) return null;
+  return String(Number(match[1]));
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 async function requestBooking(

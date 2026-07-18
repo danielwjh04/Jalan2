@@ -22,9 +22,10 @@ export function createMenu(
   servedFrom: 'live' | 'cache',
   dishAudio: (string | null)[],
   sourceImage: MenuSourceImage | null = null,
+  id: string = randomUUID(),
 ): StoredMenu {
   const stored: StoredMenu = {
-    id: randomUUID(),
+    id,
     menu,
     servedFrom,
     dishAudio,

@@ -18,6 +18,9 @@ describe('menu photo demo', () => {
     expect(read('components/MenuOrderSpeaker.tsx')).toContain('Cantonese');
     expect(read('components/MenuOrderSpeaker.tsx')).toContain('Mandarin');
     expect(read('components/MenuOrderSpeaker.tsx')).toContain('getMenuOrderAudio');
+    expect(read('lib/menu.ts')).toContain("createMenuScanSession({ mode: 'demo' })");
+    expect(read('app/menu-scan.tsx')).toContain('postMenuDemo()');
+    expect(read('app/menu-scan.tsx')).toContain('AgentProgress');
   });
 
   it('keeps the sample menu inside the optional how-it-works tutorial', () => {

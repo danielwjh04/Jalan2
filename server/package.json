@@ -3,7 +3,12 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "main": "lib/firebase.js",
+  "engines": {
+    "node": "22"
+  },
   "scripts": {
+    "build": "esbuild src/firebase.ts --bundle --platform=node --target=node22 --format=esm --outfile=lib/firebase.js --packages=external --sourcemap",
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
     "smoke:extractors": "tsx scripts/smoke-extractors.ts",
@@ -18,14 +23,19 @@
     "express": "^4.19.2",
     "ffmpeg-static": "^5.2.0",
     "ffprobe-static": "^3.1.0",
+    "firebase-admin": "^13.6.0",
+    "firebase-functions": "^6.6.0",
+    "google-auth-library": "^9.15.1",
     "openai": "^4.56.0",
     "sharp": "^0.35.3",
-    "twilio": "^5.2.0"
+    "twilio": "^5.2.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/ffprobe-static": "^2.0.3",
     "@types/node": "^22.5.0",
+    "esbuild": "^0.28.1",
     "tsx": "^4.19.0",
     "typescript": "^5.5.4"
   }

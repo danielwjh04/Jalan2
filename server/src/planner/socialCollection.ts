@@ -6,6 +6,7 @@ import {
   type TripStop,
 } from '@shared/trip';
 import type { RoutingProvider } from '../adapters/routing/types';
+import type { PlacesProvider } from '../adapters/places/types';
 import { saveTrip } from '../store/trips';
 import { planImportedTrip } from './importedTripPlanner';
 import type { PlanCritic } from './planCritic';
@@ -21,6 +22,7 @@ export async function createSocialCollectionTrip(
   critic?: PlanCritic,
   title?: string,
   save: (trip: TripPlan) => TripPlan = saveTrip,
+  places?: PlacesProvider,
 ): Promise<TripPlan> {
   const stops = mergeStops(selections);
   if (stops.length < 2) throw new Error('Choose at least two places');
@@ -44,7 +46,7 @@ export async function createSocialCollectionTrip(
     route: null,
     planning: null,
   };
-  return save(await planImportedTrip(base, routing, critic));
+  return save(await planImportedTrip(base, routing, critic, places));
 }
 
 function mergeStops(selections: SocialTripSelection[]): TripStop[] {

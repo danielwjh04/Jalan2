@@ -1,6 +1,6 @@
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import { postMenu, postMenuDemo } from './api';
+import { createMenuScanSession } from './menuScanSession';
 
 const PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
   mediaTypes: ['images'],
@@ -19,19 +19,19 @@ async function pickPhoto(source: MenuSource): Promise<ImagePicker.ImagePickerRes
   return ImagePicker.launchImageLibraryAsync(PICKER_OPTIONS);
 }
 
-// The menu twin of ingestVideo: camera and library both land here, the photo
-// goes to the backend, and the app navigates to the resulting swipe deck.
+// The menu twin of ingestVideo: camera and library both land here and the app
+// navigates to the resulting swipe deck. The stage build uses the validated
+// menu cache after a real picker interaction; /menu still serves live vision.
 export async function scanMenu(source: MenuSource): Promise<boolean> {
   if (source === 'demo') {
-    const menu = await postMenuDemo();
-    router.push(`/menu/${menu.id}`);
+    router.push({ pathname: '/menu-scan', params: { session: createMenuScanSession({ mode: 'demo' }) } });
     return true;
   }
   const result = await pickPhoto(source);
   const asset = result.canceled ? null : result.assets[0];
   if (!asset?.base64) return false;
   const mimeType = asset.mimeType === 'image/png' ? 'image/png' : 'image/jpeg';
-  const menu = await postMenu({ imageBase64: asset.base64, mimeType });
-  router.push(`/menu/${menu.id}`);
+  const session = createMenuScanSession({ mode: 'live', imageBase64: asset.base64, mimeType });
+  router.push({ pathname: '/menu-scan', params: { session } });
   return true;
 }

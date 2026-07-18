@@ -1,8 +1,8 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import type { GeoPoint, TripStop } from "@shared/trip";
 import type { SmartPlanningMetadata } from "@shared/planner";
-import { colors } from "@/lib/theme";
+import { colors, fonts } from "@/lib/theme";
 
 interface Props {
   tripId: string;
@@ -46,8 +46,12 @@ export function TripMap({
               longitude: stop.location.lng,
             }}
             title={`${index + 1}. ${stop.name}`}
-            pinColor={index === 0 ? colors.kaya : colors.sage}
-          />
+            anchor={{ x: 0.5, y: 1 }}
+          >
+            <View style={[styles.pin, index === 0 && styles.pinStart]}>
+              <Text style={styles.pinText}>{index + 1}</Text>
+            </View>
+          </Marker>
         ))}
       </MapView>
     </View>
@@ -66,4 +70,17 @@ function mapRegion(points: GeoPoint[]): { latitude: number; longitude: number; l
 const styles = StyleSheet.create({
   frame: { overflow: "hidden", backgroundColor: colors.mist },
   map: { width: "100%", height: 300 },
+  pin: {
+    minWidth: 34,
+    height: 34,
+    paddingHorizontal: 7,
+    borderRadius: 17,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.sage,
+    borderWidth: 3,
+    borderColor: colors.white,
+  },
+  pinStart: { backgroundColor: colors.kaya },
+  pinText: { color: colors.white, fontFamily: fonts.semibold, fontSize: 13 },
 });

@@ -4,18 +4,20 @@
     "slug": "jalan2",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/icon-bobo-malaysia.png",
     "scheme": "jalan2",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jalan2.app",
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "Jalan2 connects to the development server on your Mac while testing the app."
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#050505",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#10A6E8",
+        "foregroundImage": "./assets/images/icon-bobo-malaysia.png"
       },
       "predictiveBackGestureEnabled": false
     },

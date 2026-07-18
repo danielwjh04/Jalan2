@@ -1,4 +1,4 @@
-import { Alert, Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import type { DiscoveredOperator } from "@shared/status";
 import { tryOpenExternalUrl } from "@/lib/externalLink";
@@ -64,7 +64,7 @@ function ChannelButtons({
 }
 
 async function openSource(url: string): Promise<void> {
-  if (await tryOpenExternalUrl(url, Linking.openURL)) return;
+  if (await tryOpenExternalUrl(url)) return;
   Alert.alert("Could not open the source", url);
 }
 

@@ -31,6 +31,7 @@ export async function attachDishImages(
           localName: dish.name_local,
           englishName: dish.name_english,
           searchQuery: dish.image_search_query,
+          stallName: menu.stall_name,
         };
         const candidates = foodImages.findDishPhotos
           ? await foodImages.findDishPhotos(query, 5)
@@ -39,7 +40,7 @@ export async function attachDishImages(
         if (!photo) return dish;
         return {
           ...dish,
-          image_url: photo.imageUrl,
+          image_url: photo.displayUrl ?? photo.imageUrl,
           image_attributions: photo.imageAttributions,
         };
       } catch {

@@ -10,12 +10,13 @@ import { SwipeDeck } from "@/components/SwipeDeck";
 import { MenuPointingGuide } from "@/components/MenuPointingGuide";
 import { MenuOrderSpeaker } from "@/components/MenuOrderSpeaker";
 import { getMenu, serverUrl } from "@/lib/api";
+import { cachedMenuResponse } from "@/lib/menuScanSession";
 import { colors, eyebrow, radius, spacing, type } from "@/lib/theme";
 
 export default function MenuScreen(): React.ReactElement {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const [data, setData] = useState<MenuResponse | null>(null);
+  const [data, setData] = useState<MenuResponse | null>(() => id ? cachedMenuResponse(id) : null);
   const [error, setError] = useState<string | null>(null);
   const load = useCallback(async (): Promise<void> => {
     if (!id) return;
@@ -26,7 +27,7 @@ export default function MenuScreen(): React.ReactElement {
       setError(cause instanceof Error ? cause.message : "Could not load menu");
     }
   }, [id]);
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => { if (!data) void load(); }, [data, load]);
   return (
     <View style={styles.screen}>
       <ScreenHeader title="Menu guide" onBack={() => router.back()} />

@@ -16,11 +16,12 @@ const FIELD_MASK = [
   'places.primaryTypeDisplayName',
   'places.photos',
   'places.regularOpeningHours.periods',
+  'places.regularOpeningHours.weekdayDescriptions',
   'places.rating',
   'places.userRatingCount',
 ].join(',');
 
-const TimeSchema = z.object({ hour: z.number(), minute: z.number().optional() });
+const TimeSchema = z.object({ day: z.number().int().min(0).max(6).default(0), hour: z.number(), minute: z.number().optional() });
 const PeriodSchema = z.object({ open: TimeSchema, close: TimeSchema.optional() });
 const AttributionSchema = z.object({
   displayName: z.string(),
@@ -44,6 +45,7 @@ const PlaceSchema = z.object({
   photos: z.array(PhotoSchema).optional(),
   regularOpeningHours: z.object({
     periods: z.array(PeriodSchema),
+    weekdayDescriptions: z.array(z.string()).optional(),
   }).optional(),
   rating: z.number().optional(),
   userRatingCount: z.number().int().nonnegative().optional(),
@@ -77,8 +79,8 @@ export function createGooglePlaces(apiKey: string): PlacesProvider {
       if (!response.ok) throw new Error(`Google Places Nearby failed (${response.status})`);
       return parseGooglePlaces(await response.json());
     },
-    photo(placeId) {
-      return fetchGooglePlacePhoto(apiKey, placeId);
+    photo(placeId, index) {
+      return fetchGooglePlacePhoto(apiKey, placeId, index);
     },
   };
 }
@@ -105,6 +107,8 @@ function toCandidate(place: z.infer<typeof PlaceSchema>): PlaceCandidate {
     location: { lat: place.location.latitude, lng: place.location.longitude },
     google_maps_url: mapsUrl,
     opening_window: firstOpeningWindow(place.regularOpeningHours?.periods ?? []),
+    opening_periods: openingPeriods(place.regularOpeningHours?.periods ?? []),
+    opening_hours_text: place.regularOpeningHours?.weekdayDescriptions ?? [],
     suggested_activity: activityFor(place.primaryType, place.primaryTypeDisplayName?.text),
     primary_type: place.primaryType ?? null,
     reservation_hint: null,
@@ -181,6 +185,17 @@ function firstOpeningWindow(
   const open = first.open.hour * 60 + (first.open.minute ?? 0);
   const close = first.close.hour * 60 + (first.close.minute ?? 0);
   return close > open ? { open_minute: open, close_minute: close } : null;
+}
+
+function openingPeriods(periods: z.infer<typeof PeriodSchema>[]): NonNullable<PlaceCandidate['opening_periods']> {
+  return periods.flatMap((period) => {
+    if (!period.close) return [];
+    const open = period.open.hour * 60 + (period.open.minute ?? 0);
+    const close = period.close.day === period.open.day
+      ? period.close.hour * 60 + (period.close.minute ?? 0)
+      : 1440;
+    return close > open ? [{ day: period.open.day, open_minute: open, close_minute: close }] : [];
+  });
 }
 
 function mapsSearchUrl(name: string): string {

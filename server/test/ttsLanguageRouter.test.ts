@@ -31,10 +31,21 @@ describe('language-routing TTS', () => {
     expect(cantonese.synthesize).not.toHaveBeenCalled();
   });
 
-  it('never sends Cantonese to ElevenLabs or a Maps-only key', async () => {
-    const routed = pickTts(loadConfig({ TTS_PROVIDER: 'cached', GOOGLE_MAPS_API_KEY: 'maps-only' }));
+  it('uses the enabled shared Google key for Cantonese when no dedicated key is set', async () => {
+    const fetcher = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      audioContent: Buffer.from('cantonese').toString('base64'),
+    }), { status: 200, headers: { 'content-type': 'application/json' } }));
+    const routed = pickTts(loadConfig({ TTS_PROVIDER: 'cached', GOOGLE_MAPS_API_KEY: 'shared-google-key' }));
 
-    await expect(routed.synthesize({ ...baseRequest, languageCode: 'yue-HK' }))
-      .rejects.toThrow('Set a dedicated GOOGLE_CLOUD_TTS_API_KEY');
+    await expect(routed.synthesize({
+      ...baseRequest,
+      languageCode: 'yue-HK',
+      voiceName: 'yue-HK-Standard-A',
+    })).resolves.toEqual(Buffer.from('cantonese'));
+    expect(fetcher).toHaveBeenCalledWith(
+      expect.stringContaining('key=shared-google-key'),
+      expect.objectContaining({ method: 'POST' }),
+    );
+    fetcher.mockRestore();
   });
 });

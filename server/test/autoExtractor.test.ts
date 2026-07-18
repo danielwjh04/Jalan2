@@ -54,4 +54,13 @@ describe('pickExtractor with EXTRACTOR=auto', () => {
     const result = await picked.extract(normalized?.url ?? '');
     expect(result.fixtureSlug).toBe('kuching-city-guide-01');
   });
+
+  it('does not substitute a fixture when live mode is explicit', async () => {
+    const picked = pickExtractor(loadConfig({
+      EXTRACTOR: 'tikhub',
+      PIPELINE_MODE: 'live',
+    }));
+    const normalized = normalizeVideoUrl('https://vt.tiktok.com/ZSCt5cY1k/');
+    await expect(picked.extract(normalized?.url ?? '')).rejects.toThrow(/TikHub extractor/);
+  });
 });

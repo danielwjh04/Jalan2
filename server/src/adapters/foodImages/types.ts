@@ -2,6 +2,7 @@ import type { ImageAttribution } from '@shared/media';
 
 export interface DishPhoto {
   imageUrl: string;
+  displayUrl?: string;
   imageAttributions: ImageAttribution[];
 }
 
@@ -9,10 +10,11 @@ export interface DishImageQuery {
   localName: string;
   englishName: string;
   searchQuery: string;
+  stallName?: string | null;
 }
 
 export interface FoodImageProvider {
-  readonly name: 'wikimedia' | 'openverse' | 'unsplash' | 'licensed-chain';
+  readonly name: 'wikimedia' | 'openverse' | 'unsplash' | 'google-places' | 'licensed-chain';
   findDishPhoto(query: DishImageQuery): Promise<DishPhoto | null>;
   findDishPhotos?(query: DishImageQuery, limit: number): Promise<DishPhoto[]>;
 }

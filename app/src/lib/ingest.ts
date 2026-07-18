@@ -1,7 +1,5 @@
 import { router, type Href } from "expo-router";
 import { normalizeVideoUrl } from "@shared/videoUrl";
-import { ingest } from "./api";
-import { ingestDestination } from "./ingestDestination";
 
 // The one handler. The paste bar, the demo shortcuts, the dev share
 // simulator, and the native share intent all converge here; nothing
@@ -9,6 +7,8 @@ import { ingestDestination } from "./ingestDestination";
 export async function ingestVideo(raw: string): Promise<void> {
   const normalized = normalizeVideoUrl(raw);
   if (!normalized) throw new Error("That does not look like a video link");
-  const result = await ingest(normalized.url);
-  router.push(ingestDestination(result) as Href);
+  router.push({
+    pathname: "/social-plan",
+    params: { urls: normalized.url, auto: "1" },
+  } as Href);
 }

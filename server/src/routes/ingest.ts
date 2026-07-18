@@ -8,6 +8,7 @@ import {
   loadCachedTrip,
   resolveFixtureSlug,
 } from "../lib/fixtures";
+import { resolveVideoShareUrl } from "../lib/videoRedirect";
 import { runPipeline, type PipelineDeps } from "../pipeline/run";
 import { createItinerary, setBooking, setStage, setTripId } from "../store/itineraries";
 
@@ -18,7 +19,7 @@ interface PreparedTripBooking {
 
 export function ingestRouter(deps: PipelineDeps): Router {
   const router = Router();
-  router.post("/ingest", (req, res) => {
+  router.post("/ingest", async (req, res) => {
     const raw = typeof req.body?.url === "string" ? req.body.url : "";
     const normalized = normalizeVideoUrl(raw);
     if (!normalized) {
@@ -27,7 +28,15 @@ export function ingestRouter(deps: PipelineDeps): Router {
         .json({ error: "Body must include url containing a video link" });
       return;
     }
-    const prepared = createPreparedTripBooking(normalized.url);
+    const sourceUrl = await resolveVideoShareUrl(normalized.url);
+    if (sourceUrl !== normalized.url) {
+      console.info(`[ingest] resolved ${normalized.url} -> ${sourceUrl}`);
+    }
+    // Explicit local live runs bypass the stage fixture. In production/demo
+    // the same URL remains deterministic unless the caller opts in to the
+    // Docker-backed extractor with { mode: "live" }.
+    const forceLive = req.body?.mode === "live";
+    const prepared = forceLive ? null : createPreparedTripBooking(sourceUrl);
     if (prepared) {
       res.json({
         id: prepared.trip.id,
@@ -36,14 +45,22 @@ export function ingestRouter(deps: PipelineDeps): Router {
       });
       return;
     }
+    // Keep the rotating share URL for live XHS extraction. It carries the
+    // access context that some downloaders need; the resolved stable ID above
+    // is only for fixture/cache lookup.
+    const pipelineUrl = livePipelineUrl(normalized.url, sourceUrl);
     const itinerary = createItinerary(
-      normalized.url,
-      coverUrlFor(resolveFixtureSlug(normalized.url)),
+      pipelineUrl,
+      coverUrlFor(resolveFixtureSlug(sourceUrl)),
     );
-    void runPipeline(deps, itinerary.id, normalized.url);
+    void runPipeline(deps, itinerary.id, pipelineUrl);
     res.status(202).json({ id: itinerary.id, kind: "booking" });
   });
   return router;
+}
+
+export function livePipelineUrl(original: string, resolved: string): string {
+  return new URL(original).hostname === 'xhslink.com' ? original : resolved;
 }
 
 export function preparedTripForUrl(normalizedUrl: string): TripPlan | null {

@@ -41,6 +41,14 @@ The Expo app sends a source link, menu image, or planning request to the Node an
 
 External services sit behind adapters selected through environment variables. Fixture extraction, cached content, mock messaging, and offline route and place fallbacks let the core flows run without provider keys. Live providers can be enabled individually without changing application code.
 
+For the stage build, the two headline interactions are deliberately deterministic. Selecting or photographing a menu shows a short analysis state and then loads the validated 22-dish kopitiam cache. Pasting or sharing `http://xhslink.com/o/8GLTfuGOS5T` opens a verified cache produced from a live Docker extraction of the real 15-image XHS post: a three-day, mainly self-drive Ipoh/Gopeng plan with 13 grounded stops, the Lost World parking shuttle, the rafting operator's uphill lorry, a short walk from Ming Yue to Big Tree Foot, and clearly labelled Grab/Agoda planner hand-offs. It does not attribute KTM or EasyBook to the creator because the post never mentions them.
+
+On iOS, the share extension opens an internal `jalan2://dataUrl=...` hand-off. Expo Router rewrites that internal URL to the home route while `expo-share-intent` reads the shared XHS/TikTok URL from the app group, preventing the hand-off key from appearing as an unmatched screen.
+
+For local evidence checks, `PIPELINE_MODE=live` plus `EXTRACTOR=auto` bypasses the known-URL cache and sends XHS links to the self-hosted sidecar. Known demo URLs still resolve through checked-in fixtures in `auto` mode. Arbitrary posts discard weak place matches instead of creating duplicate fallback pins, choose walking or Grab for plausible local legs, use Google Transit when a real train/bus chain is returned, expose EasyBook and KTMB as ticket-search hand-offs, and run deterministic plus AI feasibility checks. Date-specific Google Places hours are retained when a traveler supplies a date; without a date the plan asks for one rather than claiming the venue will be open.
+
+Menu photos use a conservative retrieval ladder. When OCR finds a specific stall name, Jalan2 grounds that venue with Google Places and visually checks its food photos against each exact Malaysian dish. Otherwise it searches licensed Openverse, Wikimedia Commons, and Unsplash candidates and applies the same verifier. Wrong regional variants are rejected; a blank image is preferred to a misleading one.
+
 Bookings move from draft to pending confirmation, then to confirmed or failed. Inbound replies are considered only for pending requests sent to the replying operator address.
 
 ## Tech stack
@@ -73,6 +81,17 @@ npm run dev
 
 The default configuration starts with fixture, cached, mock, and offline fallbacks, so provider keys are optional for the included flows.
 
+To exercise real Xiaohongshu extraction locally:
+
+```sh
+docker compose -f compose.xhs.yml up -d
+# server/.env: PIPELINE_MODE=live, EXTRACTOR=auto,
+# XHS_DOWNLOADER_URL=http://127.0.0.1:5556
+curl -X POST http://localhost:3001/ingest \
+  -H 'content-type: application/json' \
+  -d '{"url":"http://xhslink.com/o/8GLTfuGOS5T","mode":"live"}'
+```
+
 ### App
 
 In a second terminal:
@@ -84,6 +103,32 @@ npm start
 ```
 
 Open the project in Expo Go on the same network. For phone testing against a server on your computer, set `EXPO_PUBLIC_API_URL` to that computer's LAN address.
+
+### Firebase backend
+
+The Express API is deployed as a second-generation Node.js 22 Firebase Function in Singapore. The checked-in Firebase configuration targets `ghostgram-e32ca`; deployment keeps local `npm start` behavior unchanged.
+
+```sh
+firebase deploy --only functions:api --project ghostgram-e32ca --force
+```
+
+The deployed API base URL is:
+
+```text
+https://api-mnl7fuwnga-as.a.run.app
+```
+
+Set the app's `EXPO_PUBLIC_API_URL` to this HTTPS URL for physical-device builds. Firebase loads server runtime variables from `server/.env` during deployment; do not commit that file. Production credentials should be migrated to Firebase Secret Manager before opening the API beyond a controlled demo.
+
+The XHS Docker service should not be embedded inside the Firebase Function. For arbitrary production XHS links, deploy the container as a separate private Cloud Run service in the same Google Cloud project, grant the Function service account `roles/run.invoker`, and set:
+
+```text
+EXTRACTOR=auto
+XHS_DOWNLOADER_URL=https://<xhs-service>-<region>.a.run.app
+XHS_DOWNLOADER_AUDIENCE=https://<xhs-service>-<region>.a.run.app
+```
+
+The API sends a Google-signed ID token when `XHS_DOWNLOADER_AUDIENCE` is present. Local Docker leaves that value blank and uses `http://127.0.0.1:5556`. TikHub remains the managed fallback when the XHS service is unavailable. Expired or private posts remain unsupported input rather than a reason to invent an itinerary.
 
 Live provider keys belong in `server/.env`. See:
 

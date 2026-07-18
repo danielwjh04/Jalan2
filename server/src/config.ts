@@ -15,6 +15,7 @@ const EnvSchema = z.object({
   PIPELINE_MODE: z.enum(["live", "cached", "auto"]).default("auto"),
   EXTRACTOR: z.enum(["fixture", "tikhub", "xhs-downloader", "auto"]).default("fixture"),
   XHS_DOWNLOADER_URL: z.string().url().default("http://127.0.0.1:5556"),
+  XHS_DOWNLOADER_AUDIENCE: optionalKey(),
   STT_PROVIDER: z.enum(["openai", "elevenlabs"]).default("openai"),
   MESSAGING_PROVIDER: z.enum(["mock", "twilio", "telegram"]).default("mock"),
   TTS_PROVIDER: z.enum(["elevenlabs", "cached"]).default("cached"),

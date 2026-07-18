@@ -87,7 +87,14 @@ export function tripsRouter(routing: RoutingProvider, places: PlacesProvider, cr
         if (!trip) throw new Error(`Unknown trip ${tripId}`);
         return { trip, stopIds };
       });
-      res.status(201).json(await createSocialCollectionTrip(selections, routing, critic, parsed.data.title));
+      res.status(201).json(await createSocialCollectionTrip(
+        selections,
+        routing,
+        critic,
+        parsed.data.title,
+        undefined,
+        places,
+      ));
     } catch (error) {
       res.status(400).json({ error: errorMessage(error) });
     }
@@ -215,6 +222,8 @@ export function customStop(place: PlaceCandidate): TripStop {
     address: place.address,
     google_maps_url: place.google_maps_url,
     opening_window: place.opening_window,
+    opening_periods: place.opening_periods ?? [],
+    opening_hours_text: place.opening_hours_text ?? [],
     primary_type: place.primary_type,
     reservation_hint: place.reservation_hint,
     place_photo_available: place.place_photo_available,

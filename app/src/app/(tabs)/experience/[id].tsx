@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Image, Linking, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Image, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import type { ExperienceRecord } from "@shared/reviews";
@@ -9,6 +9,7 @@ import { ScreenHeader } from "@/components/ScreenHeader";
 import { StateCard } from "@/components/StateCard";
 import { SurfaceCard } from "@/components/SurfaceCard";
 import { getExperience, serverUrl } from "@/lib/api";
+import { tryOpenExternalUrl } from "@/lib/externalLink";
 import { colors, eyebrow, gradients, radius, spacing, type } from "@/lib/theme";
 
 const POLL_MS = 5000;
@@ -62,7 +63,14 @@ function ExperienceContent(props: {
     >
       <ExperienceHero record={record} />
       <Text style={styles.confirmation}>{confirmationCopy(record)}</Text>
-      <Text style={styles.source} onPress={() => void Linking.openURL(record.sourceUrl)}>Open original discovery source</Text>
+      <Text
+        style={styles.source}
+        onPress={() => void tryOpenExternalUrl(record.sourceUrl).then((opened) => {
+          if (!opened) Alert.alert("Could not open source", "Try the original post again later.");
+        })}
+      >
+        Open original discovery source
+      </Text>
       <EvidenceSummary record={record} />
       <PublicEvidence record={record} />
       <Text style={styles.reviewsTitle}>Reviews</Text>

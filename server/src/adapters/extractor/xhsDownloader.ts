@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { GoogleAuth } from 'google-auth-library';
 import { normalizeVideoUrl } from '@shared/videoUrl';
 import { NotConfiguredError } from '../../lib/errors';
 import { materializeMedia } from './downloadedMedia';
@@ -14,10 +15,10 @@ const XhsDataSchema = z.object({
 
 const XhsResponseSchema = z.object({
   message: z.string().optional(),
-  data: XhsDataSchema,
+  data: XhsDataSchema.nullable(),
 }).passthrough();
 
-export function createXhsDownloaderExtractor(baseUrl: string): Extractor {
+export function createXhsDownloaderExtractor(baseUrl: string, audience?: string): Extractor {
   return {
     name: 'xhs-downloader',
     async extract(normalizedUrl) {
@@ -25,7 +26,7 @@ export function createXhsDownloaderExtractor(baseUrl: string): Extractor {
       if (normalized?.platform !== 'xhs') {
         throw new Error('The self-hosted XHS extractor accepts Xiaohongshu links only');
       }
-      const media = await fetchXhsPost(baseUrl, normalized.url);
+      const media = await fetchXhsPost(baseUrl, normalized.url, audience);
       return materializeMedia(media, normalized.url);
     },
   };
@@ -35,6 +36,7 @@ export function parseXhsDownloaderMedia(payload: unknown): HybridMedia {
   const parsed = XhsResponseSchema.safeParse(payload);
   if (!parsed.success) throw new Error('XHS-Downloader returned an invalid response');
   const data = parsed.data.data;
+  if (!data) throw new Error(parsed.data.message ?? 'XHS-Downloader could not read this public post');
   const urls = unique(typeof data['下载地址'] === 'string'
     ? [data['下载地址']]
     : data['下载地址']);
@@ -46,12 +48,27 @@ export function parseXhsDownloaderMedia(payload: unknown): HybridMedia {
   return { kind: 'image', imageUrls: urls, caption };
 }
 
-async function fetchXhsPost(baseUrl: string, postUrl: string): Promise<HybridMedia> {
+async function fetchXhsPost(baseUrl: string, postUrl: string, audience?: string): Promise<HybridMedia> {
+  let failure: unknown;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      return await fetchXhsPostOnce(baseUrl, postUrl, audience);
+    } catch (error) {
+      failure = error;
+      if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 750));
+    }
+  }
+  throw failure;
+}
+
+async function fetchXhsPostOnce(baseUrl: string, postUrl: string, audience?: string): Promise<HybridMedia> {
   let response: Response;
+  const endpoint = `${baseUrl.replace(/\/$/, '')}/xhs/detail`;
   try {
-    response = await fetch(`${baseUrl.replace(/\/$/, '')}/xhs/detail`, {
+    const identityHeaders = audience ? await cloudRunIdentityHeaders(audience) : {};
+    response = await fetch(endpoint, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...identityHeaders },
       body: JSON.stringify({ url: postUrl, download: false }),
       signal: AbortSignal.timeout(45_000),
     });
@@ -66,6 +83,12 @@ async function fetchXhsPost(baseUrl: string, postUrl: string): Promise<HybridMed
     throw new Error(`XHS-Downloader failed (${response.status}): ${detail.slice(0, 200)}`);
   }
   return parseXhsDownloaderMedia(await response.json());
+}
+
+async function cloudRunIdentityHeaders(audience: string): Promise<Record<string, string>> {
+  const client = await new GoogleAuth().getIdTokenClient(audience);
+  const headers = await client.getRequestHeaders(audience);
+  return Object.fromEntries(Object.entries(headers).map(([key, value]) => [key, String(value)]));
 }
 
 function joinCaption(title: string | undefined, description: string | undefined): string | null {

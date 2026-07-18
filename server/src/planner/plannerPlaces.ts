@@ -37,6 +37,8 @@ export function toStop(place: PlaceCandidate, role: string): TripStop {
     address: place.address,
     google_maps_url: place.google_maps_url,
     opening_window: place.opening_window,
+    opening_periods: place.opening_periods ?? [],
+    opening_hours_text: place.opening_hours_text ?? [],
     primary_type: place.primary_type,
     reservation_hint: place.reservation_hint,
     place_photo_available: place.place_photo_available,

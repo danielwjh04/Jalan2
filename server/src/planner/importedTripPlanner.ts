@@ -1,6 +1,6 @@
 import type { SmartPlanRequest } from '@shared/planner';
 import { DEFAULT_TRIP_PREFERENCES, haversineMeters, isTransportStop, type TripPlan, type TripStop } from '@shared/trip';
-import type { RoutingProvider } from '../adapters/routing/types';
+import type { RoutingProvider, TransitRoute } from '../adapters/routing/types';
 import type { PlacesProvider } from '../adapters/places/types';
 import { findEasybookRoute } from '../adapters/transit/easybook';
 import { buildDayPlan } from './plannerSchedule';
@@ -8,7 +8,7 @@ import { runPlanCritic, type PlanCritic } from './planCritic';
 import { buildLocalLegs, orderStops, routePhysicalStops } from './plannerRoute';
 import { planIntercityLeg } from './plannerTransport';
 import { buildStayPlan } from './plannerStay';
-import type { PlanningAgentReport, PlanningHandoff, PlanningLeg } from './types';
+import type { PlanningAgentReport, PlanningCheck, PlanningHandoff, PlanningLeg } from './types';
 import { isTiomanPlace, planTiomanTransfer } from './tiomanMobility';
 import { groundPlace, toStop } from './plannerPlaces';
 
@@ -27,13 +27,27 @@ export async function planImportedTrip(
     end_stop_id: (preferences.return_to_origin || preferences.journey_end) ? journey.at(-1)?.id ?? null : preferences.end_stop_id,
   });
   const stops = orderStops(journey, routed.route.ordered_stop_ids);
-  const transport = await buildImportedLegs(stops, routed.route.provider);
+  const transport = await buildImportedLegs(stops, routing, routed.route.provider);
   const legs = transport.legs;
   const draftRequest = requestFor(trip, stops, 1);
   const draftSchedule = buildDayPlan(draftRequest, stops, legs);
   const request = requestFor(trip, stops, draftSchedule.recommendedDays);
   const schedule = buildDayPlan(request, stops, legs);
-  const evaluated = await runPlanCritic({ request, stops, legs, days: schedule.days, checks: schedule.checks }, critic);
+  const deterministicChecks = [
+    ...importedPlanChecks(trip, stops, legs),
+    ...(routed.route.warnings ?? []).map((message): PlanningCheck => ({
+      severity: /closed/i.test(message) ? 'warning' : 'info',
+      message,
+      resolution: 'Verify the venue hours for your exact date and optimize again after changing the order.',
+    })),
+  ];
+  const evaluated = await runPlanCritic({
+    request,
+    stops,
+    legs,
+    days: schedule.days,
+    checks: [...schedule.checks, ...deterministicChecks],
+  }, critic);
   const stay = buildStayPlan(request, trip.region, schedule.recommendedDays);
   const checks = evaluated.checks;
   const warnings = checks.filter((check) => check.severity !== 'info').map((check) => check.message);
@@ -42,7 +56,7 @@ export async function planImportedTrip(
     ...trip,
     summary: stops.filter(isTiomanPlace).length >= 2
       ? 'A Tioman plan grouped by village corridor, with every water-taxi or 4WD zone change exposed for confirmation.'
-      : 'A local day plan built from the recommendations visible in the submitted social post.',
+      : `A grounded ${schedule.recommendedDays}-day plan built from the recommendations visible in the submitted social post.`,
     stops,
     selected_stop_ids: stops.map((stop) => stop.id),
     preferences: {
@@ -89,6 +103,7 @@ function requestFor(trip: TripPlan, stops: TripStop[], days: number): SmartPlanR
 
 async function buildImportedLegs(
   stops: TripStop[],
+  routing: RoutingProvider,
   provider: 'google' | 'offline',
 ): Promise<{ legs: PlanningLeg[]; handoffs: PlanningHandoff[] }> {
   const legs: PlanningLeg[] = [];
@@ -109,8 +124,29 @@ async function buildImportedLegs(
       continue;
     }
     const distance = haversineMeters(from.location, to.location);
+    const transit = distance >= 40_000 && routing.transit
+      ? await routing.transit(from, to).catch(() => null)
+      : null;
+    if (transit) {
+      const publicTransport = transitLeg(from, to, transit);
+      legs.push(publicTransport.leg);
+      handoffs.push(publicTransport.handoff);
+      if (distance >= 80_000) {
+        const tickets = await planIntercityLeg({
+          origin: from,
+          destination: to,
+          routeProvider: provider,
+          routeDistanceMeters: distance,
+          findEasybook: findEasybookRoute,
+        });
+        handoffs.push(...tickets.handoffs);
+      }
+      continue;
+    }
     if (distance < 80_000) {
-      legs.push(buildLocalLegs([from, to], provider)[0]);
+      const local = buildImportedLocalLeg(from, to, provider, distance);
+      legs.push(local.leg);
+      if (local.handoff) handoffs.push(local.handoff);
       continue;
     }
     const planned = await planIntercityLeg({
@@ -126,32 +162,192 @@ async function buildImportedLegs(
   return { legs, handoffs };
 }
 
+function transitLeg(from: TripStop, to: TripStop, transit: TransitRoute): {
+  leg: PlanningLeg;
+  handoff: PlanningHandoff;
+} {
+  const normalized = transit.modes.join(' ').toLowerCase();
+  const mode: PlanningLeg['mode'] = transit.modes.length > 1
+    ? 'multimodal'
+    : /train|rail/.test(normalized) ? 'train' : /bus|coach/.test(normalized) ? 'coach' : 'multimodal';
+  const explanation = `Google Transit found a connected ${transit.summary} route. This confirms a route pattern, not today's departure, ticket, seat or service disruption.`;
+  return {
+    leg: {
+      id: `leg-${from.id}-${to.id}`,
+      from_stop_id: from.id,
+      to_stop_id: to.id,
+      mode,
+      provider: 'google_routes',
+      duration_minutes: transit.duration_minutes,
+      distance_meters: transit.distance_meters,
+      evidence: 'provider_verified',
+      booking: 'none',
+      handoff_url: transit.directions_url,
+      explanation,
+    },
+    handoff: {
+      provider: 'Google Transit', kind: 'transport', status: 'grounded',
+      label: `${from.name} to ${to.name} via ${transit.summary}`,
+      url: transit.directions_url,
+      disclaimer: explanation,
+    },
+  };
+}
+
 function transportStopLeg(from: TripStop, to: TripStop): { leg: PlanningLeg; handoff: PlanningHandoff } {
   const url = from.transport_url ?? from.easybook_url ?? null;
-  const provider = from.transport_provider === 'easybook' ? 'easybook' : 'unknown';
+  const provider: PlanningLeg['provider'] = from.transport_provider === 'easybook'
+    ? 'easybook'
+    : from.transport_provider === 'ktmb' ? 'ktmb' : 'unknown';
   const explanation = provider === 'easybook'
     ? 'EasyBook exposes the coach and ferry search handoff. Departure, fare, seat and the actual Mersing–Tekek sailing still require confirmation before this itinerary is actionable.'
+    : provider === 'ktmb'
+      ? 'KTMB KITS is the official train-search handoff. Train, fare, seat and station transfers still require confirmation.'
     : 'This intercity/island arrival handoff is not booked. Confirm the provider and arrival point before relying on the local plan.';
   return {
     leg: {
       id: `leg-${from.id}-${to.id}`,
       from_stop_id: from.id,
       to_stop_id: to.id,
-      mode: /ferry|boat/i.test(from.transport_mode ?? '') ? 'multimodal' : 'coach',
+      mode: provider === 'ktmb' ? 'train' : /ferry|boat/i.test(from.transport_mode ?? '') ? 'multimodal' : 'coach',
       provider,
       duration_minutes: from.duration_minutes,
       distance_meters: Math.round(haversineMeters(from.location, to.location)),
-      evidence: provider === 'easybook' ? 'provider_verified' : 'needs_confirmation',
+      evidence: provider === 'unknown' ? 'needs_confirmation' : 'provider_verified',
       booking: 'external_search',
       handoff_url: url,
       explanation,
     },
     handoff: {
-      provider: provider === 'easybook' ? 'EasyBook' : 'Transport provider to confirm',
+      provider: provider === 'easybook' ? 'EasyBook' : provider === 'ktmb' ? 'KTMB (KITS)' : 'Transport provider to confirm',
       kind: 'transport', status: 'external_search', label: `${from.transport_from ?? from.name} to ${from.transport_to ?? to.name}`,
       url, disclaimer: explanation,
     },
   };
+}
+
+function buildImportedLocalLeg(
+  from: TripStop,
+  to: TripStop,
+  routeProvider: 'google' | 'offline',
+  distance: number,
+): { leg: PlanningLeg; handoff: PlanningHandoff | null } {
+  const rounded = Math.round(distance);
+  if (distance <= 1_500) {
+    return {
+      leg: {
+        id: `leg-${from.id}-${to.id}`,
+        from_stop_id: from.id,
+        to_stop_id: to.id,
+        mode: 'walk',
+        provider: routeProvider === 'google' ? 'google_routes' : 'offline',
+        duration_minutes: Math.max(5, Math.round((distance / 1_000 / 4.5) * 60)),
+        distance_meters: rounded,
+        evidence: 'estimated',
+        booking: 'none',
+        handoff_url: walkingDirectionsUrl(from, to),
+        explanation: 'These grounded pins are close enough for a walking option. Open Maps to confirm the actual pedestrian path, crossings and access.',
+      },
+      handoff: null,
+    };
+  }
+  if (distance <= 40_000) {
+    const url = 'https://www.grab.com/my/transport/';
+    const explanation = 'This is a plausible local ride-hail leg. Jalan2 passes the exact destination to Grab, but availability, pickup point, fare and ETA remain live app checks.';
+    return {
+      leg: {
+        id: `leg-${from.id}-${to.id}`,
+        from_stop_id: from.id,
+        to_stop_id: to.id,
+        mode: 'ride_hail',
+        provider: 'grab',
+        duration_minutes: Math.max(10, Math.round((distance / 1_000 / 32) * 60)),
+        distance_meters: rounded,
+        evidence: 'estimated',
+        booking: 'external_search',
+        handoff_url: url,
+        explanation,
+      },
+      handoff: {
+        provider: 'Grab', kind: 'transport', status: 'external_search',
+        label: `${from.name} to ${to.name}`, url, disclaimer: explanation,
+      },
+    };
+  }
+  const leg = buildLocalLegs([from, to], routeProvider)[0];
+  return {
+    leg: {
+      ...leg,
+      evidence: 'estimated',
+      explanation: 'This is a long road transfer between grounded pins. Maps supports the geography, but Jalan2 has not confirmed a ride-hail driver, rental car or operator pickup.',
+    },
+    handoff: {
+      provider: 'Google Maps', kind: 'directions', status: 'grounded',
+      label: `${from.name} to ${to.name}`, url: leg.handoff_url,
+      disclaimer: 'Road directions only. Choose and confirm a real transport provider before relying on this leg.',
+    },
+  };
+}
+
+function walkingDirectionsUrl(from: TripStop, to: TripStop): string {
+  const params = new URLSearchParams({
+    api: '1',
+    origin: `${from.location.lat},${from.location.lng}`,
+    destination: `${to.location.lat},${to.location.lng}`,
+    travelmode: 'walking',
+  });
+  return `https://www.google.com/maps/dir/?${params.toString()}`;
+}
+
+function importedPlanChecks(trip: TripPlan, stops: TripStop[], legs: PlanningLeg[]): PlanningCheck[] {
+  const checks: PlanningCheck[] = [];
+  const ungrounded = stops.filter((stop) => stop.place_id?.startsWith('source-'));
+  if (ungrounded.length > 0) checks.push({
+    severity: 'warning',
+    message: `${ungrounded.length} source location${ungrounded.length === 1 ? ' is' : 's are'} not matched to a verified map record: ${ungrounded.map((stop) => stop.name).join(', ')}.`,
+    resolution: 'Confirm or replace these locations before booking transport.',
+  });
+  const duplicatePins = coordinateCollisions(stops);
+  if (duplicatePins.length > 0) checks.push({
+    severity: 'blocking',
+    message: `Different recommendations resolve to the same map pin: ${duplicatePins.join('; ')}.`,
+    resolution: 'Resolve the venue identities before using this route.',
+  });
+  for (const leg of legs) {
+    if (leg.mode === 'walk' && (leg.distance_meters ?? 0) > 2_500) checks.push({
+      severity: 'warning',
+      message: `The walk between ${stopName(stops, leg.from_stop_id)} and ${stopName(stops, leg.to_stop_id)} is unusually long.`,
+      resolution: 'Switch to local transit or ride-hail after checking actual pedestrian access.',
+    });
+    if (leg.provider === 'google_routes' && (leg.distance_meters ?? 0) >= 40_000) checks.push({
+      severity: 'warning',
+      message: `${stopName(stops, leg.from_stop_id)} to ${stopName(stops, leg.to_stop_id)} is a long road leg with no transport provider confirmed.`,
+      resolution: 'Confirm an intercity bus, rail, rental car, driver or operator pickup.',
+    });
+  }
+  if (!trip.preferences?.journey_origin) checks.push({
+    severity: 'info',
+    message: `The route currently starts at the first grounded recommendation, ${stops[0]?.name ?? trip.region}.`,
+    resolution: 'Add where you are starting from to receive first-mile intercity options.',
+  });
+  return checks;
+}
+
+function coordinateCollisions(stops: TripStop[]): string[] {
+  const collisions: string[] = [];
+  for (let left = 0; left < stops.length; left += 1) {
+    for (let right = left + 1; right < stops.length; right += 1) {
+      if (stops[left].place_id === stops[right].place_id) continue;
+      if (haversineMeters(stops[left].location, stops[right].location) <= 20) {
+        collisions.push(`${stops[left].name} / ${stops[right].name}`);
+      }
+    }
+  }
+  return collisions;
+}
+
+function stopName(stops: TripStop[], id: string): string {
+  return stops.find((stop) => stop.id === id)?.name ?? id;
 }
 
 async function withJourneyBoundaries(

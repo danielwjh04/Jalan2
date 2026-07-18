@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { buildFusionMessages, validateFusedBooking } from '../src/pipeline/fusion';
+import type { BookingJson } from '@shared/booking';
+import {
+  buildFusionMessages,
+  removeUngroundedContact,
+  removeUngroundedPrice,
+  validateFusedBooking,
+} from '../src/pipeline/fusion';
 
 const evidence = {
   caption: 'Hidden reef dive RM250, WhatsApp 013-820 1122',
@@ -21,7 +27,7 @@ const evidence = {
   },
 };
 
-const validBooking = {
+const validBooking: BookingJson = {
   operator_name: 'Kuching Dive Adventures',
   activity: 'Bako reef dive',
   price_myr: 250,
@@ -127,5 +133,82 @@ describe('validateFusedBooking', () => {
       contact: { whatsapp: '+60null', source: 'caption' },
     });
     expect(outcome.ok && outcome.booking.contact.whatsapp).toBeNull();
+  });
+});
+
+describe('removeUngroundedPrice', () => {
+  it('keeps an activity price evidenced in the selected frame', () => {
+    expect(removeUngroundedPrice(validBooking, evidence).price_myr).toBe(250);
+  });
+
+  it('drops a parking price taken from another carousel slide', () => {
+    const mixedEvidence = {
+      caption: 'White Water Rafting. Parking RM20 at a different attraction.',
+      transcript: { text: '', segments: [] },
+      vision: {
+        frames: [{
+          ts: '4.0s',
+          on_screen_text: 'Parking RM20',
+          price_candidates: ['RM20'],
+          phone_candidates: [],
+          place_candidates: ['Lost World of Tambun'],
+          operator_or_logo: null,
+        }, {
+          ts: '8.0s',
+          on_screen_text: 'White Water Rafting',
+          price_candidates: [],
+          phone_candidates: [],
+          place_candidates: ['Gopeng Glamping Park'],
+          operator_or_logo: null,
+        }],
+      },
+    };
+    const rafting = {
+      ...validBooking,
+      activity: 'White Water Rafting',
+      price_myr: 20,
+      raw_evidence: { transcript_span: 'White Water Rafting', frame_ts: '8.0s' },
+    };
+
+    expect(removeUngroundedPrice(rafting, mixedEvidence).price_myr).toBeNull();
+  });
+});
+
+describe('removeUngroundedContact', () => {
+  it('keeps a number evidenced on the selected activity frame', () => {
+    expect(removeUngroundedContact(validBooking, evidence).contact.whatsapp).toBe('+60138201122');
+  });
+
+  it('drops a restaurant number borrowed by an activity on another slide', () => {
+    const mixedEvidence = {
+      ...evidence,
+      caption: null,
+      transcript: { text: '', segments: [] },
+      vision: {
+        frames: [{
+          ts: '2.0s',
+          on_screen_text: 'Nam Heong 012-5888 766',
+          price_candidates: [],
+          phone_candidates: ['012-5888 766'],
+          place_candidates: ['Nam Heong'],
+          operator_or_logo: null,
+        }, {
+          ts: '8.0s',
+          on_screen_text: 'White Water Rafting',
+          price_candidates: [],
+          phone_candidates: [],
+          place_candidates: ['Gopeng Glamping Park'],
+          operator_or_logo: null,
+        }],
+      },
+    };
+    const rafting: BookingJson = {
+      ...validBooking,
+      activity: 'White Water Rafting',
+      contact: { whatsapp: '+60125888766', source: 'vision' },
+      raw_evidence: { transcript_span: 'White Water Rafting', frame_ts: '8.0s' },
+    };
+
+    expect(removeUngroundedContact(rafting, mixedEvidence).contact.whatsapp).toBeNull();
   });
 });

@@ -52,6 +52,7 @@ async function resolveSocialSource(
 ): Promise<SocialGuideResult> {
   const result = await ingest(url);
   if (result.kind === 'trip') {
+    onStage?.('READY');
     return { trip: await getTrip(result.id), bookingId: result.bookingId };
   }
   return waitForTrip(result.id, onStage);

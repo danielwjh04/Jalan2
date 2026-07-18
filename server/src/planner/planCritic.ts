@@ -49,11 +49,18 @@ export async function runPlanCritic(
   try {
     const result = await critic(input);
     const checks = dedupeChecks([...input.checks, ...result.additional_checks]);
-    return { checks, critique: { verdict: verdictFor(checks), score: result.score, summary: result.summary, evaluated_by: 'ai' } };
+    const score = capScoreForChecks(result.score, checks);
+    return { checks, critique: { verdict: verdictFor(checks), score, summary: result.summary, evaluated_by: 'ai' } };
   } catch (error) {
     console.warn(`[planner critic] AI evaluation failed: ${(error as Error).message}`);
     return deterministicResult(input.checks, input.legs);
   }
+}
+
+function capScoreForChecks(score: number, checks: PlanningCheck[]): number {
+  if (checks.some((check) => check.severity === 'blocking')) return Math.min(score, 60);
+  if (checks.some((check) => check.severity === 'warning')) return Math.min(score, 84);
+  return score;
 }
 
 function deterministicResult(checks: PlanningCheck[], legs: PlanningLeg[]): { checks: PlanningCheck[]; critique: PlanningCritique } {
@@ -87,6 +94,9 @@ function criticPrompt(): string {
   return [
     'You are Jalan2 end-to-end plan critic. Evaluate only the supplied structured plan.',
     'Check transport continuity, daily load, overnight placement, provider confirmation gaps, island village changes, and whether every stop is reachable in sequence.',
+    'Reject duplicate or ungrounded map pins. A source-only coordinate is evidence from the post, not a verified Google place.',
+    'Check mode plausibility against leg distance: short urban legs may be walked, normal local legs may use ride-hail, and long or cross-region legs need a real intercity handoff.',
+    'A Google route proves geographic connectivity only. It does not prove Grab availability, a train or bus departure, opening hours, or operator pickup.',
     'Check that the journey has an explicit starting point and final endpoint. If return_to_origin is true, the final leg must return to the origin; otherwise it must finish at end_destination.',
     'KTMB and EasyBook handoffs are ticket searches, not confirmed departures. Do not treat a provider link as a purchased ticket.',
     'On Tioman, never treat straight-line proximity as a road. A cross-village water taxi or Tekek–Juara 4WD leg must be explicit and provider-confirmed.',

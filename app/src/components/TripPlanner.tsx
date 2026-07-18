@@ -14,6 +14,7 @@ import { SmartSuggestions } from "./SmartSuggestions";
 import { SurfaceCard } from "./SurfaceCard";
 import { TripBookingSection } from "./TripBookingSection";
 import { TripFeasibilityCard } from "./TripFeasibilityCard";
+import { TripHandoffsCard } from "./TripHandoffsCard";
 import { TripMap } from "./TripMap";
 import { TripPreferencesCard } from "./TripPreferencesCard";
 import { TripStopList } from "./TripStopList";
@@ -78,6 +79,7 @@ export function TripPlanner(props: Props): React.ReactElement {
         onToggle={(id) => void props.toggle(id)}
         onDelete={(id) => void props.removeDestination(id)}
       />
+      <TripHandoffsCard planning={props.trip.planning} />
       {props.trip.origin === "video" ? (
         <SafetyBriefCard
           tripId={props.trip.demo ? props.trip.id : undefined}

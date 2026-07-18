@@ -1,4 +1,4 @@
-import { Alert, Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import type { Itinerary } from "@shared/status";
 import { bookingViewFor, type BookingView } from "@/lib/bookingPresentation";
 import { buildOperatorChatLink } from "@/lib/whatsappLink";
@@ -78,7 +78,7 @@ function ConfirmedActions({ itinerary, onViewTrip }: { itinerary: Itinerary; onV
 }
 
 async function openChat(url: string): Promise<void> {
-  if (await tryOpenExternalUrl(url, Linking.openURL)) return;
+  if (await tryOpenExternalUrl(url)) return;
   Alert.alert("Could not open WhatsApp", "Open the booking message thread on your phone.");
 }
 

@@ -1,12 +1,14 @@
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import type { PipelineStage } from '@shared/status';
 import { cardShadow, colors, fonts, radius, spacing } from '@/lib/theme';
+import { AgentProgress, type AgentProgressStep } from './AgentProgress';
 
-const STEPS: { stage: PipelineStage; label: string }[] = [
-  { stage: 'EXTRACTING', label: 'Extracting video' },
-  { stage: 'TRANSCRIBING', label: 'Transcribing speech' },
-  { stage: 'READING_FRAMES', label: 'Reading on-screen text' },
-  { stage: 'FUSING', label: 'Fusing into itinerary' },
+const STEPS: Array<{ stage: PipelineStage } & AgentProgressStep> = [
+  { stage: 'EXTRACTING', label: 'Scout agents open every post', detail: 'Collecting captions, slides, video frames and creator evidence.' },
+  { stage: 'TRANSCRIBING', label: 'Language agent listens', detail: 'Transcribing Malay, English and Chinese speech without guessing venue names.' },
+  { stage: 'READING_FRAMES', label: 'Vision + place agents ground stops', detail: 'Reading on-screen text and matching real Malaysian places and photos.' },
+  { stage: 'FUSING', label: 'Route agent builds the journey', detail: 'Ordering stops, transport handoffs, opening windows and realistic day groups.' },
+  { stage: 'READY', label: 'Critic agent checks end to end', detail: 'Flagging missing operators, impossible timing and claims that still need confirmation.' },
 ];
 
 interface Props {
@@ -23,26 +25,8 @@ export function StageProgress({ stage, error }: Props): React.ReactElement {
       </View>
     );
   }
-  const activeIndex = STEPS.findIndex((step) => step.stage === stage);
-  return (
-    <View style={styles.card}>
-      {STEPS.map((step, index) => {
-        const state = index < activeIndex ? 'done' : index === activeIndex ? 'active' : 'todo';
-        return (
-          <View key={step.stage} style={styles.row}>
-            {state === 'active' ? (
-              <ActivityIndicator size="small" color={colors.sage} />
-            ) : (
-              <View style={[styles.dot, state === 'done' && styles.dotDone]} />
-            )}
-            <Text style={[styles.label, state !== 'todo' && styles.labelActive]}>
-              {step.label}
-            </Text>
-          </View>
-        );
-      })}
-    </View>
-  );
+  const activeIndex = Math.max(0, STEPS.findIndex((step) => step.stage === stage));
+  return <AgentProgress title="Turning posts into one usable trip" intro="Specialist agents work in sequence and pass evidence forward instead of letting one prompt invent the whole itinerary." steps={STEPS} activeIndex={activeIndex} />;
 }
 
 const styles = StyleSheet.create({
@@ -53,17 +37,6 @@ const styles = StyleSheet.create({
     gap: spacing(3.5),
     ...cardShadow,
   },
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing(3), minHeight: 24 },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: radius.pill,
-    backgroundColor: colors.mist,
-    marginHorizontal: 5,
-  },
-  dotDone: { backgroundColor: colors.confirm },
-  label: { color: colors.inkSoft, fontFamily: fonts.regular, fontSize: 15 },
-  labelActive: { color: colors.ink, fontFamily: fonts.medium },
   errorTitle: { color: colors.danger, fontFamily: fonts.semibold, fontSize: 16 },
   errorText: { color: colors.inkSoft, fontFamily: fonts.regular, fontSize: 13 },
 });

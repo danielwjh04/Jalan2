@@ -57,18 +57,23 @@ async function start(places: PlacesProvider): Promise<string> {
 }
 
 describe('place photo route', () => {
-  it('returns no-store image bytes from the configured provider', async () => {
+  it('returns the requested gallery image bytes from the configured provider', async () => {
+    let requestedIndex: number | undefined;
     const places: PlacesProvider = {
       name: 'google',
       search: async () => [],
-      photo: async () => ({ bytes: Uint8Array.from([4, 5, 6]), contentType: 'image/jpeg' }),
+      photo: async (_placeId, index) => {
+        requestedIndex = index;
+        return { bytes: Uint8Array.from([4, 5, 6]), contentType: 'image/jpeg' };
+      },
     };
     const baseUrl = await start(places);
 
-    const response = await fetch(`${baseUrl}/places/place-1/photo`);
+    const response = await fetch(`${baseUrl}/places/place-1/photo?index=2`);
 
     expect(response.status).toBe(200);
-    expect(response.headers.get('cache-control')).toBe('no-store');
+    expect(requestedIndex).toBe(2);
+    expect(response.headers.get('cache-control')).toBe('private, max-age=900');
     expect(response.headers.get('content-type')).toContain('image/jpeg');
     expect(Array.from(new Uint8Array(await response.arrayBuffer()))).toEqual([4, 5, 6]);
   });

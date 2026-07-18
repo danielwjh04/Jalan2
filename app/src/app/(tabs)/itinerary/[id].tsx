@@ -5,9 +5,11 @@ import { BookingPanel } from "@/components/BookingPanel";
 import { MapCard } from "@/components/MapCard";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { StateCard } from "@/components/StateCard";
+import { StageProgress } from "@/components/StageProgress";
 import { TransitButton } from "@/components/TransitButton";
 import { bookingViewFor } from "@/lib/bookingPresentation";
 import { guideDestination } from "@/lib/ingestDestination";
+import { ingestVideo } from "@/lib/ingest";
 import { HOME_ROUTE } from "@/lib/navigation";
 import { useItinerary } from "@/lib/useItinerary";
 import { useMeetingPointStop } from "@/lib/useMeetingPointStop";
@@ -19,11 +21,16 @@ export default function ItineraryScreen(): React.ReactElement {
   const state = useItinerary(id);
   const meetingStop = useMeetingPointStop(state.itinerary);
   const guideMode = view === "guide";
+  const retryGuide = (): void => {
+    const sourceUrl = state.itinerary?.sourceUrl;
+    if (sourceUrl) void ingestVideo(sourceUrl);
+    else state.retry();
+  };
   useEffect(() => {
     const tripId = state.itinerary?.tripId;
     if (guideMode && tripId) router.replace(guideDestination(tripId, id));
   }, [guideMode, id, router, state.itinerary?.tripId]);
-  if (guideMode) return <GuideProgress error={state.error ?? state.itinerary?.error ?? null} onBack={() => router.back()} onRetry={state.retry} />;
+  if (guideMode) return <GuideProgress stage={state.itinerary?.stage ?? "QUEUED"} error={state.error ?? state.itinerary?.error ?? null} onBack={() => router.back()} onRetry={retryGuide} />;
   if (!state.itinerary) {
     const view = bookingViewFor(null, state.error);
     return (
@@ -73,7 +80,7 @@ export default function ItineraryScreen(): React.ReactElement {
   );
 }
 
-function GuideProgress({ error, onBack, onRetry }: { error: string | null; onBack: () => void; onRetry: () => void }): React.ReactElement {
+function GuideProgress({ stage, error, onBack, onRetry }: { stage: import("@shared/status").PipelineStage; error: string | null; onBack: () => void; onRetry: () => void }): React.ReactElement {
   return (
     <View style={styles.screen}>
       <ScreenHeader title="Creating guide" onBack={onBack} />
@@ -81,11 +88,11 @@ function GuideProgress({ error, onBack, onRetry }: { error: string | null; onBac
         {error ? (
           <StateCard
             title="Guide could not be created"
-            message="Check the link and try again."
+            message={error}
             actionLabel="Retry"
             onAction={onRetry}
           />
-        ) : <ActivityIndicator color={colors.sage} />}
+        ) : <StageProgress stage={stage} error={null} />}
       </View>
     </View>
   );

@@ -2,9 +2,15 @@ import type { DishImageQuery, DishPhoto, FoodImageProvider } from './types';
 import { createOpenverseFoodImages } from './openverse';
 import { createUnsplashFoodImages } from './unsplash';
 import { createWikimediaFoodImages } from './wikimedia';
+import { createGooglePlacesFoodImages } from './googlePlaces';
+import type { PlacesProvider } from '../places/types';
 
-export function createLicensedFoodImages(unsplashAccessKey?: string): FoodImageProvider {
+export function createLicensedFoodImages(
+  unsplashAccessKey?: string,
+  places?: PlacesProvider,
+): FoodImageProvider {
   const providers: FoodImageProvider[] = [
+    ...(places?.name === 'google' ? [createGooglePlacesFoodImages(places)] : []),
     createOpenverseFoodImages(),
     createWikimediaFoodImages(),
   ];

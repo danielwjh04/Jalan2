@@ -3,12 +3,19 @@ import type { PlacePhoto } from './types';
 
 const PLACE_URL = 'https://places.googleapis.com/v1/places';
 const PhotoResponseSchema = z.object({
-  photos: z.array(z.object({ name: z.string().min(1) })).optional(),
+  photos: z.array(z.object({
+    name: z.string().min(1),
+    authorAttributions: z.array(z.object({
+      displayName: z.string(),
+      uri: z.string().optional(),
+    })).optional(),
+  })).optional(),
 });
 
 export async function fetchGooglePlacePhoto(
   apiKey: string,
   placeId: string,
+  index = 0,
 ): Promise<PlacePhoto | null> {
   const details = await fetch(`${PLACE_URL}/${encodeURIComponent(placeId)}`, {
     headers: {
@@ -20,8 +27,17 @@ export async function fetchGooglePlacePhoto(
   if (!details.ok) throw new Error(`Google Place Details failed (${details.status})`);
   const parsed = PhotoResponseSchema.safeParse(await details.json());
   if (!parsed.success) throw new Error('Google Place Details returned invalid photo data');
-  const name = parsed.data.photos?.[0]?.name;
-  return name ? downloadPhoto(apiKey, name) : null;
+  const record = parsed.data.photos?.[index];
+  if (!record) return null;
+  const photo = await downloadPhoto(apiKey, record.name);
+  return {
+    ...photo,
+    attributions: (record.authorAttributions ?? []).map((author) => ({
+      label: `Photo by ${author.displayName} on Google Maps`,
+      source_url: author.uri ?? `https://www.google.com/maps/search/?api=1&query_place_id=${encodeURIComponent(placeId)}`,
+      license: null,
+    })),
+  };
 }
 
 async function downloadPhoto(apiKey: string, name: string): Promise<PlacePhoto> {

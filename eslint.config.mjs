@@ -8,6 +8,8 @@ export default tseslint.config(
       '**/.expo/**',
       '**/dist/**',
       '**/build/**',
+      'server/lib/**',
+      'app/ios/**',
       'server/data/**',
       'app/expo-env.d.ts',
     ],

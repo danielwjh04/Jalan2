@@ -1,5 +1,6 @@
 import type { GeoPoint, OptimizedRoute, TripStop } from "@shared/trip";
 import type { RoutingProvider } from "./types";
+import type { TransitRoute } from "./types";
 import { orderWithConstraints, scheduleFor } from '../../services/routeConstraints';
 
 const MATRIX_URL =
@@ -17,6 +18,17 @@ interface RouteResponse {
     distanceMeters?: number;
     duration?: string;
     polyline?: { encodedPolyline?: string };
+  }>;
+}
+
+interface TransitRouteResponse {
+  routes?: Array<{
+    distanceMeters?: number;
+    duration?: string;
+    legs?: Array<{ steps?: Array<{
+      travelMode?: string;
+      transitDetails?: { transitLine?: { name?: string; vehicle?: { type?: string } } };
+    }> }>;
   }>;
 }
 
@@ -190,7 +202,54 @@ export function createGoogleRouting(apiKey: string): RoutingProvider {
         ...metadata,
       };
     },
+    async transit(origin, destination): Promise<TransitRoute | null> {
+      const response = await requestJson<TransitRouteResponse>(
+        ROUTES_URL,
+        apiKey,
+        'routes.distanceMeters,routes.duration,routes.legs.steps.travelMode,routes.legs.steps.transitDetails.transitLine.name,routes.legs.steps.transitDetails.transitLine.vehicle.type',
+        {
+          origin: googleWaypoint(origin).waypoint,
+          destination: googleWaypoint(destination).waypoint,
+          travelMode: 'TRANSIT',
+          languageCode: 'en',
+          regionCode: 'MY',
+        },
+      );
+      const route = response.routes?.[0];
+      if (!route?.duration) return null;
+      const steps = route.legs?.flatMap((leg) => leg.steps ?? []) ?? [];
+      const labels = steps.flatMap((step) => {
+        if (step.travelMode === 'WALK') return [];
+        const vehicle = step.transitDetails?.transitLine?.vehicle?.type;
+        const name = step.transitDetails?.transitLine?.name;
+        return [name ? `${vehicleLabel(vehicle)} ${name}` : vehicleLabel(vehicle ?? step.travelMode)];
+      });
+      const modes = [...new Set(labels.filter(Boolean))];
+      if (modes.length === 0) return null;
+      return {
+        duration_minutes: Math.max(1, Math.ceil(durationSeconds(route.duration) / 60)),
+        distance_meters: route.distanceMeters ?? 0,
+        modes,
+        summary: modes.join(' → '),
+        directions_url: transitDirectionsUrl(origin, destination),
+      };
+    },
   };
+}
+
+function vehicleLabel(value?: string): string {
+  const normalized = value?.replace(/_/g, ' ').toLowerCase() ?? 'public transport';
+  return normalized.replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function transitDirectionsUrl(origin: TripStop, destination: TripStop): string {
+  const params = new URLSearchParams({
+    api: '1',
+    origin: `${origin.location.lat},${origin.location.lng}`,
+    destination: `${destination.location.lat},${destination.location.lng}`,
+    travelmode: 'transit',
+  });
+  return `https://www.google.com/maps/dir/?${params.toString()}`;
 }
 
 function matrixTravel(stops: TripStop[], matrix: MatrixElement[]) {

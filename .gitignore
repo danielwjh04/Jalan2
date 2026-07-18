@@ -5,6 +5,7 @@ node_modules/
 .expo/
 dist/
 build/
+server/lib/
 app/src/shared/
 server/data/
 server/fixtures/**/*.mp4

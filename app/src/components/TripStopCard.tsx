@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   Alert,
-  Linking,
   Pressable,
   StyleSheet,
   Text,
@@ -116,17 +115,17 @@ function spendChip(stop: TripStop): React.ReactElement | null {
 }
 
 async function openSource(url: string): Promise<void> {
-  if (await tryOpenExternalUrl(url, Linking.openURL)) return;
+  if (await tryOpenExternalUrl(url)) return;
   Alert.alert("Could not open source", "Copy the source link and open it in your browser.");
 }
 
 async function openEasybook(url: string): Promise<void> {
-  if (await tryOpenExternalUrl(url, Linking.openURL)) return;
+  if (await tryOpenExternalUrl(url)) return;
   Alert.alert("Could not open EasyBook", "Try the route again later.");
 }
 
 async function openIsland(): Promise<void> {
-  if (await tryOpenExternalUrl(TIOMAN_TRANSPORT_URL, Linking.openURL)) return;
+  if (await tryOpenExternalUrl(TIOMAN_TRANSPORT_URL)) return;
   Alert.alert("Could not open Tioman transport guide", "Try the official Tioman transport page again later.");
 }
 

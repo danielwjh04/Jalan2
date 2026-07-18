@@ -35,14 +35,17 @@ function fixtureOperators(): FixtureOperator[] {
   const byOperator = new Map<string, FixtureOperator>();
   for (const fixture of knownFixtures()) {
     const booking = loadCachedBooking(fixture.slug);
-    if (!booking) continue;
+    const coverUrl = coverUrlFor(fixture.slug);
+    // Route-only stage fixtures are valid ingest caches, but they are not
+    // public operator profiles unless they also carry source-owned cover art.
+    if (!booking || !coverUrl) continue;
     const experienceId = experienceIdFor(booking);
     const entry: DirectoryEntry = {
       experienceId,
       operatorName: booking.operator_name,
       activity: booking.activity,
       meetingPointName: booking.meeting_point.name,
-      coverUrl: coverUrlFor(fixture.slug),
+      coverUrl,
       demandCount: 0,
       optedIn: false,
       lastDemandAt: null,
@@ -56,7 +59,7 @@ function fixtureOperators(): FixtureOperator[] {
         activity: booking.activity,
         meetingPointName: booking.meeting_point.name,
         sourceUrl: fixture.url,
-        coverUrl: coverUrlFor(fixture.slug),
+        coverUrl,
         lastOperatorConfirmationAt: null,
         publicEvidence: booking.trust?.evidence ?? [],
         summary: emptySummary(),

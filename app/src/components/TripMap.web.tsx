@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Image, Linking, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ActionButton } from "./ActionButton";
 import type { ComponentType } from "react";
@@ -24,10 +24,10 @@ export function TripMap({ tripId, stops, orderedIds, planning }: Props): React.R
   const ordered = orderedIds.map((id) => stops.find((stop) => stop.id === id)).filter((stop): stop is TripStop => Boolean(stop));
   const physical = ordered.filter((stop) => !isTransportStop(stop));
   const local = localStops(physical, planning);
-  const [wholeTrip, setWholeTrip] = useState(false);
-  const shown = wholeTrip ? physical : local;
+  const [wholeTrip, setWholeTrip] = useState(() => ordered.some(isTransportStop));
+  const shown = wholeTrip ? ordered : local;
   const tiomanPlan = shown.length > 0 && shown.every(isTiomanStop);
-  const canChangeFocus = local.length !== physical.length;
+  const canChangeFocus = local.length !== ordered.length;
   const mapUrl = tripMapUrl(tripId, shown.map((stop) => stop.id));
   const [googleFailed, setGoogleFailed] = useState(false);
   const [LiveMap, setLiveMap] = useState<ComponentType<LiveMapProps> | null>(null);
@@ -82,12 +82,12 @@ async function openGoogleMaps(stops: TripStop[]): Promise<void> {
   const waypoints = stops.slice(1, -1).map(coordinate).join("|");
   const params = new URLSearchParams({ api: "1", origin: coordinate(stops[0]), destination: coordinate(stops.at(-1) ?? stops[0]), travelmode: "driving" });
   if (waypoints) params.set("waypoints", waypoints);
-  if (await tryOpenExternalUrl(`https://www.google.com/maps/dir/?${params.toString()}`, Linking.openURL)) return;
+  if (await tryOpenExternalUrl(`https://www.google.com/maps/dir/?${params.toString()}`)) return;
   Alert.alert("Could not open Google Maps", "Try the route again later.");
 }
 
 async function openTiomanTransport(): Promise<void> {
-  if (await tryOpenExternalUrl(TIOMAN_TRANSPORT_URL, Linking.openURL)) return;
+  if (await tryOpenExternalUrl(TIOMAN_TRANSPORT_URL)) return;
   Alert.alert("Could not open Tioman transport guidance", "Try the official Tioman transport page again later.");
 }
 

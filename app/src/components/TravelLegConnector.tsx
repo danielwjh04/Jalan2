@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Alert, Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import type { TripStop } from "@shared/trip";
 import { tryOpenExternalUrl } from "@/lib/externalLink";
@@ -28,6 +28,7 @@ interface Props {
 interface FixedTransfer {
   label: string;
   action: string;
+  bundled?: boolean;
 }
 
 const MODES: Array<{ id: LocalTravelMode; label: string }> = [
@@ -44,9 +45,10 @@ export function TravelLegConnector({ from, to, leg }: Props): React.ReactElement
   const fixed = fixedTransfer(leg);
   const action = fixed ? fixed.action : mode === "grab" ? "Open Grab" : "Directions";
   const onAction = async (): Promise<void> => {
+    if (fixed?.bundled) return openGrab(to);
     if (fixed) return openTransfer(leg);
     if (mode === "grab") return openGrab(to);
-    if (await tryOpenExternalUrl(googleDirectionsUrl(mode, from, to), Linking.openURL)) return;
+    if (await tryOpenExternalUrl(googleDirectionsUrl(mode, from, to))) return;
     Alert.alert("Could not open directions", "Try Google Maps again later.");
   };
   return (
@@ -54,7 +56,7 @@ export function TravelLegConnector({ from, to, leg }: Props): React.ReactElement
       <TimelineRail variant="dot" isLast={false} />
       <View style={styles.connector}>
         <View style={styles.head}>
-          <Chip label={pillLabel(fixed, mode, estimate, leg)} style={[styles.pill, fixed && styles.pillFixed]} />
+          <Chip label={pillLabel(fixed, mode, estimate, leg)} style={[styles.pill, fixed && styles.pillFixed, fixed?.bundled && styles.pillBundled]} />
           <ActionButton
             variant="ghost"
             underline
@@ -94,6 +96,12 @@ export function TravelLegConnector({ from, to, leg }: Props): React.ReactElement
                 ))}
               </View>
             ) : null}
+            {fixed?.bundled ? (
+              <View style={styles.optionalActions}>
+                <ActionButton variant="primary" label="Open Grab to next stop" onPress={() => void openGrab(to)} />
+                <ActionButton variant="tonal" label="Consider one driver" onPress={() => void openTransfer(leg)} />
+              </View>
+            ) : null}
             <Text style={styles.note}>{legNote(fixed, mode, estimate, leg)}</Text>
           </View>
         ) : null}
@@ -122,6 +130,7 @@ function legNote(
   estimate: TravelEstimate,
   leg: PlanningLeg | undefined,
 ): string {
+  if (fixed?.bundled) return `Grab opens with the exact next-stop pin. A hired driver remains optional. ${leg?.explanation ?? "Compare Grab availability with one bundled driver quote."}`;
   if (fixed) return leg?.explanation ?? "Confirm this transfer, fare and timing with the operator.";
   if (mode === "grab") return "Jalan2 copies the exact next-stop address, then opens Grab's booking screen.";
   return estimate.evidence === "provider_verified"
@@ -134,14 +143,27 @@ function fixedTransfer(leg: PlanningLeg | undefined): FixedTransfer | null {
   if (leg?.provider === "operator" && /tioman|village corridor|water taxi|4wd/i.test(leg.explanation)) {
     return { label: leg.mode === "operator_pickup" ? "Local shuttle" : "Island transfer", action: "Transfer info" };
   }
-  if (leg?.provider === "ktmb") return { label: "KTMB train", action: "Open KITS" };
+  if (leg?.provider === "ktmb") return { label: "KTMB train", action: "Open KTMB ticketing" };
   if (leg?.provider === "easybook") return { label: "EasyBook", action: "Open EasyBook" };
+  if (leg?.provider === "operator" && /rafting lorry|rafting operator|uphill/i.test(leg.explanation)) {
+    return { label: "Rafting transfer", action: "Transfer details" };
+  }
+  if (leg?.provider === "operator" && leg.mode === "operator_pickup") {
+    return { label: "Grab or driver", action: "Open Grab", bundled: true };
+  }
   if (leg?.mode === "flight") return { label: "Flight", action: "Search flights" };
   return null;
 }
 
 async function openTransfer(leg: PlanningLeg | undefined): Promise<void> {
-  if (leg?.handoff_url && (await tryOpenExternalUrl(leg.handoff_url, Linking.openURL))) return;
+  if (leg?.handoff_url && (await tryOpenExternalUrl(leg.handoff_url))) return;
+  if (leg?.provider === "operator" && leg.mode === "operator_pickup" && !/rafting lorry|rafting operator|uphill/i.test(leg.explanation)) {
+    Alert.alert(
+      "Optional driver bundle",
+      "Grab is available per leg. If you prefer one vehicle for luggage, early pickups or Gopeng coverage, request a three-day driver quote and compare the total before confirming.",
+    );
+    return;
+  }
   Alert.alert(
     "Transfer not confirmed",
     "Open the named provider or ask the local operator to confirm this exact transfer, fare and timing.",
@@ -154,6 +176,7 @@ const styles = StyleSheet.create({
   head: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: spacing(1) },
   pill: { flexShrink: 1 },
   pillFixed: { backgroundColor: colors.pendingSoft, color: colors.pending },
+  pillBundled: { backgroundColor: colors.halo, color: colors.sageDeep },
   chevron: { minHeight: 40, minWidth: 40, alignItems: "center", justifyContent: "center" },
   panel: {
     gap: spacing(2),
@@ -165,6 +188,7 @@ const styles = StyleSheet.create({
   },
   fromTo: { ...type.caption, color: colors.inkSoft },
   options: { flexDirection: "row", flexWrap: "wrap", gap: spacing(1) },
+  optionalActions: { flexDirection: "row", flexWrap: "wrap", gap: spacing(1.5) },
   option: {
     minHeight: 38,
     justifyContent: "center",

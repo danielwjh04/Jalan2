@@ -45,6 +45,13 @@ describe('parseXhsDownloaderMedia', () => {
   it('rejects responses without usable media', () => {
     expect(() => parseXhsDownloaderMedia({ data: {} })).toThrow(/invalid response/);
   });
+
+  it('surfaces the sidecar message when a share link is expired or private', () => {
+    expect(() => parseXhsDownloaderMedia({
+      message: '提取小红书作品链接失败',
+      data: null,
+    })).toThrow('提取小红书作品链接失败');
+  });
 });
 
 describe('xhs-downloader extractor selection', () => {

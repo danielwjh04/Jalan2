@@ -94,8 +94,9 @@ export function getTripSuggestions(id: string): Promise<PlaceCandidate[]> {
   return request(`/trips/${id}/suggestions`);
 }
 
-export function placePhotoUrl(placeId: string): string {
-  return buildPlacePhotoUrl(baseUrl(), placeId);
+export function placePhotoUrl(placeId: string, index = 0): string {
+  const url = buildPlacePhotoUrl(baseUrl(), placeId);
+  return index > 0 ? `${url}?index=${index}` : url;
 }
 
 export function tripMapUrl(tripId: string, stopIds: string[]): string {

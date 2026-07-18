@@ -35,7 +35,8 @@ describe("approved Home and guide experience", () => {
     const screen = read("app/social-plan.tsx");
     expect(screen).toContain("<StageProgress stage={stage} error={null} />");
     expect(screen).toContain('setStage("EXTRACTING")');
-    expect(screen).toContain("generateSocialGuide(urls, setStage)");
+    expect(screen).toContain("generateSocialGuide(urls, progress.report)");
+    expect(screen).toContain("createProgressController(setStage)");
     expect(screen).not.toContain("<BoboCard");
   });
 

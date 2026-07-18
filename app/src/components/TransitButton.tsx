@@ -1,5 +1,6 @@
-import { Alert, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { buildTransitLinks, type MeetingPoint } from '@shared/transit';
+import { tryOpenExternalUrl } from '@/lib/externalLink';
 import { colors, fonts, radius, spacing } from '@/lib/theme';
 
 export function TransitButton({ point }: { point: MeetingPoint }): React.ReactElement {
@@ -21,13 +22,13 @@ function LinkButton({
   url: string;
   primary?: boolean;
 }): React.ReactElement {
-  const open = (): void => {
-    Linking.openURL(url).catch(() =>
-      Alert.alert('Could not open link', 'No app on this phone can open that address.'),
-    );
+  const open = async (): Promise<void> => {
+    if (!(await tryOpenExternalUrl(url))) {
+      Alert.alert('Could not open link', 'No app on this phone can open that address.');
+    }
   };
   return (
-    <Pressable style={[styles.button, primary ? styles.primary : styles.tonal]} onPress={open}>
+    <Pressable style={[styles.button, primary ? styles.primary : styles.tonal]} onPress={() => void open()}>
       <Text style={[styles.text, primary ? styles.primaryText : styles.tonalText]}>{label}</Text>
     </Pressable>
   );

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import type { BookingJson } from "@shared/booking";
 import type { Itinerary } from "@shared/status";
 import { GradientButton } from "@/components/GradientButton";
@@ -54,7 +54,7 @@ export function BookSheet({
         process.env.EXPO_PUBLIC_DEMO_WHATSAPP_NUMBER,
         updated.discoveredOperator?.whatsapp ?? null,
       );
-      if (link && !(await tryOpenExternalUrl(link, Linking.openURL))) {
+      if (link && !(await tryOpenExternalUrl(link))) {
         setError(
           "Booking request recorded, but WhatsApp could not open on this device.",
         );

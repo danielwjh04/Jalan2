@@ -21,6 +21,10 @@ export const OpeningWindowSchema = z.object({
   close_minute: z.number().int().min(1).max(1440),
 });
 
+export const OpeningPeriodSchema = OpeningWindowSchema.extend({
+  day: z.number().int().min(0).max(6),
+});
+
 export const ReservationHintSchema = z.enum(["bookable", "walk_in"]);
 export type ReservationHint = z.infer<typeof ReservationHintSchema>;
 
@@ -31,6 +35,8 @@ export const PlaceCandidateSchema = z.object({
   location: GeoPointSchema,
   google_maps_url: z.string().url(),
   opening_window: OpeningWindowSchema.nullable(),
+  opening_periods: z.array(OpeningPeriodSchema).optional(),
+  opening_hours_text: z.array(z.string().min(1)).optional(),
   suggested_activity: z.string().min(1),
   primary_type: z.string().min(1).nullable().optional(),
   reservation_hint: ReservationHintSchema.nullable().optional(),
@@ -71,6 +77,8 @@ export const TripStopSchema = z.object({
   address: z.string().min(1).nullable().optional(),
   google_maps_url: z.string().url().nullable().optional(),
   opening_window: OpeningWindowSchema.nullable().optional(),
+  opening_periods: z.array(OpeningPeriodSchema).optional(),
+  opening_hours_text: z.array(z.string().min(1)).optional(),
   primary_type: z.string().min(1).nullable().optional(),
   reservation_hint: ReservationHintSchema.nullable().optional(),
   easybook_url: z.string().url().nullable().optional(),

@@ -6,6 +6,7 @@ import {
   loadCachedBooking,
   loadCachedTrip,
 } from "../src/lib/fixtures";
+import { isTransportStop } from "@shared/trip";
 
 const extractor = createFixtureExtractor();
 
@@ -70,10 +71,14 @@ describe("fixture data integrity", () => {
       }
       for (const stop of trip?.stops ?? []) {
         expect(stop.google_maps_url, `${slug}: ${stop.name} map link`).toBeTruthy();
-        expect(stop.image_url, `${slug}: ${stop.name} image`).toMatch(
-          /^\/fixture-images\/.+\.jpg$/,
-        );
-        expect(stop.image_attributions, `${slug}: ${stop.name} credit`).not.toHaveLength(0);
+        if (isTransportStop(stop)) {
+          expect(stop.image_url, `${slug}: ${stop.name} transport image`).toBeNull();
+        } else {
+          expect(stop.image_url, `${slug}: ${stop.name} image`).toMatch(
+            /^(\/fixture-images\/.+\.jpg|https:\/\/)/,
+          );
+          expect(stop.image_attributions, `${slug}: ${stop.name} credit`).not.toHaveLength(0);
+        }
         if (stop.address) expect(stop.summary).not.toBe(stop.address);
       }
     }

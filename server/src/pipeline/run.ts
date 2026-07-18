@@ -22,7 +22,7 @@ import { enrichTrust } from './trust';
 import { anchorMeetingPoint, createDynamicTrip } from './trip';
 import { createOpenAIPlanCritic } from '../planner/planCritic';
 import { planImportedTrip } from '../planner/importedTripPlanner';
-import { readFrames } from './vision';
+import { readCaptionPlaces, readFrames } from './vision';
 
 export interface PipelineDeps {
   config: Config;
@@ -36,6 +36,7 @@ export interface PipelineDeps {
 
 const COVER_FRAME_COUNT = 12;
 const VISION_FRAME_COUNT = 6;
+const MAX_IMAGE_POST_FRAMES = 20;
 
 interface PipelineResult {
   booking: BookingJson;
@@ -119,19 +120,37 @@ async function runLive(
     );
   }
   const workDir = runWorkDir(id);
-  const count = media.coverCandidates.length > 0 ? VISION_FRAME_COUNT : COVER_FRAME_COUNT;
-  const coverFrames = await extractKeyframes(media.videoPath, workDir, count);
-  const frames = sampleKeyframes(coverFrames, VISION_FRAME_COUNT);
+  // A carousel is already a curated set of distinct source slides. Reading
+  // only six evenly-spaced frames discarded most multi-day XHS itineraries.
+  // Send every slide (up to a bounded limit) to vision; retain sampling only
+  // for continuous video.
+  const imagePostFrames = media.coverCandidates
+    .slice(0, MAX_IMAGE_POST_FRAMES)
+    .map((framePath, index) => ({ path: framePath, ts: index + 1 }));
+  const coverFrames = imagePostFrames.length > 0
+    ? imagePostFrames
+    : await extractKeyframes(media.videoPath, workDir, COVER_FRAME_COUNT);
+  const frames = imagePostFrames.length > 0
+    ? imagePostFrames
+    : sampleKeyframes(coverFrames, VISION_FRAME_COUNT);
   const coverUrl = await createHeroCover(openai, config.OPENAI_VISION_MODEL, url, media, coverFrames, workDir);
   if (coverUrl) setCoverUrl(id, coverUrl);
-  const audioPath = media.audioPath ?? (await tryExtractAudio(media.videoPath, workDir));
+  const audioPath = media.audioPath ?? (imagePostFrames.length > 0
+    ? null
+    : await tryExtractAudio(media.videoPath, workDir));
   setStage(id, 'TRANSCRIBING');
   const transcript: Transcript = stt && audioPath
     ? await stt.transcribe(audioPath)
     : { text: '', segments: [] };
   setStage(id, 'READING_FRAMES');
-  const vision = await readFrames(openai, config.OPENAI_VISION_MODEL, frames);
-  await writeFile(path.join(workDir, 'vision.json'), JSON.stringify(vision, null, 2));
+  const [vision, captionPlaceNames] = await Promise.all([
+    readFrames(openai, config.OPENAI_VISION_MODEL, frames),
+    readCaptionPlaces(openai, config.OPENAI_VISION_MODEL, media.caption),
+  ]);
+  await writeFile(path.join(workDir, 'vision.json'), JSON.stringify({
+    ...vision,
+    caption_place_candidates: captionPlaceNames,
+  }, null, 2));
   setStage(id, 'FUSING');
   const fused = await fuse(openai, config.OPENAI_FUSION_MODEL, {
     caption: media.caption,
@@ -139,9 +158,13 @@ async function runLive(
     vision,
   });
   const booking = await anchorMeetingPoint(fused, deps.places);
-  const sourceTrip = await createDynamicTrip(id, url, booking, vision, deps.places);
+  const sourceTrip = await createDynamicTrip(
+    id, url, booking, vision, deps.places, captionPlaceNames,
+  );
   const critic = createOpenAIPlanCritic(openai, config.OPENAI_FUSION_MODEL);
-  const trip = deps.routing ? await planImportedTrip(sourceTrip, deps.routing, critic) : sourceTrip;
+  const trip = deps.routing
+    ? await planImportedTrip(sourceTrip, deps.routing, critic, deps.places)
+    : sourceTrip;
   saveTrip({ ...trip, cover_url: coverUrl });
   setTripId(id, trip.id);
   return { booking, coverUrl, tripId: trip.id };

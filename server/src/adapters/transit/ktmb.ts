@@ -1,4 +1,4 @@
-const BOOKING_URL = 'https://online.ktmb.com.my/TimeTable/Search';
+const BOOKING_URL = 'https://online.ktmb.com.my/';
 
 const STATIONS: Record<string, string> = {
   'kuala lumpur': 'KL Sentral',

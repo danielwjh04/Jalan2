@@ -21,12 +21,15 @@ export default function SocialPlanScreen(): React.ReactElement {
     setBusy(true);
     setStage("EXTRACTING");
     setError(null);
+    const progress = createProgressController(setStage);
     try {
-      const result = await generateSocialGuide(urls, setStage);
+      const result = await generateSocialGuide(urls, progress.report);
+      await progress.finish();
       router.replace(guideDestination(result.trip.id, result.bookingId));
     } catch {
       setError("Could not generate this guide. Check the links and try again.");
     } finally {
+      progress.stop();
       setBusy(false);
     }
   }, [router]);
@@ -45,6 +48,44 @@ export default function SocialPlanScreen(): React.ReactElement {
       </ScrollView>
     </View>
   );
+}
+
+const PROGRESS_STAGES: PipelineStage[] = ["EXTRACTING", "TRANSCRIBING", "READING_FRAMES", "FUSING", "READY"];
+
+function createProgressController(setStage: (stage: PipelineStage) => void): {
+  report: (stage: PipelineStage) => void;
+  finish: () => Promise<void>;
+  stop: () => void;
+} {
+  let current = 0;
+  let target = 0;
+  let finishResolve: (() => void) | null = null;
+  let settled = false;
+  const tick = (): void => {
+    if (current < target) {
+      current += 1;
+      setStage(PROGRESS_STAGES[current]);
+    }
+    if (finishResolve && current === PROGRESS_STAGES.length - 1 && !settled) {
+      settled = true;
+      setTimeout(() => finishResolve?.(), 280);
+    }
+  };
+  const timer = setInterval(tick, 620);
+  return {
+    report: (stage) => {
+      const index = PROGRESS_STAGES.indexOf(stage);
+      if (index >= 0) target = Math.max(target, index);
+    },
+    finish: () => {
+      target = PROGRESS_STAGES.length - 1;
+      return new Promise((resolve) => {
+        finishResolve = resolve;
+        tick();
+      });
+    },
+    stop: () => clearInterval(timer),
+  };
 }
 
 function paramText(value: string | string[] | undefined): string {

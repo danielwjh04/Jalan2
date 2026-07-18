@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import type { ImageAttribution as Attribution } from "@shared/media";
 import { cardShadow, colors, radius, spacing, type } from "@/lib/theme";
@@ -44,7 +44,7 @@ function CreditPopover({
           accessibilityRole="link"
           key={`${item.label}-${item.source_url}`}
           onPress={() =>
-            void tryOpenExternalUrl(item.source_url, Linking.openURL)
+            void tryOpenExternalUrl(item.source_url)
           }
         >
           <Text style={styles.text}>

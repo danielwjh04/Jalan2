@@ -45,10 +45,17 @@ describe("trip planner visuals", () => {
     expect(list).toContain("EasybookTransitionCard");
     expect(transition).toContain("INTERCITY TRANSPORT");
     expect(transition).toContain("LAST-MILE TRANSFER");
-    expect(transition).toContain("Check on EasyBook");
+    expect(transition).toContain("Search KTM ETS route");
+    expect(transition).toContain("Open EasyBook route");
+    expect(transition).toContain("Compare exact coach route");
+    expect(transition).toContain("routeBookingUrl");
+    expect(transition).toContain("klsentral-to-ipoh");
+    expect(transition).toContain("ipoh-to-klsentral");
     expect(transition).toContain("Easybook-logo.png");
     expect(transition).toContain("Then Jalan2 continues to");
-    expect(transition).toContain("No live inventory or booking confirmed");
+    expect(transition).toContain("Open Grab from arrival");
+    expect(transition).toContain("openGrab(props.nextStop!)");
+    expect(transition).toContain("Exact origin and destination are prefilled");
     expect(transition).toContain("KTMB · KITS");
   });
 
@@ -65,6 +72,26 @@ describe("trip planner visuals", () => {
     expect(connector).toContain("Water taxi");
     expect(connector).toContain("fare unknown");
     expect(connector).toContain("Transfer info");
+    expect(connector).toContain("Grab or driver");
+    expect(connector).toContain("Open Grab to next stop");
+    expect(connector).toContain("Consider one driver");
+    expect(connector).toContain("exact next-stop pin");
+  });
+
+  it("splits grounded plans into visible days and consolidates local transport", () => {
+    const list = read("TripStopList");
+    expect(list).toContain("LOCAL TRANSPORT CHOICE");
+    expect(list).toContain("Use Grab per leg, or bundle a driver");
+    expect(list).toContain("Every normal road transfer opens Grab");
+    expect(list).toContain("DAY {day}");
+    expect(list).toContain("Heritage and tea valley · return to KL");
+  });
+
+  it("upgrades stale transport handoffs to route-specific searches", () => {
+    const handoffs = read("TripHandoffsCard");
+    expect(handoffs).toContain("routeAwareHandoffUrl");
+    expect(handoffs).toContain("train/booking/klsentral-to-ipoh");
+    expect(handoffs).toContain("bus/booking/klsentral-to-ipoh");
   });
 
   it("uses the shared duration formatter at every Stage 1 itinerary surface", () => {

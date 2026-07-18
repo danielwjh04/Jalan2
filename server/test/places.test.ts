@@ -92,7 +92,10 @@ describe('parseGooglePlaces', () => {
   it('refreshes the photo name before downloading Google media', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(new Response(JSON.stringify({
-        photos: [{ name: 'places/place-1/photos/current-photo' }],
+        photos: [
+          { name: 'places/place-1/photos/current-photo' },
+          { name: 'places/place-1/photos/second-photo' },
+        ],
       }), { status: 200, headers: { 'content-type': 'application/json' } }))
       .mockResolvedValueOnce(new Response(Uint8Array.from([1, 2, 3]), {
         status: 200,
@@ -100,11 +103,11 @@ describe('parseGooglePlaces', () => {
       }));
     vi.stubGlobal('fetch', fetchMock);
 
-    const photo = await createGooglePlaces('server-secret').photo('place-1');
+    const photo = await createGooglePlaces('server-secret').photo('place-1', 1);
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(String(fetchMock.mock.calls[0][0])).toContain('/v1/places/place-1');
-    expect(String(fetchMock.mock.calls[1][0])).toContain('/current-photo/media');
+    expect(String(fetchMock.mock.calls[1][0])).toContain('/second-photo/media');
     expect(photo?.contentType).toBe('image/jpeg');
     expect(Array.from(photo?.bytes ?? [])).toEqual([1, 2, 3]);
   });

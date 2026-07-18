@@ -2,6 +2,7 @@ import { Fragment, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { isTransportStop, type TripPlan, type TripStop } from "@shared/trip";
 import { colors, spacing, type } from "@/lib/theme";
+import { formatDuration } from "@/lib/travelLeg";
 import { ActionButton } from "./ActionButton";
 import { EasybookTransitionCard } from "./EasybookTransitionCard";
 import { TripOrderEditor } from "./TripOrderEditor";
@@ -25,6 +26,12 @@ export function TripStopList(props: Props): React.ReactElement {
   const ordered = selectedStops(props.trip, props.selected);
   const available = props.trip.stops.filter((stop) => !props.selected.includes(stop.id));
   const startsWithTransport = ordered[0] ? isTransportStop(ordered[0]) : false;
+  const days = props.trip.planning?.days ?? [];
+  const dayByStop = new Map(days.flatMap((day) => day.stop_ids.map((id) => [id, day] as const)));
+  const firstStopByDay = new Map(days.map((day) => [day.day, day.stop_ids[0]]));
+  const hasDriverPlan = props.trip.planning?.legs.some(
+    (leg) => leg.provider === "operator" && leg.booking === "operator_request" && !/rafting lorry|rafting operator|uphill/i.test(leg.explanation),
+  );
   let placePosition = startsWithTransport ? 1 : 0;
   return (
     <View>
@@ -47,8 +54,20 @@ export function TripStopList(props: Props): React.ReactElement {
         <TripOrderEditor stops={props.trip.stops} selected={props.selected} busy={props.busy} onReorder={props.onReorder} />
       ) : null}
       {startsWithTransport ? <TripOriginCard name={routeLabels(ordered[0]).from} /> : null}
+      {hasDriverPlan ? <DriverPlanCard /> : null}
       {ordered.map((stop, index) => {
-        if (isTransportStop(stop)) return <TransportTransition key={stop.id} {...props} stop={stop} ordered={ordered} index={index} />;
+        const day = dayByStop.get(stop.id);
+        const dayHeader = day && firstStopByDay.get(day.day) === stop.id
+          ? <DayHeader day={day.day} minutes={day.estimated_minutes} stopIds={day.stop_ids} />
+          : null;
+        if (isTransportStop(stop)) {
+          return (
+            <Fragment key={stop.id}>
+              {dayHeader}
+              <TransportTransition {...props} stop={stop} ordered={ordered} index={index} />
+            </Fragment>
+          );
+        }
         const position = placePosition;
         placePosition += 1;
         const next = ordered[index + 1];
@@ -57,6 +76,7 @@ export function TripStopList(props: Props): React.ReactElement {
           : undefined;
         return (
           <Fragment key={stop.id}>
+            {dayHeader}
             <TripStopCard stop={stop} position={position} isLast={!next} canRemove={props.selected.length > 2} editable={props.editable} onToggle={() => props.onToggle(stop.id)} onDelete={() => props.onDelete(stop.id)} />
             {next && !isTransportStop(next) ? <TravelLegConnector key={`${stop.id}-${next.id}`} from={stop} to={next} leg={leg} /> : null}
           </Fragment>
@@ -68,11 +88,42 @@ export function TripStopList(props: Props): React.ReactElement {
   );
 }
 
+function DriverPlanCard(): React.ReactElement {
+  return (
+    <View style={styles.driverPlan}>
+      <Text style={styles.driverEyebrow}>LOCAL TRANSPORT CHOICE</Text>
+      <Text style={styles.driverTitle}>Use Grab per leg, or bundle a driver</Text>
+      <Text style={styles.driverCopy}>
+        Every normal road transfer opens Grab with the next destination pin. A hired driver is only an optional alternative for luggage, early pickups or lower-coverage Gopeng legs.
+      </Text>
+    </View>
+  );
+}
+
+function DayHeader({ day, minutes, stopIds }: { day: number; minutes: number; stopIds: string[] }): React.ReactElement {
+  return (
+    <View style={styles.dayHeader}>
+      <View>
+        <Text style={styles.dayEyebrow}>DAY {day}</Text>
+        <Text style={styles.dayTitle}>{dayTitle(stopIds)}</Text>
+      </View>
+      <Text style={styles.dayTime}>{formatDuration(minutes)} planned</Text>
+    </View>
+  );
+}
+
+function dayTitle(stopIds: string[]): string {
+  if (stopIds.includes("kl-ipoh-intercity")) return "KL to Ipoh · old town food and night park";
+  if (stopIds.includes("gopeng-rafting")) return "Gopeng rafting · Ipoh food trail";
+  if (stopIds.includes("ipoh-kl-intercity")) return "Heritage and tea valley · return to KL";
+  return "Your planned stops";
+}
+
 function TransportTransition(props: Props & { stop: TripStop; ordered: TripStop[]; index: number }): React.ReactElement {
   const labels = routeLabels(props.stop);
   const previous = [...props.ordered.slice(0, props.index)].reverse().find((stop) => !isTransportStop(stop));
   const next = props.ordered[props.index + 1];
-  return <EasybookTransitionCard stop={props.stop} from={previous?.name ?? labels.from} to={labels.to} nextStop={next?.name} editable={props.editable} onRemove={() => props.onToggle(props.stop.id)} />;
+  return <EasybookTransitionCard stop={props.stop} from={previous?.name ?? labels.from} to={labels.to} nextStop={next} editable={props.editable} onRemove={() => props.onToggle(props.stop.id)} />;
 }
 
 function selectedStops(trip: TripPlan, selected: string[]): TripStop[] {
@@ -94,4 +145,28 @@ const styles = StyleSheet.create({
   sectionTitle: { ...type.title, color: colors.ink },
   tools: { flexDirection: "row", gap: spacing(2) },
   tool: { minHeight: 36, paddingHorizontal: spacing(3) },
+  driverPlan: {
+    marginBottom: spacing(4),
+    padding: spacing(3.5),
+    borderRadius: 18,
+    backgroundColor: colors.halo,
+    gap: spacing(1),
+  },
+  driverEyebrow: { ...type.caption, color: colors.sageDeep, letterSpacing: 1 },
+  driverTitle: { ...type.heading, color: colors.ink },
+  driverCopy: { ...type.body, color: colors.inkSoft },
+  dayHeader: {
+    marginTop: spacing(4),
+    marginBottom: spacing(3),
+    paddingTop: spacing(3),
+    borderTopWidth: 1,
+    borderTopColor: colors.mist,
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
+    gap: spacing(3),
+  },
+  dayEyebrow: { ...type.caption, color: colors.kaya, letterSpacing: 1.2 },
+  dayTitle: { ...type.heading, color: colors.ink },
+  dayTime: { ...type.caption, color: colors.inkSoft },
 });

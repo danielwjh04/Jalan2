@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_TRIP_PREFERENCES, type TripPlan, type TripStop } from '@shared/trip';
 import { planImportedTrip } from '../src/planner/importedTripPlanner';
+import type { RoutingProvider } from '../src/adapters/routing/types';
 
 describe('imported social trip planning', () => {
   it('turns source recommendations into an audited local itinerary', async () => {
@@ -58,7 +59,70 @@ describe('imported social trip planning', () => {
     expect(trip.planning?.legs.at(-1)?.mode).toBe('flight');
     expect(trip.planning?.request.return_to_origin).toBe(true);
   });
+
+  it('uses walking for nearby pins and Grab for a normal urban transfer', async () => {
+    const source = sourceTrip();
+    source.stops = [
+      stop('a', 'Old Town A', 4.5975, 101.0901),
+      stop('b', 'Old Town B', 4.603, 101.091),
+      stop('c', 'Cave Temple', 4.674, 101.12),
+    ];
+    source.selected_stop_ids = source.stops.map(({ id }) => id);
+    const trip = await planImportedTrip(source, identityRouting());
+
+    expect(trip.planning?.legs.map(({ mode }) => mode)).toEqual(['walk', 'ride_hail']);
+    expect(trip.planning?.legs[1]).toEqual(expect.objectContaining({ provider: 'grab', booking: 'external_search' }));
+    expect(trip.planning?.handoffs.some(({ provider }) => provider === 'Grab')).toBe(true);
+  });
+
+  it('blocks different venue names that resolve to one map pin', async () => {
+    const source = sourceTrip();
+    source.stops[1] = { ...source.stops[1], location: source.stops[0].location };
+    const trip = await planImportedTrip(source, identityRouting());
+
+    expect(trip.planning?.checks).toContainEqual(expect.objectContaining({
+      severity: 'blocking',
+      message: expect.stringContaining('same map pin'),
+    }));
+    expect(trip.planning?.critique?.verdict).toBe('rework');
+  });
+
+  it('keeps a Google Transit train-to-bus transfer as one grounded multimodal leg', async () => {
+    const source = sourceTrip();
+    source.stops = [
+      stop('origin', 'Town A', 3.1, 101.6),
+      stop('destination', 'Highland Stop', 3.62, 101.38),
+    ];
+    source.selected_stop_ids = source.stops.map(({ id }) => id);
+    const routing = identityRouting();
+    routing.transit = async () => ({
+      duration_minutes: 145,
+      distance_meters: 68_000,
+      modes: ['Train ETS', 'Bus T10'],
+      summary: 'Train ETS → Bus T10',
+      directions_url: 'https://www.google.com/maps/dir/?api=1&travelmode=transit',
+    });
+    const trip = await planImportedTrip(source, routing);
+
+    expect(trip.planning?.legs[0]).toEqual(expect.objectContaining({
+      mode: 'multimodal', provider: 'google_routes', evidence: 'provider_verified',
+    }));
+    expect(trip.planning?.handoffs).toContainEqual(expect.objectContaining({ provider: 'Google Transit' }));
+  });
 });
+
+function identityRouting(): RoutingProvider {
+  return {
+    name: 'google' as const,
+    optimize: async (stops: TripStop[]) => ({
+      ordered_stop_ids: stops.map((stop) => stop.id),
+      distance_meters: 10_000,
+      duration_minutes: 30,
+      path: stops.map((stop) => stop.location),
+      provider: 'google' as const,
+    }),
+  };
+}
 
 function sourceTrip(): TripPlan {
   const stops = [stop('museum', 'Borneo Cultures Museum', 1.557, 110.344), stop('laksa', 'Choon Hui Cafe', 1.553, 110.353)];

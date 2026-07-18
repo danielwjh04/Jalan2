@@ -19,12 +19,22 @@ export const VisionReadoutSchema = z.object({
 
 export type VisionReadout = z.infer<typeof VisionReadoutSchema>;
 
+const CaptionPlacesSchema = z.object({
+  place_candidates: z.array(z.string()),
+});
+
 const VISION_INSTRUCTIONS = [
   'You read keyframes from a Malaysian TikTok or Xiaohongshu travel post.',
   'Read Simplified and Traditional Chinese, Malay, and English, including mixed-language captions.',
   'For each frame report only text that is actually legible: captions, watermarks,',
   'signs, prices, phone numbers, place names, food stops, and operator names or logos.',
   'Put every explicitly visible venue or destination in place_candidates as a standalone name.',
+  'A place candidate must be a proper name that a traveler could search on a map.',
+  'Do not emit generic categories, hashtags, neighbourhood adjectives, decorative text,',
+  'sponsor products, or a place inferred only from scenery. A creator mentioning a venue',
+  'does not prove it is a recommended stop unless the frame presents it as part of the trip.',
+  'When a slide is an itinerary, preserve the specific venue spelling and its city/area text;',
+  'do not merge two businesses and do not translate a name into a guessed English business.',
   'Preserve visible Latin-script names such as "Susung Waterfall" or "Sunny Hill" even when',
   'they appear inside a Chinese sentence. Do not replace a specific name with a broad area.',
   'Do not guess or infer beyond what is visible.',
@@ -57,6 +67,37 @@ export async function readFrames(
   const parsed = completion.choices[0]?.message.parsed;
   if (!parsed) throw new Error('Vision readout returned no parsed content');
   return parsed;
+}
+
+export async function readCaptionPlaces(
+  client: OpenAI,
+  model: string,
+  caption: string | null,
+): Promise<string[]> {
+  if (!caption?.trim()) return [];
+  const completion = await client.beta.chat.completions.parse({
+    model,
+    messages: [{
+      role: 'system',
+      content: [
+        'Extract every explicitly named venue, attraction, restaurant, cafe, park, hotel,',
+        'operator base, and destination from this Malaysian social-post caption.',
+        'Read Simplified and Traditional Chinese, Malay, and English.',
+        'Only include a place the creator presents as an actual stop or recommendation.',
+        'Exclude hashtags, broad states/countries, generic categories, sponsor products,',
+        'and businesses merely compared with or mentioned as context.',
+        'A result must be specific enough to search on a map. Keep nearby city or district',
+        'words inside an ambiguous venue name when they help disambiguate it.',
+        'Return names only, preserve distinctive source spelling, deduplicate them, and',
+        'do not invent a business for an unnamed Airbnb or operator.',
+      ].join(' '),
+    }, {
+      role: 'user',
+      content: caption,
+    }],
+    response_format: zodResponseFormat(CaptionPlacesSchema, 'caption_places'),
+  });
+  return completion.choices[0]?.message.parsed?.place_candidates ?? [];
 }
 
 function toDataUrl(imagePath: string): string {

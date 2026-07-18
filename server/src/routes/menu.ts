@@ -20,6 +20,8 @@ const MenuOrderRequestSchema = z.object({
   lang: z.enum(['ms', 'yue', 'zh']),
 });
 
+const DEMO_MENU_ID = 'demo-kopitiam-01';
+
 function toResponse(stored: StoredMenu): MenuResponse {
   return {
     id: stored.id,
@@ -64,13 +66,13 @@ export function menuRouter(deps: MenuDeps, tts: TextToSpeech): Router {
       ? createOpenAIDishPhotoVerifier(deps.openai, deps.config.OPENAI_MENU_MODEL)
       : undefined;
     void attachDishImages(deps.foodImages, menu, verifier)
-      .then((enriched) => storeMenu(enriched, 'cache', source))
+      .then((enriched) => storeMenu(enriched, 'cache', source, DEMO_MENU_ID))
       .then((response) => res.status(201).json(response))
       .catch((error: Error) => res.status(502).json({ error: error.message }));
   });
 
   router.post('/menu/:id/order-audio', express.json({ limit: '16kb' }), (req, res) => {
-    const stored = getMenu(req.params.id);
+    const stored = storedMenu(req.params.id);
     if (!stored) {
       res.status(404).json({ error: `Unknown menu ${req.params.id}` });
       return;
@@ -99,7 +101,7 @@ export function menuRouter(deps: MenuDeps, tts: TextToSpeech): Router {
   });
 
   router.get('/menu/:id/source', (req, res) => {
-    const source = getMenu(req.params.id)?.sourceImage;
+    const source = storedMenu(req.params.id)?.sourceImage;
     if (!source) {
       res.status(404).json({ error: 'Menu source photo is unavailable' });
       return;
@@ -109,7 +111,7 @@ export function menuRouter(deps: MenuDeps, tts: TextToSpeech): Router {
   });
 
   router.get('/menu/:id', (req, res) => {
-    const stored = getMenu(req.params.id);
+    const stored = storedMenu(req.params.id);
     if (!stored) {
       res.status(404).json({ error: `Unknown menu ${req.params.id}` });
       return;
@@ -133,9 +135,23 @@ function storeMenu(
   menu: Awaited<ReturnType<typeof produceMenu>>['menu'],
   servedFrom: 'live' | 'cache',
   source: MenuSourceImage,
+  id?: string,
 ): MenuResponse {
   const dishAudio = menu.dishes.map(() => null);
-  return toResponse(createMenu(menu, servedFrom, dishAudio, source));
+  return toResponse(createMenu(menu, servedFrom, dishAudio, source, id));
+}
+
+// Firebase functions are stateless and may serve the audio request from a
+// different instance than the menu request. The stage menu has a stable ID so
+// every instance can reconstruct it from the checked-in cache.
+function storedMenu(id: string): StoredMenu | undefined {
+  const existing = getMenu(id);
+  if (existing || id !== DEMO_MENU_ID) return existing;
+  const menu = loadCachedMenu();
+  const board = findMenuImagePath(MENU_FIXTURE_SLUG, 'menu-board.png');
+  if (!menu || !board) return undefined;
+  const source: MenuSourceImage = { bytes: readFileSync(board), mimeType: 'image/png' };
+  return createMenu(menu, 'cache', menu.dishes.map(() => null), source, DEMO_MENU_ID);
 }
 
 function orderVoiceId(

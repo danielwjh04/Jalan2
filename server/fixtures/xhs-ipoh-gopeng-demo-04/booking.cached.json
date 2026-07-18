@@ -1,0 +1,21 @@
+{
+  "operator_name": "Unnamed rafting operator via Gopeng Glamping Park",
+  "activity": "Pre-booked Gopeng white-water rafting",
+  "price_myr": null,
+  "pax": 2,
+  "meeting_point": {
+    "name": "Gopeng Glamping Park",
+    "lat": 4.4307353,
+    "lng": 101.1772242
+  },
+  "contact": {
+    "whatsapp": null,
+    "source": "caption"
+  },
+  "date_requested": null,
+  "confidence": 0.55,
+  "raw_evidence": {
+    "transcript_span": "提前book的White Water Rafting 项目",
+    "frame_ts": "Source images 8–9; operator name and contact are not shown"
+  }
+}
