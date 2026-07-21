@@ -29,7 +29,9 @@ Photograph a mixed Chinese, Malay, English, or handwritten menu board and Jalan2
 
 ### Booking over chat
 
-A traveler can send a booking request to the operator over WhatsApp or Telegram, whichever channel is configured. Jalan2 tracks the request as pending and accepts confirmation only from the operator address that received it. Demand appears in the directory when a request is sent, while the operator is marked as opted in only after a confirmation reply. A mock provider runs the same round-trip offline for demos, so the flow works without provider keys.
+When the source names no operator, Jalan2 searches public listings and surfaces the operator's own contact channels, a WhatsApp or phone number plus any Facebook or Instagram profile, each linked back to the page it came from so the traveler can verify before reaching out.
+
+A traveler can send a booking request to the operator over WhatsApp or Telegram, whichever channel is configured. Jalan2 tracks the request as pending and accepts confirmation only from the operator address that received it. Demand appears in the directory when a request is sent, while the operator is marked as opted in only after a confirmation reply. A mock provider runs the same round-trip offline for demos, so the flow works without provider keys. Discovered Facebook and Instagram profiles are open-and-message links for the traveler, not channels Jalan2 sends through automatically.
 
 ### Guides people can trust
 
