@@ -3,7 +3,7 @@
 </p>
 
 <h1 align="center">Jalan2</h1>
-<p align="center"><i>Turn a travel video into a bookable, mapped trip guide confirmed by the local operator over WhatsApp.</i></p>
+<p align="center"><i>Turn a travel video into a bookable, mapped trip guide confirmed by the local operator over WhatsApp or Telegram.</i></p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/TypeScript-strict-3178C6" alt="TypeScript strict" />
@@ -11,11 +11,11 @@
   <img src="https://img.shields.io/badge/Node-Express-339933" alt="Node and Express" />
 </p>
 
-Jalan2 is a Malaysia-focused travel app built with Expo, React Native, Node, and Express. Paste or share Xiaohongshu and TikTok links to build an editable trip guide, or photograph a menu to turn it into a swipeable dish guide. Each trip brings together places, maps, transport hand-offs, practical details, and safety information. Booking requests go to local operators through WhatsApp, so they can confirm without learning a new dashboard. Bobo, Jalan2's Malayan tapir guide, helps travelers through both flows.
+Jalan2 is a Malaysia-focused travel app built with Expo, React Native, Node, and Express. Paste or share Xiaohongshu and TikTok links to build an editable trip guide, or photograph a menu to turn it into a swipeable dish guide. Each trip brings together places, maps, transport hand-offs, practical details, and safety information. Booking requests reach local operators on a chat app they already use, WhatsApp or Telegram, so they can confirm without learning a new dashboard. Bobo, Jalan2's Malayan tapir guide, helps travelers through both flows.
 
 ## The problem
 
-Social posts make Malaysian experiences easy to discover but hard to verify, plan, and book. At the same time, independent guides, hawkers, homestays, and boat operators should not need travel software to receive genuine demand. Jalan2 turns scattered social evidence into a usable guide and keeps the operator conversation in WhatsApp.
+Social posts make Malaysian experiences easy to discover but hard to verify, plan, and book. At the same time, independent guides, hawkers, homestays, and boat operators should not need travel software to receive genuine demand. Jalan2 turns scattered social evidence into a usable guide and keeps the operator conversation in a chat app they already use.
 
 ## Features
 
@@ -27,9 +27,9 @@ Combine up to eight Xiaohongshu or TikTok links into one deduplicated, editable 
 
 Photograph a mixed Chinese, Malay, English, or handwritten menu board and Jalan2 turns its dishes into swipeable cards. Each card keeps the source row visible and explains the dish, price, taste, heat, allergens, and ordering phrase. "Say my order" plays the phrase in Bahasa Melayu, Cantonese, or Mandarin. Dish photos come from licensed Openverse, Wikimedia Commons, and Unsplash sources.
 
-### Booking over WhatsApp
+### Booking over chat
 
-A traveler can send a booking request to the operator through WhatsApp. Jalan2 tracks the request as pending and accepts confirmation only from the operator address that received it. Demand appears in the directory when a request is sent, while the operator is marked as opted in only after a confirmation reply.
+A traveler can send a booking request to the operator over WhatsApp or Telegram, whichever channel is configured. Jalan2 tracks the request as pending and accepts confirmation only from the operator address that received it. Demand appears in the directory when a request is sent, while the operator is marked as opted in only after a confirmation reply. A mock provider runs the same round-trip offline for demos, so the flow works without provider keys.
 
 ### Guides people can trust
 
@@ -55,7 +55,7 @@ Bookings move from draft to pending confirmation, then to confirmed or failed. I
 
 - **App:** Expo SDK 54, React Native 0.81, Expo Router, React Native Maps, Leaflet on web, share intents, Gesture Handler, and Reanimated
 - **Server:** Node.js, Express, TypeScript ESM through `tsx`, Zod, Sharp, and FFmpeg
-- **Providers:** OpenAI, ElevenLabs, Google Cloud TTS, Exa, Openverse, Wikimedia Commons, Unsplash, Google Maps services, TikHub, a self-hosted XHS sidecar, Twilio, and Telegram
+- **Providers:** OpenAI, ElevenLabs, Google Cloud TTS, Exa, Openverse, Wikimedia Commons, Unsplash, Google Maps services, TikHub, a self-hosted XHS sidecar, Twilio for WhatsApp, and Telegram
 - **Shared contracts:** Zod schemas in `shared/`, synchronized into the app by a small script
 
 ## Project structure
