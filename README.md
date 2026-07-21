@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/Node-Express-339933" alt="Node and Express" />
 </p>
 
-Jalan2 is a Malaysia-focused travel app built with Expo, React Native, Node, and Express. Paste or share Xiaohongshu and TikTok links to build an editable trip guide, or photograph a menu to turn it into a swipeable dish guide. Each trip brings together places, maps, transport hand-offs, practical details, and safety information. Booking requests reach local operators on a chat app they already use, WhatsApp or Telegram, so they can confirm without learning a new dashboard. Bobo, Jalan2's Malayan tapir guide, helps travelers through both flows.
+Jalan2 is a Malaysia-focused travel app built with Expo, React Native, Node, and Express. Paste or share Xiaohongshu and TikTok links to build an editable trip guide, or photograph a menu to turn it into a swipeable dish guide. Each trip brings together places, maps, transport hand-offs, practical details, and safety information. When a post names no operator, Jalan2 finds their public contact channels, WhatsApp, phone, Facebook, or Instagram, so travelers can reach them where they already are. Booking requests reach local operators on a chat app they already use, WhatsApp or Telegram, so they can confirm without learning a new dashboard. Bobo, Jalan2's Malayan tapir guide, helps travelers through both flows.
 
 ## The problem
 
